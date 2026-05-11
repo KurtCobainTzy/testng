@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guitarify</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="Home.css" />
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+      <div class="nav-city">
+        <span></span>
+      </div>
+    </div>
+
+    <div class="nav-links">
+      <a href="Home.html" class="active">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html">Lesson</a>
+    </div>
+
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg-text">Guitarify</div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Guitar Learning Platform</div>
+      <h1 class="hero-title">
+        Learn Guitar
+        <span class="white">The Easy Way.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Master <strong>chords, songs, and strumming</strong> step by step.
+        Built for beginners, designed for progress.
+      </p>
+      <div class="hero-buttons">
+        <a href="lessons.html" class="btn-primary">Start Learning</a>
+        <a href="lessons.html" class="btn-outline">Browse Lessons</a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- INTRO -->
+  <div class="intro-section">
+    <div class="intro-label">
+      What is<br/><span>Guitarify</span><br/>Website?
+    </div>
+    <p class="intro-text">
+      Welcome to Guitarify, a beginner-friendly guitar learning website designed to help you explore chords, songs, and tutorials all in one place. Whether you're picking up a guitar for the first time or simply reviewing the basics, this platform provides everything you need to get started and improve your skills.
+
+    Our goal is to make learning guitar simple, organized, and enjoyable for everyone. With easy-to-follow lessons, accessible chord guides, and song examples, you can learn at your own pace without feeling overwhelmed. Each section is carefully arranged to guide you step by step, making it easier to understand and apply what you learn.
+
+    Melody Guitar is built for students and aspiring guitarists who want a convenient and reliable way to practice anytime, anywhere. From basic chords to actual song applications, everything is designed to support your learning journey in a clear and practical way—all in one place, organized, simple, and free.
+    </p>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section">
+    <div class="section-tag">What's Inside</div>
+    <div class="section-title">Everything You Need</div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🎸</span>
+        <div class="feature-name">Lessons</div>
+        <p class="feature-desc">Step-by-step guitar tutorials for beginners. Start from zero and build your skills at your own pace.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📚</span>
+        <div class="feature-name">Chord Library</div>
+        <p class="feature-desc">Easy access to basic and advanced guitar chords with diagrams and finger positioning guides.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎵</span>
+        <div class="feature-name">Songs</div>
+        <p class="feature-desc">Practice with real song examples. Learn the chords and strumming patterns of your favorite tracks.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎥</span>
+        <div class="feature-name">Videos</div>
+        <p class="feature-desc">Watch tutorials for better learning. Visual guides make it easier to understand techniques.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY -->
+  <div class="why-section">
+    <div>
+      <div class="section-tag">Why Guitarify</div>
+      <div class="section-title">Built For Beginners</div>
+      <p class="why-text">
+        This platform is designed to make learning guitar simple, organized, and accessible for students through interactive lessons and practical examples. It focuses on providing a smooth and easy learning experience, especially for beginners who may find traditional methods confusing or overwhelming.
+
+        Instead of complex theories and technical explanations, the content is presented in a clear and straightforward way, allowing users to quickly understand and apply what they learn. Each lesson is structured to guide learners step by step, helping them build confidence as they progress.
+
+        With a combination of chords, song applications, and video tutorials, this platform encourages hands-on practice and real musical experience. The goal is to help users start playing actual songs as early as possible while continuously improving their skills in a simple and enjoyable way.
+      </p>
+    </div>
+    <div class="why-stats">
+      <div class="stat-item">
+        <div class="stat-number">Guitar Basics</div>
+        <div class="stat-label">Lessons available</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">Core Chords</div>
+        <div class="stat-label">Chords in the library</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">FREE</div>
+        <div class="stat-label">No sign-up needed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-bg">Guitarify</div>
+    <p class="cta-eyebrow">Start your guitar journey today</p>
+    <div class="cta-title">Ready To <span>Play?</span></div>
+    <a href="try.html" class="cta-btn">Go To Lessons →</a>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">Guitarify</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+  <!-- AUTH MODAL -->
+<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to continue your guitar journey.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account and start learning.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="auth.js"></script>
+<script src="lessons.js"></script>
+</body>
+</html>

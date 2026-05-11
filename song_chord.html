@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Song Chord — Guitarify</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="song_chord.css" />
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+    </div>
+    <div class="nav-links">
+      <a href="Home.html">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html" class="active">Lesson</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-tag">Play Real Songs</div>
+    <div class="page-hero-title">Song <span>Chords</span></div>
+    <p class="page-hero-sub">Practice with real songs. Each song shows the chords you need, the strumming pattern, and the key.</p>
+    <!-- SUB TABS -->
+    <div class="sub-tabs">
+      <a href="lessons.html" class="sub-tab">📖 Lessons</a>
+      <a href="video_tutorial.html" class="sub-tab">🎥 Video Tutorial</a>
+      <a href="song_chord.html" class="sub-tab active">🎵 Song Chord</a>
+    </div>
+  </div>
+
+  <!-- SONG CONTENT -->
+  <div class="song-wrap">
+
+    <!-- SEARCH + FILTER -->
+    <div class="song-toolbar">
+      <div class="song-search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input class="song-search" id="songSearch" placeholder="Search songs or artists..." oninput="searchSongs()" />
+      </div>
+      <div class="song-filter" id="songFilter">
+        <button class="sf-btn active" onclick="filterSongs('all', this)">All</button>
+        <button class="sf-btn" onclick="filterSongs('beginner', this)">Beginner</button>
+        <button class="sf-btn" onclick="filterSongs('intermediate', this)">Intermediate</button>
+        <button class="sf-btn" onclick="filterSongs('pop', this)">Pop</button>
+        <button class="sf-btn" onclick="filterSongs('rock', this)">Rock</button>
+        <button class="sf-btn" onclick="filterSongs('folk', this)">Folk</button>
+      </div>
+    </div>
+
+    <!-- SONGS GRID -->
+    <div class="songs-grid" id="songsGrid"></div>
+
+  </div>
+
+  <!-- SONG MODAL -->
+  <div class="song-modal-bg" id="songModalBg" onclick="handleSongBgClick(event)">
+    <div class="song-modal">
+      <div class="song-modal-header">
+        <div>
+          <div class="song-modal-artist" id="smArtist"></div>
+          <div class="song-modal-title" id="smTitle"></div>
+          <div class="song-modal-meta" id="smMeta"></div>
+        </div>
+        <button class="song-modal-close" onclick="closeSongModal()">✕</button>
+      </div>
+      <div class="song-modal-body">
+        <!-- Chord Boxes -->
+        <div class="sm-section-label">Chords Used</div>
+        <div class="sm-chords-row" id="smChordsRow"></div>
+        <!-- Strumming -->
+        <div class="sm-section-label" style="margin-top:20px;">Strumming Pattern</div>
+        <div class="sm-strum" id="smStrum"></div>
+        <!-- Chord Progression -->
+        <div class="sm-section-label" style="margin-top:20px;">Chord Progression</div>
+        <div class="sm-progression" id="smProgression"></div>
+        <!-- Lyrics + Chords -->
+        <div class="sm-section-label" style="margin-top:20px;">Lyrics & Chords</div>
+        <div class="sm-lyrics" id="smLyrics"></div>
+      </div>
+      <div class="song-modal-footer">
+        <a class="song-yt-btn" id="smYtBtn" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Watch on YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">GUITARIFY</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to continue your guitar journey.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account and start learning.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="auth.js"></script>
+<script src="song_chord.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chord Library — Guitarify</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="chord_library.css" />
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+    </div>
+    <div class="nav-links">
+      <a href="Home.html">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html" class="active">Chord Library</a>
+      <a href="lessons.html">Lesson</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-tag">Reference Guide</div>
+    <div class="page-hero-title">Chord <span>Library</span></div>
+    <p class="page-hero-sub">Click any chord to see the diagram, finger placement, song examples, and a video lesson.</p>
+
+    <!-- FILTER TABS -->
+    <div class="cl-filter-tabs">
+      <button class="cl-tab active" id="tabAll"       onclick="filterChords('all', this)">All</button>
+      <button class="cl-tab"        id="tabMajor"     onclick="filterChords('major', this)">Major</button>
+      <button class="cl-tab"        id="tabMinor"     onclick="filterChords('minor', this)">Minor</button>
+      <button class="cl-tab"        id="tab7th"       onclick="filterChords('7th', this)">7th</button>
+      <button class="cl-tab"        id="tabOther"     onclick="filterChords('other', this)">Other</button>
+      <button class="cl-tab cl-tab-special" id="tabFretboard" onclick="showFretboard(this)">🎸 Fretboard Explorer</button>
+    </div>
+  </div>
+
+  <!-- CHORD GRID -->
+  <div class="cl-wrap" id="clWrap">
+    <div class="cl-grid" id="chordGrid"></div>
+  </div>
+
+  <!-- ══════════════════════════
+       FRETBOARD EXPLORER
+  ══════════════════════════ -->
+  <div class="cl-wrap" id="fretboardWrap" style="display:none;">
+    <div class="fretboard-page">
+
+      <div class="fb-chord-title">
+        <span id="fbChordName">C Minor</span>
+        <button class="fb-play-btn" id="fbPlayBtn" onclick="fbPlayChord()" disabled>▶ Play Chord</button>
+      </div>
+      <div class="fb-status-bar" id="fbStatusBar">Loading guitar samples…</div>
+
+      <div class="fb-fretboard-wrap">
+        <div class="fb-fret-numbers" id="fbFretNumbers"></div>
+        <div id="fbStringsArea"></div>
+      </div>
+
+      <div class="fb-position-btns" id="fbPosBtns"></div>
+      <div class="fb-note-selector" id="fbNoteSelector"></div>
+      <div class="fb-chord-type-selector" id="fbChordTypeSelector"></div>
+
+      <div class="fb-bottom-row">
+        <div></div>
+        <button class="fb-advanced-btn" id="fbAdvancedBtn">Advanced</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">GUITARIFY</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════
+     CHORD MODAL
+══════════════════════ -->
+<div class="cm-bg" id="cmBg" onclick="handleCmBgClick(event)">
+  <div class="cm-modal">
+    <button class="cm-close" onclick="closeCm()">✕</button>
+    <div class="cm-title" id="cmTitle">G MAJOR</div>
+    <div class="cm-body">
+      <div class="cm-diagram-wrap">
+        <div class="cm-diagram" id="cmDiagram"></div>
+        <div class="cm-fingers-label" id="cmFingers"></div>
+      </div>
+      <div class="cm-info">
+        <div class="cm-photo" id="cmPhoto">
+          <img id="cmPhotoImg" src="" alt="Chord photo" onerror="this.parentElement.style.display='none'" />
+          <div class="cm-photo-placeholder" id="cmPhotoPlaceholder">🤚</div>
+        </div>
+        <div class="cm-songs-label">Song examples :</div>
+        <ul class="cm-songs" id="cmSongs"></ul>
+        <button class="cm-strum-btn" id="cmStrumBtn" onclick="strumChord()" disabled>
+          🔊 Strum Chord
+        </button>
+      </div>
+    </div>
+    <a class="cm-video-btn" id="cmVideoBtn" href="#" target="_blank" rel="noopener">
+      ▶ Watch Video Lesson
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════
+     VIDEO MODAL
+══════════════════════ -->
+<div class="vm-bg" id="vmBg" onclick="handleVmBgClick(event)">
+  <div class="vm-modal">
+    <div class="vm-header">
+      <div>
+        <div class="vm-header-title">🎬 Video Lesson</div>
+        <div class="vm-header-chord" id="vmChordLabel"></div>
+      </div>
+      <button class="vm-close" onclick="closeVm()">✕</button>
+    </div>
+    <div class="vm-player" id="vmPlayer"></div>
+    <div class="vm-footer">
+      <div class="vm-footer-note">Watch the full lesson below</div>
+      <a class="vm-yt-link" id="vmYtLink" href="#" target="_blank" rel="noopener">Open in YouTube ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to continue your guitar journey.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account and start learning.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="auth.js"></script>
+<script src="chord_library.js"></script>
+</body>
+</html>

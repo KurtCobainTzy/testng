@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — Guitarify</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="About.css" />
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+    </div>
+    <div class="nav-links">
+      <a href="Home.html">Home</a>
+      <a href="About.html" class="active">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html">Lesson</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════
+       HERO
+  ═══════════════════════════ -->
+  <div class="about-hero">
+    <div class="about-hero-eyebrow">About Us</div>
+    <h1 class="about-hero-title">Welcome to<br/><span>Guitarify</span></h1>
+    <p class="about-hero-sub">A beginner-friendly guitar learning platform created to help aspiring musicians explore and develop their passion for music through structured lessons and practice activities.</p>
+  </div>
+
+  <!-- ═══════════════════════════
+       ABOUT BODY — 2 COLUMN
+  ═══════════════════════════ -->
+  <div class="about-body-section">
+    <div class="about-body-left">
+      <div class="section-tag">Who We Are</div>
+      <h2 class="about-body-heading">Built For Beginners,<br/><span>By Passionate Learners</span></h2>
+    </div>
+    <div class="about-body-right">
+      <p>Welcome to <strong>Guitarify</strong>, a beginner-friendly guitar learning platform created to help aspiring musicians explore and develop their passion for music. Our website is designed especially for beginners who want to learn guitar step-by-step in a simple, enjoyable, and accessible way.</p>
+      <p>Learning guitar can sometimes feel difficult and overwhelming, especially for first-time learners. Because of this, our team created a platform that provides organized lessons, easy-to-understand tutorials, and guided practice exercises that can help users improve their skills gradually and confidently.</p>
+      <p>We believe that <strong>anyone can learn how to play guitar</strong> with proper guidance, patience, and continuous practice. Aside from technical skills, our website also aims to build creativity, patience, discipline, and self-confidence among learners.</p>
+      <p>By combining music learning with digital technology, our website provides a more accessible and modern learning experience — instead of relying on expensive music classes, learners can now access guitar lessons online in a convenient and flexible way.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       MISSION & VISION
+  ═══════════════════════════ -->
+  <div class="mv-section">
+    <div class="mv-card">
+      <div class="mv-icon">🎯</div>
+      <div class="mv-label">Our Mission</div>
+      <p class="mv-text">To provide an accessible, organized, and beginner-friendly guitar learning platform that helps users improve their knowledge, techniques, creativity, and confidence in playing guitar through step-by-step lessons, practice activities, and interactive learning materials.</p>
+    </div>
+    <div class="mv-card">
+      <div class="mv-icon">🔭</div>
+      <div class="mv-label">Our Vision</div>
+      <p class="mv-text">To become a reliable and supportive online learning platform where aspiring guitarists can continuously learn, practice, and grow their musical talents while developing their passion, creativity, and appreciation for music.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       WHAT WE OFFER
+  ═══════════════════════════ -->
+  <div class="offer-section">
+    <div class="offer-header">
+      <div class="section-tag">What We Offer</div>
+      <h2 class="offer-heading">Everything You Need<br/><span>To Start Playing</span></h2>
+    </div>
+    <div class="offer-grid">
+      <div class="offer-item">
+        <span class="offer-num">01</span>
+        <div class="offer-name">Beginner Guitar Lesson Modules</div>
+        <p class="offer-desc">Step-by-step modules organized from basic to advanced concepts so you learn without pressure.</p>
+      </div>
+      <div class="offer-item">
+        <span class="offer-num">02</span>
+        <div class="offer-name">Chord & Finger Placement Guides</div>
+        <p class="offer-desc">Easy access to basic and advanced guitar chords with diagrams and finger positioning.</p>
+      </div>
+      <div class="offer-item">
+        <span class="offer-num">03</span>
+        <div class="offer-name">Strumming & Rhythm Tutorials</div>
+        <p class="offer-desc">Learn different strumming patterns and rhythm techniques to make your playing sound musical.</p>
+      </div>
+      <div class="offer-item">
+        <span class="offer-num">04</span>
+        <div class="offer-name">Guitar Tuning Tutorials</div>
+        <p class="offer-desc">Learn how to keep your guitar in tune so every practice session sounds its best.</p>
+      </div>
+      <div class="offer-item">
+        <span class="offer-num">05</span>
+        <div class="offer-name">Finger Exercises & Warm-ups</div>
+        <p class="offer-desc">Build finger strength and dexterity with guided exercises designed for beginners.</p>
+      </div>
+      <div class="offer-item">
+        <span class="offer-num">06</span>
+        <div class="offer-name">Song Practice Recommendations</div>
+        <p class="offer-desc">Practice with real songs using the chords and techniques you've already learned.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       WHY CHOOSE US
+  ═══════════════════════════ -->
+  <div class="why-section">
+    <div class="why-left">
+      <div class="section-tag">Why Choose Us</div>
+      <h2 class="why-heading">Why Guitarify<br/><span>Works</span></h2>
+      <p class="why-intro">Our platform is designed with a simple, clean, and user-friendly interface to make learning easier and more comfortable. We want learners to easily navigate, access lessons, and practice anytime at their own pace.</p>
+    </div>
+    <div class="why-right">
+      <div class="why-list">
+        <div class="why-item">
+          <div class="why-dot"></div>
+          <div>
+            <div class="why-item-title">Easy-to-understand lessons</div>
+            <div class="why-item-desc">No jargon. No confusion. Just clear, simple guitar instruction.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-dot"></div>
+          <div>
+            <div class="why-item-title">Self-paced learning</div>
+            <div class="why-item-desc">Every learner has a different pace. Our lessons accommodate all speeds.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-dot"></div>
+          <div>
+            <div class="why-item-title">Encourages creativity & self-expression</div>
+            <div class="why-item-desc">Music is a powerful form of expression. We help you find yours.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-dot"></div>
+          <div>
+            <div class="why-item-title">Accessible anytime, anywhere</div>
+            <div class="why-item-desc">Practice at home, at school, or on the go — completely free.</div>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-dot"></div>
+          <div>
+            <div class="why-item-title">Promotes enjoyable learning</div>
+            <div class="why-item-desc">We focus on progress and enjoyment, not pressure or perfection.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       MEET THE DEVELOPERS
+  ═══════════════════════════ -->
+  <div class="team-section">
+    <div class="team-header">
+      <div class="section-tag">The People Behind It</div>
+      <h2 class="team-heading">Meet the<br/><span>Developers</span></h2>
+      <p class="team-intro">This website was developed by two passionate students who combined their love for music and technology to build something truly useful for aspiring guitarists.</p>
+    </div>
+    <div class="team-cards">
+      <div class="team-card">
+        <div class="team-avatar">🎸</div>
+        <div class="team-name">Kurt Cobain Bagat</div>
+        <div class="team-role">Developer & Creator</div>
+        <p class="team-desc">Passionate about creating tools that make learning music more accessible and enjoyable for everyone.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">🎵</div>
+        <div class="team-name">Aron Brillantes</div>
+        <div class="team-role">Developer & Creator</div>
+        <p class="team-desc">Dedicated to building a platform that combines music education with modern digital technology.</p>
+      </div>
+    </div>
+    <div class="team-quote-block">
+      <div class="team-quote-mark">"</div>
+      <p class="team-quote-text">Through their creativity, dedication, and passion for music and technology, they aimed to build a learning environment that supports users in improving their guitar-playing skills while enjoying the process of learning music.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       CTA
+  ═══════════════════════════ -->
+  <div class="about-cta">
+    <div class="about-cta-bg">PLAY</div>
+    <div class="about-cta-content">
+      <p class="cta-eyebrow">Start your guitar journey today</p>
+      <div class="about-cta-title">Ready To<br/><span>Play?</span></div>
+      <p class="about-cta-sub">Every chord learned and every song practiced is a step toward growth and self-expression.</p>
+      <div class="about-cta-btns">
+        <a href="lessons.html" class="btn-primary">Go To Lessons →</a>
+        <a href="Chord_Library.html" class="btn-outline">Explore Chords</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">GUITARIFY</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to continue your guitar journey.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account and start learning.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="auth.js"></script>
+</body>
+</html>

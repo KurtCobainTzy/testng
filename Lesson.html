@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lessons — Guitarify</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="lessons.css" />
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+    </div>
+    <div class="nav-links">
+      <a href="Home.html">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html" class="active">Lesson</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-hero">
+    <div class="page-hero-tag">Learn Step by Step</div>
+    <div class="page-hero-title">Guitar <span>Lessons</span></div>
+    <p class="page-hero-sub">Start from the basics and work your way up. Each module is designed to be clear, simple, and beginner-friendly.</p>
+    <!-- SUB TABS -->
+    <div class="sub-tabs">
+      <a href="lessons.html" class="sub-tab active">📖 Lessons</a>
+      <a href="video_tutorial.html" class="sub-tab">🎥 Video Tutorial</a>
+      <a href="song_chord.html" class="sub-tab">🎵 Song Chord</a>
+    </div>
+  </div>
+
+  <!-- LESSONS CONTENT -->
+  <div class="lessons-wrap">
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-wrap">
+      <div class="progress-label">Your Progress</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-count" id="progressCount">0 / 0 completed</div>
+    </div>
+
+    <!-- MODULE FILTER -->
+    <div class="module-filter" id="moduleFilter">
+      <button class="mf-btn active" onclick="filterModules('all', this)">All</button>
+      <button class="mf-btn" onclick="filterModules('beginner', this)">Beginner</button>
+      <button class="mf-btn" onclick="filterModules('intermediate', this)">Intermediate</button>
+      <button class="mf-btn" onclick="filterModules('advanced', this)">Advanced</button>
+    </div>
+
+    <!-- MODULES GRID -->
+    <div class="modules-grid" id="modulesGrid"></div>
+
+  </div>
+
+  <!-- LESSON MODAL -->
+  <div class="lesson-modal-bg" id="lessonModalBg" onclick="handleLessonBgClick(event)">
+    <div class="lesson-modal" id="lessonModal">
+      <div class="lesson-modal-header">
+        <div>
+          <div class="lesson-modal-tag" id="modalTag"></div>
+          <div class="lesson-modal-title" id="modalTitle"></div>
+        </div>
+        <button class="lesson-modal-close" onclick="closeLessonModal()">✕</button>
+      </div>
+      <div class="lesson-modal-body" id="modalBody"></div>
+      <div class="lesson-modal-footer">
+        <button class="lesson-btn-done" id="btnDone" onclick="markDone()">✓ Mark as Done</button>
+        <button class="lesson-btn-next" id="btnNext" onclick="nextLesson()">Next Lesson →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">GUITARIFY</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to continue your guitar journey.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account and start learning.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="auth.js"></script>
+<script src="lessons.js"></script>
+</body>
+</html>
