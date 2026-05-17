@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enroll – Guitarify</title>
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --orange:#f66e06;--orange-d:rgba(246,110,6,0.12);--orange-b:rgba(246,110,6,0.25);
+  --bg:#111;--bg2:#161616;--bg3:#1a1a1a;--bg4:#222;
+  --border:#2a2a2a;--border2:#333;
+  --text:#f0ede0;--text2:#aaa;--text3:#666;--text4:#444;
+  --green:#22c55e;--green-d:rgba(34,197,94,0.1);
+  --red:#ef4444;--red-d:rgba(239,68,68,0.08);
+  --blue:#3b82f6;--blue-d:rgba(59,130,246,0.1);
+  --yellow:#f59e0b;--yellow-d:rgba(245,158,11,0.1);
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh;}
+.site{display:flex;flex-direction:column;min-height:100vh;}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px;background:var(--bg);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:18px;font-weight:900;letter-spacing:3px;color:var(--text);text-decoration:none;}
+.nav-links{display:flex;gap:32px;}
+.nav-links a{font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;letter-spacing:0.5px;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active,.nav-links a.enroll-link{color:var(--orange)!important;font-weight:700;}
+.nav-icons{position:relative;}
+.nav-user-btn{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:6px;}
+.nav-user-name{font-size:12px;color:var(--text2);}
+.user-dropdown{display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;min-width:200px;overflow:hidden;z-index:300;}
+.user-dropdown.open{display:block;}
+.user-dropdown-header{padding:14px 16px;border-bottom:0.5px solid var(--border);}
+.user-dropdown-name{font-size:13px;font-weight:700;color:var(--text);}
+.user-dropdown-email{font-size:11px;color:var(--text3);margin-top:2px;}
+.user-dropdown-item{padding:11px 16px;font-size:12px;color:var(--text2);cursor:pointer;transition:background 0.15s;}
+.user-dropdown-item:hover{background:var(--bg4);color:var(--text);}
+.user-dropdown-item.danger{color:var(--red);}
+
+/* HERO */
+.hero{padding:80px 40px 70px;background:radial-gradient(ellipse 60% 100% at 80% 50%,rgba(246,110,6,0.1) 0%,transparent 70%),var(--bg);border-bottom:0.5px solid var(--border);position:relative;overflow:hidden;}
+.hero-bg-text{position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:200px;font-weight:900;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.03);pointer-events:none;text-transform:uppercase;user-select:none;line-height:1;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.hero-eyebrow::before{content:'';display:block;width:20px;height:1px;background:var(--orange);}
+.hero-title{font-size:clamp(42px,6vw,80px);font-weight:900;letter-spacing:-2px;color:var(--text);text-transform:uppercase;line-height:0.95;margin-bottom:18px;}
+.hero-title span{color:var(--orange);}
+.hero-sub{font-size:14px;color:var(--text3);max-width:500px;line-height:1.8;margin-bottom:36px;}
+.hero-sub strong{color:var(--text2);}
+.hero-btn{display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:#fff;font-size:14px;font-weight:900;padding:16px 32px;border-radius:6px;border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:opacity 0.2s,transform 0.15s;}
+.hero-btn:hover{opacity:0.88;transform:translateY(-2px);}
+.hero-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.hero-stats{display:flex;gap:40px;margin-top:40px;}
+.hero-stat-num{font-size:26px;font-weight:900;color:var(--orange);letter-spacing:-1px;}
+.hero-stat-label{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* STATUS BANNER */
+.status-banner{display:none;padding:14px 40px;font-size:13px;font-weight:600;border-bottom:0.5px solid var(--border);}
+.status-banner.pending{display:block;background:rgba(245,158,11,0.08);color:var(--yellow);border-left:3px solid var(--yellow);}
+.status-banner.confirmed{display:block;background:rgba(34,197,94,0.08);color:var(--green);border-left:3px solid var(--green);}
+.status-banner.declined{display:block;background:rgba(239,68,68,0.08);color:var(--red);border-left:3px solid var(--red);}
+.status-banner.completed{display:block;background:rgba(59,130,246,0.08);color:var(--blue);border-left:3px solid var(--blue);}
+
+/* INFO SECTIONS */
+.info-section{padding:64px 40px;border-bottom:0.5px solid var(--border);}
+.info-section.alt{background:var(--bg2);}
+.section-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.section-eyebrow::before{content:'';display:block;width:20px;height:1px;background:var(--orange);}
+.section-title{font-size:clamp(24px,3vw,38px);font-weight:900;letter-spacing:-1px;color:var(--text);text-transform:uppercase;line-height:1;margin-bottom:32px;}
+.section-title span{color:var(--orange);}
+
+/* TEACHER */
+.teacher-wrap{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;max-width:700px;}
+.teacher-avatar-big{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#c45200);display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0;border:3px solid rgba(246,110,6,0.3);}
+.teacher-name{font-size:26px;font-weight:900;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px;}
+.teacher-role{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.teacher-bio-text{font-size:14px;color:var(--text3);line-height:1.8;max-width:480px;}
+.teacher-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.teacher-tag{font-size:11px;padding:5px 12px;background:var(--orange-d);border:0.5px solid var(--orange-b);border-radius:20px;color:var(--orange);}
+.teacher-socials{display:flex;gap:10px;margin-top:18px;align-items:center;}
+.social-btn{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.18s,opacity 0.18s;flex-shrink:0;}
+.social-btn:hover{transform:translateY(-2px);opacity:0.85;}
+.social-btn svg{width:18px;height:18px;}
+.social-fb{background:#1877F2;color:#fff;}
+.social-yt{background:#FF0000;color:#fff;}
+.social-tt{background:#000;color:#fff;border:1px solid #222;}
+
+/* DETAILS GRID */
+.details-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.detail-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:20px 22px;border-left:2px solid var(--orange);}
+.detail-card-icon{font-size:22px;margin-bottom:10px;}
+.detail-card-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.detail-card-value{font-size:14px;font-weight:700;color:var(--text);}
+.detail-card-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+/* SCHEDULE TABLE */
+.schedule-table{width:100%;border-collapse:collapse;max-width:600px;}
+.schedule-table th{font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;text-align:left;padding:10px 16px;border-bottom:0.5px solid var(--border);}
+.schedule-table td{font-size:13px;color:var(--text2);padding:12px 16px;border-bottom:0.5px solid #1e1e1e;}
+.schedule-table tr:hover td{background:var(--bg3);}
+.schedule-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:8px;}
+
+/* PRICING */
+.pricing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:780px;}
+.pricing-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:28px 24px;position:relative;transition:border-color 0.2s;}
+.pricing-card:hover{border-color:rgba(246,110,6,0.4);}
+.pricing-card.featured{border-color:var(--orange);}
+.pricing-featured-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;}
+.pricing-freq{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.pricing-price{font-size:36px;font-weight:900;color:var(--text);letter-spacing:-1px;line-height:1;margin-bottom:4px;}
+.pricing-price span{font-size:16px;color:var(--text3);font-weight:400;}
+.pricing-note{font-size:11px;color:var(--text3);margin-bottom:18px;line-height:1.5;}
+.pricing-features{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.pricing-features li{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.pricing-features li::before{content:'✓';color:var(--orange);font-weight:700;flex-shrink:0;}
+
+/* MAP */
+.map-container{border-radius:12px;overflow:hidden;border:0.5px solid var(--border);height:280px;position:relative;max-width:700px;}
+.map-container iframe{width:100%;height:100%;border:none;display:block;}
+.map-overlay-label{position:absolute;bottom:14px;left:14px;background:rgba(17,17,17,0.92);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.map-note{font-size:11px;color:var(--text4);margin-top:10px;line-height:1.6;}
+
+/* CTA */
+.cta-strip{padding:56px 40px;background:var(--bg);border-top:0.5px solid var(--border);text-align:center;}
+.cta-strip-title{font-size:clamp(28px,4vw,48px);font-weight:900;color:var(--text);letter-spacing:-1px;text-transform:uppercase;margin-bottom:10px;}
+.cta-strip-title span{color:var(--orange);}
+.cta-strip-sub{font-size:14px;color:var(--text3);margin-bottom:28px;}
+
+.footer{border-top:0.5px solid var(--border);padding:24px 40px;display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+.footer-logo{font-size:14px;font-weight:900;letter-spacing:3px;color:var(--text4);}
+.footer-copy{font-size:11px;color:var(--text4);}
+
+/* ENROLLMENT HISTORY */
+.enroll-history-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:12px;padding:24px;max-width:700px;margin-bottom:24px;}
+.enroll-history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.enroll-history-ref{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--orange);background:var(--orange-d);border:0.5px solid var(--orange-b);padding:4px 10px;border-radius:4px;}
+.enroll-status-badge{font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;}
+.enroll-status-badge.pending{background:var(--yellow-d);color:var(--yellow);border:1px solid rgba(245,158,11,0.2);}
+.enroll-status-badge.confirmed{background:var(--green-d);color:var(--green);border:1px solid rgba(34,197,94,0.2);}
+.enroll-status-badge.declined{background:var(--red-d);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.enroll-status-badge.completed{background:var(--blue-d);color:var(--blue);border:1px solid rgba(59,130,246,0.2);}
+.enroll-detail-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.enroll-detail-item{background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:10px 14px;}
+.enroll-detail-label{font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;}
+.enroll-detail-value{font-size:13px;font-weight:700;color:var(--text);}
+.enroll-admin-note{background:rgba(34,197,94,0.06);border:0.5px solid rgba(34,197,94,0.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--green);margin-top:12px;display:none;}
+.enroll-admin-note.show{display:block;}
+.cancel-btn{background:var(--red-d);color:var(--red);border:1px solid rgba(239,68,68,0.2);font-size:11px;font-weight:700;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.cancel-btn:hover{background:var(--red);color:#fff;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:800;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal-bg.open{display:flex;}
+.enroll-modal{background:var(--bg2);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative;}
+.modal-top{padding:24px 28px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:10;}
+.modal-top-left{display:flex;flex-direction:column;gap:2px;}
+.modal-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:var(--orange);text-transform:uppercase;}
+.modal-title{font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px;}
+.modal-close-btn{background:var(--bg4);border:0.5px solid var(--border);color:var(--text3);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.modal-close-btn:hover{background:var(--bg3);color:var(--text);}
+
+/* STEPS BAR */
+.steps-bar{padding:18px 28px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:0;}
+.step-item{display:flex;align-items:center;gap:8px;flex:1;}
+.step-circle{width:26px;height:26px;border-radius:50%;background:var(--bg4);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0;transition:all 0.25s;}
+.step-circle.active{background:var(--orange-d);border-color:var(--orange);color:var(--orange);}
+.step-circle.done{background:var(--orange);border-color:var(--orange);color:#fff;}
+.step-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.5px;transition:color 0.25s;white-space:nowrap;}
+.step-label.active{color:var(--orange);}
+.step-label.done{color:var(--text2);}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 6px;}
+.step-line.done{background:var(--orange);}
+
+/* MODAL BODY */
+.modal-body{padding:28px;}
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+.step-heading{font-size:14px;font-weight:900;color:var(--text);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.step-sub{font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.6;}
+
+/* FORM FIELDS */
+.mfield{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.mfield label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;}
+.mfield input,.mfield select,.mfield textarea{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--text);outline:none;transition:border-color 0.2s;font-family:inherit;width:100%;}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:var(--orange);}
+.mfield textarea{resize:vertical;min-height:80px;}
+.mfield select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.mfield-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-hint{font-size:10px;color:var(--text3);margin-top:3px;}
+.field-error{font-size:10px;color:var(--red);margin-top:3px;display:none;}
+.mfield input.error,.mfield select.error{border-color:var(--red);}
+
+/* CHIPS */
+.chip-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.chips-grid-7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px;}
+.chips-grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
+.chip{padding:9px 6px;background:var(--bg);border:0.5px solid var(--border);border-radius:7px;text-align:center;cursor:pointer;transition:all 0.18s;font-size:11px;font-weight:700;color:var(--text3);user-select:none;line-height:1.3;}
+.chip:hover{border-color:var(--orange-b);color:var(--text2);}
+.chip.selected{background:var(--orange-d);border-color:var(--orange);color:var(--orange);}
+.chip-time{padding:12px 10px;font-size:12px;}
+.chip-time .chip-time-sub{font-size:10px;font-weight:400;color:var(--text3);margin-top:2px;display:block;}
+.chip.selected .chip-time-sub{color:rgba(246,110,6,0.6);}
+
+/* LEVEL PILLS */
+.level-pills-wrap{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.level-pill{padding:9px 16px;background:var(--bg);border:0.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;transition:all 0.18s;user-select:none;}
+.level-pill:hover{border-color:var(--orange-b);color:var(--text2);}
+.level-pill.selected{background:var(--orange-d);border-color:var(--orange);color:var(--orange);}
+
+/* REVIEW */
+.review-group{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;}
+.review-group-title{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-bottom:14px;}
+.review-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:0.5px solid var(--bg4);}
+.review-row:last-child{border-bottom:none;padding-bottom:0;}
+.review-key{font-size:11px;color:var(--text3);}
+.review-val{font-size:12px;color:var(--text);font-weight:600;text-align:right;max-width:60%;}
+.terms-note{font-size:11px;color:var(--text3);line-height:1.7;margin-top:14px;}
+.terms-note strong{color:var(--text2);}
+
+/* TERMS CHECK */
+.terms-check-row{display:flex;align-items:flex-start;gap:10px;margin-top:14px;cursor:pointer;}
+.terms-check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;margin-top:2px;}
+.terms-check-label{font-size:12px;color:var(--text2);line-height:1.6;}
+.terms-check-label a{color:var(--orange);text-decoration:none;}
+
+/* MODAL FOOTER */
+.modal-footer{padding:20px 28px;border-top:0.5px solid var(--border);display:flex;gap:10px;align-items:center;justify-content:space-between;position:sticky;bottom:0;background:var(--bg2);}
+.form-err{font-size:11px;color:var(--red);min-height:14px;flex:1;}
+.modal-footer-btns{display:flex;gap:10px;}
+.btn-back{background:var(--bg4);border:0.5px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;padding:11px 20px;border-radius:7px;cursor:pointer;letter-spacing:0.5px;transition:all 0.15s;font-family:inherit;}
+.btn-back:hover{background:var(--bg3);color:var(--text);}
+.btn-next{background:var(--orange);color:#fff;border:none;font-size:13px;font-weight:900;padding:11px 28px;border-radius:7px;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;transition:opacity 0.2s;font-family:inherit;display:flex;align-items:center;gap:8px;}
+.btn-next:hover{opacity:0.88;}
+.btn-next:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* SUCCESS SCREEN */
+.success-screen{display:none;padding:48px 28px;text-align:center;}
+.success-screen.show{display:block;}
+.success-anim{font-size:64px;margin-bottom:20px;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-main-title{font-size:28px;font-weight:900;color:var(--text);text-transform:uppercase;letter-spacing:-0.5px;margin-bottom:6px;}
+.success-main-title span{color:var(--orange);}
+.success-main-msg{font-size:13px;color:var(--text3);line-height:1.8;max-width:380px;margin:0 auto 24px;}
+.success-ref-box{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:16px 20px;margin:0 auto 28px;max-width:300px;}
+.success-ref-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+.success-ref-id{font-size:18px;font-weight:900;color:var(--orange);letter-spacing:1px;}
+.success-next-steps{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:18px 20px;text-align:left;margin-bottom:24px;}
+.success-next-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:12px;}
+.success-step-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.success-step-row:last-child{margin-bottom:0;}
+.success-step-num{width:22px;height:22px;border-radius:50%;background:var(--orange-d);border:1px solid var(--orange-b);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--orange);flex-shrink:0;}
+.success-step-text{font-size:12px;color:var(--text3);line-height:1.6;}
+.btn-success-home{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:13px 32px;font-size:13px;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:inherit;transition:opacity 0.2s;}
+.btn-success-home:hover{opacity:0.88;}
+
+/* AUTH MODAL */
+.auth-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:900;align-items:center;justify-content:center;padding:20px;}
+.auth-bg.open{display:flex;}
+.auth-modal{background:var(--bg3);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:400px;overflow:hidden;position:relative;}
+.auth-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;z-index:1;}
+.auth-tabs{display:flex;border-bottom:0.5px solid var(--border);}
+.auth-tab{flex:1;padding:14px;text-align:center;font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;}
+.auth-tab.active{color:var(--text);border-bottom:2px solid var(--orange);}
+.auth-body-inner{padding:24px;}
+.auth-greeting{font-size:22px;font-weight:900;color:var(--text);margin-bottom:4px;}
+.auth-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+.auth-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.auth-field label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+.auth-field input{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;transition:border-color 0.2s;}
+.auth-field input:focus{border-color:var(--orange);}
+.auth-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px;}
+.auth-submit{width:100%;background:var(--orange);border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;}
+.auth-divider{font-size:12px;color:var(--text3);text-align:center;margin-top:16px;}
+.auth-divider span{color:var(--orange);cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:0.5px solid var(--border);color:var(--text);font-size:13px;padding:10px 20px;border-radius:8px;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;z-index:9999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{border-left:3px solid var(--green);}
+.toast.error{border-left:3px solid var(--red);}
+.toast.info{border-left:3px solid var(--orange);}
+
+/* NOTIFICATION BANNER */
+.notif-banner{background:var(--bg2);border-top:0.5px solid var(--border);padding:12px 40px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text2);}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.notif-dismiss{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;}
+  </style>
+</head>
+<body>
+<div class="site">
+
+  <nav class="nav">
+    <a href="Home.html" class="nav-logo">GUITARIFY</a>
+    <div class="nav-links">
+      <a href="Home.html">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html">Lesson</a>
+      <a href="Recommendations.html">Recommendations</a>
+      <a href="practice.html">Quizzes</a>
+      <a href="Enroll.html" class="enroll-link active">✦ Enroll</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-name" id="dropdownName">–</div>
+          <div class="user-dropdown-email" id="dropdownEmail">–</div>
+        </div>
+        <div class="user-dropdown-item">My Profile</div>
+        <div class="user-dropdown-item">My Lessons</div>
+        <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- NOTIFICATION BANNER (shows when status changes) -->
+  <div class="notif-banner" id="notifBanner" style="display:none;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="notif-dot"></div>
+      <span id="notifText"></span>
+    </div>
+    <button class="notif-dismiss" onclick="dismissNotif()">×</button>
+  </div>
+
+  <!-- STATUS BANNER (shows enrollment status for logged-in users) -->
+  <div class="status-banner" id="statusBanner"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-text">Enroll</div>
+    <div class="hero-eyebrow">One-on-One Guitar Lessons</div>
+    <h1 class="hero-title">Learn Guitar<br/><span>From A Pro.</span></h1>
+    <p class="hero-sub">Personal lessons with <strong>Keister Logan</strong> — a passionate guitar teacher. Flexible schedules, real songs from day one.</p>
+    <button class="hero-btn" id="heroEnrollBtn" onclick="handleEnrollClick()">🎸 Reserve My Slot</button>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num">1-on-1</div><div class="hero-stat-label">Personal sessions</div></div>
+      <div><div class="hero-stat-num">1hr</div><div class="hero-stat-label">Per session</div></div>
+      <div><div class="hero-stat-num">Flexible</div><div class="hero-stat-label">You pick the schedule</div></div>
+    </div>
+  </section>
+
+  <!-- MY ENROLLMENT (shows when logged in with existing enrollment) -->
+  <div id="myEnrollSection" style="display:none;">
+    <div class="info-section">
+      <div class="section-eyebrow">Your Enrollment</div>
+      <h2 class="section-title">My <span>Enrollment</span></h2>
+      <div class="enroll-history-card" id="myEnrollCard"></div>
+    </div>
+  </div>
+
+  <!-- INSTRUCTOR -->
+  <section class="info-section" id="teacherSection">
+    <div class="section-eyebrow">Your Instructor</div>
+    <h2 class="section-title">Meet <span>Keister</span></h2>
+    <div class="teacher-wrap">
+      <div class="teacher-avatar-big">🎸</div>
+      <div>
+        <div class="teacher-name">Keister Logan</div>
+        <div class="teacher-role">Professional Guitar Teacher</div>
+        <p class="teacher-bio-text">Keister is a dedicated guitar instructor with years of experience teaching students of all ages. Patient, encouraging, and always tailored to you — so you never feel rushed or overwhelmed. His approach focuses on real songs from day one so learning stays fun and motivating.</p>
+        <div class="teacher-tags">
+          <span class="teacher-tag">Beginner Specialist</span>
+          <span class="teacher-tag">Filipino / English</span>
+          <span class="teacher-tag">In-Person & Online</span>
+          <span class="teacher-tag">Acoustic & Electric</span>
+        </div>
+        <div class="teacher-socials">
+          <a href="https://www.facebook.com/YOUR_FB_PAGE" target="_blank" class="social-btn social-fb" title="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.youtube.com/@YOUR_YT_CHANNEL" target="_blank" class="social-btn social-yt" title="YouTube">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+          <a href="https://www.tiktok.com/@YOUR_TIKTOK" target="_blank" class="social-btn social-tt" title="TikTok">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.74a4.85 4.85 0 0 1-1.01-.05z"/></svg>
+          </a>
+          <span style="font-size:11px;color:var(--text3);margin-left:4px;">Follow Keister</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section alt">
+    <div class="section-eyebrow">Class Details</div>
+    <h2 class="section-title">What To <span>Expect</span></h2>
+    <div class="details-grid">
+      <div class="detail-card"><div class="detail-card-icon">🎯</div><div class="detail-card-label">Format</div><div class="detail-card-value">One-on-One</div><div class="detail-card-sub">100% focused on you</div></div>
+      <div class="detail-card"><div class="detail-card-icon">⏱️</div><div class="detail-card-label">Session Length</div><div class="detail-card-value">1 Hour</div><div class="detail-card-sub">Per session</div></div>
+      <div class="detail-card"><div class="detail-card-icon">📍</div><div class="detail-card-label">Mode</div><div class="detail-card-value">In-Person / Online</div><div class="detail-card-sub">You choose</div></div>
+      <div class="detail-card"><div class="detail-card-icon">🌱</div><div class="detail-card-label">Level</div><div class="detail-card-value">All Levels</div><div class="detail-card-sub">Beginner-friendly</div></div>
+      <div class="detail-card"><div class="detail-card-icon">📅</div><div class="detail-card-label">Frequency</div><div class="detail-card-value">1–3x Per Week</div><div class="detail-card-sub">Flexible</div></div>
+      <div class="detail-card"><div class="detail-card-icon">💬</div><div class="detail-card-label">Language</div><div class="detail-card-value">Filipino / English</div><div class="detail-card-sub">Your preference</div></div>
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="section-eyebrow">Availability</div>
+    <h2 class="section-title">Flexible <span>Schedule</span></h2>
+    <table class="schedule-table">
+      <thead><tr><th>Day</th><th>Morning</th><th>Afternoon</th><th>Evening</th></tr></thead>
+      <tbody>
+        <tr><td>Monday – Friday</td><td><span class="schedule-dot"></span>8AM–12PM</td><td><span class="schedule-dot"></span>1PM–5PM</td><td><span class="schedule-dot"></span>6PM–8PM</td></tr>
+        <tr><td>Saturday</td><td><span class="schedule-dot"></span>8AM–12PM</td><td><span class="schedule-dot"></span>1PM–5PM</td><td style="color:var(--text4);">—</td></tr>
+        <tr><td>Sunday</td><td><span class="schedule-dot"></span>9AM–12PM</td><td style="color:var(--text4);">—</td><td style="color:var(--text4);">—</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="info-section alt">
+    <div class="section-eyebrow">Pricing</div>
+    <h2 class="section-title">Simple <span>Rates</span></h2>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="pricing-freq">Once a Week</div>
+        <div class="pricing-price">₱400 <span>/ session</span></div>
+        <div class="pricing-note">4 sessions/month<br/>Great for casual learners</div>
+        <ul class="pricing-features"><li>1 hour per session</li><li>Personalized curriculum</li><li>Chord & song materials</li></ul>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-featured-badge">Most Popular</div>
+        <div class="pricing-freq">Twice a Week</div>
+        <div class="pricing-price">₱350 <span>/ session</span></div>
+        <div class="pricing-note">8 sessions/month<br/>Fastest improvement</div>
+        <ul class="pricing-features"><li>1 hour per session</li><li>Personalized curriculum</li><li>Chord & song materials</li><li>Progress tracking</li></ul>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-freq">3x a Week</div>
+        <div class="pricing-price">₱300 <span>/ session</span></div>
+        <div class="pricing-note">12 sessions/month<br/>For the committed</div>
+        <ul class="pricing-features"><li>1 hour per session</li><li>Personalized curriculum</li><li>Chord & song materials</li><li>Progress tracking</li><li>Best value per session</li></ul>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text4);margin-top:16px;">* Home service sessions may have an additional travel fee depending on location.</p>
+  </section>
+
+  <section class="info-section">
+    <div class="section-eyebrow">Location</div>
+    <h2 class="section-title">Where To <span>Find Us</span></h2>
+    <div class="map-container">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.5!2d121.0244!3d14.5547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zManila%2C+Philippines!5e0!3m2!1sen!2sph!4v1" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="filter:invert(90%) hue-rotate(180deg);"></iframe>
+      <div class="map-overlay-label"><span>📍</span><span style="font-weight:700;">Manila, Philippines</span></div>
+    </div>
+    <p class="map-note">📌 Exact address will be sent after enrollment confirmation. Online sessions via Google Meet or Zoom — no extra charge.</p>
+  </section>
+
+  <section class="cta-strip">
+    <div class="cta-strip-title">Ready To Start <span>Playing?</span></div>
+    <p class="cta-strip-sub">Takes less than 2 minutes. No payment at this step.</p>
+    <button class="hero-btn" onclick="handleEnrollClick()">🎸 Enroll Now</button>
+  </section>
+
+  <div class="footer">
+    <div class="footer-logo">Guitarify</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+</div>
+
+<!-- ENROLLMENT MODAL -->
+<div class="modal-bg" id="enrollModalBg" onclick="handleModalBgClick(event)">
+  <div class="enroll-modal" id="enrollModal">
+    <div class="modal-top">
+      <div class="modal-top-left">
+        <div class="modal-eyebrow">✦ Guitarify Enrollment</div>
+        <div class="modal-title" id="modalStepTitle">Personal Info</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeEnrollModal()">✕</button>
+    </div>
+    <div class="steps-bar">
+      <div class="step-item"><div class="step-circle active" id="scircle-1">1</div><div class="step-label active" id="slabel-1">Info</div></div>
+      <div class="step-line" id="sline-1"></div>
+      <div class="step-item"><div class="step-circle" id="scircle-2">2</div><div class="step-label" id="slabel-2">Schedule</div></div>
+      <div class="step-line" id="sline-2"></div>
+      <div class="step-item"><div class="step-circle" id="scircle-3">3</div><div class="step-label" id="slabel-3">Background</div></div>
+      <div class="step-line" id="sline-3"></div>
+      <div class="step-item"><div class="step-circle" id="scircle-4">4</div><div class="step-label" id="slabel-4">Review</div></div>
+    </div>
+    <div class="modal-body" id="enrollModalBody">
+
+      <!-- STEP 1: PERSONAL INFO -->
+      <div class="step-panel active" id="step-1">
+        <div class="step-heading">Your Details</div>
+        <div class="step-sub">We'll use this info to confirm your slot and contact you within 24 hours.</div>
+        <div class="mfield">
+          <label>Full Name *</label>
+          <input type="text" id="s1_name" placeholder="e.g. Maria Santos"/>
+          <div class="field-error" id="err_name">Please enter your full name.</div>
+        </div>
+        <div class="mfield-row">
+          <div class="mfield">
+            <label>Age *</label>
+            <input type="number" id="s1_age" placeholder="e.g. 18" min="5" max="99"/>
+            <div class="field-hint">Must be 5 years old or older.</div>
+            <div class="field-error" id="err_age">Please enter a valid age.</div>
+          </div>
+          <div class="mfield">
+            <label>Contact Number *</label>
+            <input type="tel" id="s1_contact" placeholder="09XX XXX XXXX"/>
+            <div class="field-error" id="err_contact">Enter a valid PH mobile number.</div>
+          </div>
+        </div>
+        <div class="mfield">
+          <label>Email Address *</label>
+          <input type="email" id="s1_email" placeholder="you@email.com"/>
+          <div class="field-hint">You'll receive enrollment updates here.</div>
+          <div class="field-error" id="err_email">Please enter a valid email address.</div>
+        </div>
+        <div class="mfield" id="guardianField" style="display:none;">
+          <label>Parent / Guardian Name *</label>
+          <input type="text" id="s1_guardian" placeholder="Guardian's full name"/>
+          <div class="field-hint">Required for students under 18.</div>
+          <div class="field-error" id="err_guardian">Please enter guardian's name.</div>
+        </div>
+        <div class="mfield">
+          <label>Guardian Contact (Optional)</label>
+          <input type="tel" id="s1_guardian_contact" placeholder="Guardian's contact number"/>
+        </div>
+        <div class="mfield">
+          <label>Address / Location *</label>
+          <input type="text" id="s1_address" placeholder="Barangay, City (for home service reference)"/>
+          <div class="field-error" id="err_address">Please enter your address.</div>
+        </div>
+      </div>
+
+      <!-- STEP 2: SCHEDULE -->
+      <div class="step-panel" id="step-2">
+        <div class="step-heading">Pick Your Schedule</div>
+        <div class="step-sub">Choose the days and time that work best for you. Keister will confirm availability.</div>
+        <div class="chip-label">Preferred Day(s) * — select all that apply</div>
+        <div class="chips-grid-7" id="dayChips">
+          <div class="chip" data-val="Monday" onclick="toggleDay(this)">Mon</div>
+          <div class="chip" data-val="Tuesday" onclick="toggleDay(this)">Tue</div>
+          <div class="chip" data-val="Wednesday" onclick="toggleDay(this)">Wed</div>
+          <div class="chip" data-val="Thursday" onclick="toggleDay(this)">Thu</div>
+          <div class="chip" data-val="Friday" onclick="toggleDay(this)">Fri</div>
+          <div class="chip" data-val="Saturday" onclick="toggleDay(this)">Sat</div>
+          <div class="chip" data-val="Sunday" onclick="toggleDay(this)">Sun</div>
+        </div>
+        <div class="field-error" id="err_days" style="margin-bottom:12px;">Please select at least one day.</div>
+        <div class="chip-label">Preferred Time Slot *</div>
+        <div class="chips-grid-4" id="timeChips">
+          <div class="chip chip-time" data-val="Morning (8AM–12PM)" onclick="toggleTime(this)">☀️ Morning<span class="chip-time-sub">8:00 AM – 12:00 PM</span></div>
+          <div class="chip chip-time" data-val="Afternoon (1PM–5PM)" onclick="toggleTime(this)">🌤️ Afternoon<span class="chip-time-sub">1:00 PM – 5:00 PM</span></div>
+          <div class="chip chip-time" data-val="Evening (6PM–8PM)" onclick="toggleTime(this)">🌙 Evening<span class="chip-time-sub">6:00 PM – 8:00 PM</span></div>
+          <div class="chip chip-time" data-val="Flexible" onclick="toggleTime(this)">🔄 Flexible<span class="chip-time-sub">Open to any slot</span></div>
+        </div>
+        <div class="field-error" id="err_time" style="margin-bottom:12px;">Please select a time slot.</div>
+        <div class="mfield">
+          <label>Lesson Mode *</label>
+          <select id="s2_mode">
+            <option value="">Select mode…</option>
+            <option value="In-Person">In-Person (at instructor's location)</option>
+            <option value="Online">Online via Google Meet / Zoom</option>
+            <option value="Home Service">Home Service (travel fee may apply)</option>
+          </select>
+          <div class="field-error" id="err_mode">Please select a lesson mode.</div>
+        </div>
+        <div class="mfield">
+          <label>Sessions Per Week *</label>
+          <select id="s2_freq">
+            <option value="">Select frequency…</option>
+            <option value="Once a week">Once a week — ₱400/session</option>
+            <option value="Twice a week">Twice a week — ₱350/session</option>
+            <option value="3x a week">3 times a week — ₱300/session</option>
+            <option value="To be discussed">To be discussed with Keister</option>
+          </select>
+          <div class="field-error" id="err_freq">Please select session frequency.</div>
+        </div>
+        <div class="mfield">
+          <label>Preferred Start Date (Optional)</label>
+          <input type="date" id="s2_startdate"/>
+          <div class="field-hint">When would you like to start? Leave blank if flexible.</div>
+        </div>
+      </div>
+
+      <!-- STEP 3: BACKGROUND -->
+      <div class="step-panel" id="step-3">
+        <div class="step-heading">About You</div>
+        <div class="step-sub">Help Keister prepare the right lessons for you from day one.</div>
+        <div class="chip-label">Your Guitar Level *</div>
+        <div class="level-pills-wrap">
+          <div class="level-pill" data-val="Complete Beginner" onclick="selectLevel(this)">🌱 Complete Beginner</div>
+          <div class="level-pill" data-val="Knows a Few Chords" onclick="selectLevel(this)">🎵 Knows a Few Chords</div>
+          <div class="level-pill" data-val="Intermediate" onclick="selectLevel(this)">🎸 Intermediate</div>
+          <div class="level-pill" data-val="Advanced" onclick="selectLevel(this)">🔥 Advanced</div>
+        </div>
+        <div class="field-error" id="err_level" style="margin-bottom:12px;">Please select your guitar level.</div>
+        <div class="mfield">
+          <label>Do you have a guitar? *</label>
+          <select id="s3_guitar">
+            <option value="">Select…</option>
+            <option value="Yes — Acoustic">Yes, I have an Acoustic guitar</option>
+            <option value="Yes — Electric">Yes, I have an Electric guitar</option>
+            <option value="Yes — Classical">Yes, I have a Classical guitar</option>
+            <option value="Yes — Both">Yes, I have both Acoustic and Electric</option>
+            <option value="No — need advice">No, I need advice on buying one</option>
+            <option value="No — can borrow">No, but I can borrow one</option>
+          </select>
+          <div class="field-error" id="err_guitar">Please let us know about your guitar.</div>
+        </div>
+        <div class="mfield">
+          <label>Previous Instrument Experience (Optional)</label>
+          <select id="s3_prev_instrument">
+            <option value="">Select…</option>
+            <option value="None">No previous instrument experience</option>
+            <option value="Ukulele">Ukulele</option>
+            <option value="Piano">Piano / Keyboard</option>
+            <option value="Violin">Violin</option>
+            <option value="Bass Guitar">Bass Guitar</option>
+            <option value="Drums">Drums / Percussion</option>
+            <option value="Other">Other instrument</option>
+          </select>
+        </div>
+        <div class="mfield">
+          <label>Music Genre Interest (Optional)</label>
+          <select id="s3_genre">
+            <option value="">Select primary interest…</option>
+            <option value="OPM / Pinoy Pop">OPM / Pinoy Pop</option>
+            <option value="Pop">International Pop</option>
+            <option value="Rock">Rock</option>
+            <option value="Acoustic / Folk">Acoustic / Folk</option>
+            <option value="Classical">Classical</option>
+            <option value="R&B / Soul">R&B / Soul</option>
+            <option value="Jazz">Jazz</option>
+            <option value="No preference">No preference</option>
+          </select>
+        </div>
+        <div class="mfield">
+          <label>What do you want to learn? (Optional)</label>
+          <textarea id="s3_goals" placeholder="e.g. I want to play OPM songs, prepare for a performance, learn fingerpicking, etc."></textarea>
+        </div>
+        <div class="mfield">
+          <label>Special Needs / Requests (Optional)</label>
+          <textarea id="s3_special" placeholder="e.g. I have small hands, I'm left-handed, I have hearing difficulties, etc."></textarea>
+          <div class="field-hint">Any information that helps Keister prepare better for you.</div>
+        </div>
+        <div class="mfield">
+          <label>How did you hear about us?</label>
+          <select id="s3_source">
+            <option value="">Select…</option>
+            <option value="Friend / Referral">Friend or Referral</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Guitarify Website">Guitarify Website</option>
+            <option value="Search Engine">Google / Search Engine</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STEP 4: REVIEW -->
+      <div class="step-panel" id="step-4">
+        <div class="step-heading">Review & Submit</div>
+        <div class="step-sub">Check your details below. Keister will contact you within 24 hours to confirm your schedule.</div>
+        <div class="review-group">
+          <div class="review-group-title">Personal Information</div>
+          <div class="review-row"><span class="review-key">Name</span><span class="review-val" id="rv_name">—</span></div>
+          <div class="review-row"><span class="review-key">Age</span><span class="review-val" id="rv_age">—</span></div>
+          <div class="review-row"><span class="review-key">Contact</span><span class="review-val" id="rv_contact">—</span></div>
+          <div class="review-row"><span class="review-key">Email</span><span class="review-val" id="rv_email">—</span></div>
+          <div class="review-row" id="rv_guardian_row"><span class="review-key">Guardian</span><span class="review-val" id="rv_guardian">—</span></div>
+          <div class="review-row"><span class="review-key">Address</span><span class="review-val" id="rv_address">—</span></div>
+        </div>
+        <div class="review-group">
+          <div class="review-group-title">Schedule Preferences</div>
+          <div class="review-row"><span class="review-key">Days</span><span class="review-val" id="rv_days">—</span></div>
+          <div class="review-row"><span class="review-key">Time Slot</span><span class="review-val" id="rv_time">—</span></div>
+          <div class="review-row"><span class="review-key">Mode</span><span class="review-val" id="rv_mode">—</span></div>
+          <div class="review-row"><span class="review-key">Frequency</span><span class="review-val" id="rv_freq">—</span></div>
+          <div class="review-row" id="rv_startdate_row"><span class="review-key">Start Date</span><span class="review-val" id="rv_startdate">Flexible</span></div>
+        </div>
+        <div class="review-group">
+          <div class="review-group-title">Your Background</div>
+          <div class="review-row"><span class="review-key">Level</span><span class="review-val" id="rv_level">—</span></div>
+          <div class="review-row"><span class="review-key">Has Guitar</span><span class="review-val" id="rv_guitar">—</span></div>
+          <div class="review-row"><span class="review-key">Genre Interest</span><span class="review-val" id="rv_genre">—</span></div>
+          <div class="review-row"><span class="review-key">Goals</span><span class="review-val" id="rv_goals">—</span></div>
+          <div class="review-row" id="rv_special_row"><span class="review-key">Special Needs</span><span class="review-val" id="rv_special">—</span></div>
+        </div>
+        <p class="terms-note">By submitting, you agree to be contacted by <strong>Keister Logan</strong> via the details provided. <strong>No payment is required at this step.</strong></p>
+        <div class="terms-check-row">
+          <input type="checkbox" id="termsCheck"/>
+          <label class="terms-check-label" for="termsCheck">I confirm that all information I provided is accurate and I agree to be contacted by the instructor to finalize my enrollment.</label>
+        </div>
+        <div class="field-error" id="err_terms" style="margin-top:6px;">You must agree before submitting.</div>
+      </div>
+
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-anim">🎸</div>
+      <div class="success-main-title">You're <span>Enrolled!</span></div>
+      <p class="success-main-msg">Your enrollment has been submitted! Keister will reach out within 24 hours to confirm your schedule. Check your email for updates.</p>
+      <div class="success-ref-box">
+        <div class="success-ref-label">Your Reference ID</div>
+        <div class="success-ref-id" id="successRefId">GTR-000000</div>
+      </div>
+      <div class="success-next-steps">
+        <div class="success-next-title">What happens next?</div>
+        <div class="success-step-row"><div class="success-step-num">1</div><div class="success-step-text">Keister reviews your schedule and contacts you within <strong style="color:var(--text2);">24 hours</strong>.</div></div>
+        <div class="success-step-row"><div class="success-step-num">2</div><div class="success-step-text">You'll agree on final schedule, mode, and details over call or message.</div></div>
+        <div class="success-step-row"><div class="success-step-num">3</div><div class="success-step-text">Payment is arranged before your first session starts.</div></div>
+        <div class="success-step-row"><div class="success-step-num">4</div><div class="success-step-text">Show up to your first session and start playing! 🎶</div></div>
+      </div>
+      <button class="btn-success-home" onclick="closeEnrollModal();">Continue Browsing</button>
+    </div>
+
+    <div class="modal-footer" id="enrollModalFooter">
+      <div class="form-err" id="formErr"></div>
+      <div class="modal-footer-btns">
+        <button class="btn-back" id="btnBack" onclick="prevStep()" style="display:none;">← Back</button>
+        <button class="btn-next" id="btnNext" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-bg" id="authBg" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body-inner" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to manage your enrollment.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body-inner" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account to enroll.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Your name"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AUTH_URL = 'auth.php';
+const ENROLL_URL = 'enroll.php';
+let currentUser = null;
+let currentStep = 1;
+const TOTAL_STEPS = 4;
+const selectedDays = new Set();
+let selectedTime = '';
+let selectedLevel = '';
+let myEnrollment = null;
+let previousEnrollStatus = null;
+
+/* ── AUTH ── */
+async function checkSession() {
+  try {
+    const res = await fetch(AUTH_URL + '?action=check');
+    const data = await res.json();
+    if (data.loggedIn && data.user) {
+      currentUser = data.user;
+      updateNavUser();
+      await checkMyEnrollment();
+    }
+  } catch(e) {}
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+  try {
+    const res = await fetch(AUTH_URL + '?action=login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentUser = data.user; updateNavUser(); closeAuth();
+      showToast('Welcome back, ' + data.user.name + '!', 'success');
+      await checkMyEnrollment();
+      if (!myEnrollment) openEnrollModal();
+    } else { err.textContent = data.message; }
+  } catch(e) { err.textContent = 'Connection error. Make sure XAMPP is running.'; }
+}
+
+async function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  const confirm = document.getElementById('signupConfirm').value;
+  const err = document.getElementById('signupError');
+  err.textContent = '';
+  if (!name || !email || !password || !confirm) { err.textContent = 'Please fill in all fields.'; return; }
+  if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+  if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+  try {
+    const res = await fetch(AUTH_URL + '?action=signup', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name, email, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentUser = data.user; updateNavUser(); closeAuth();
+      showToast('Account created! You can now enroll.', 'success');
+      openEnrollModal();
+    } else { err.textContent = data.message; }
+  } catch(e) { err.textContent = 'Connection error. Make sure XAMPP is running.'; }
+}
+
+async function logout() {
+  try { await fetch(AUTH_URL + '?action=logout'); } catch(e) {}
+  currentUser = null; myEnrollment = null;
+  updateNavUser();
+  document.getElementById('userDropdown').classList.remove('open');
+  document.getElementById('statusBanner').className = 'status-banner';
+  document.getElementById('myEnrollSection').style.display = 'none';
+  document.getElementById('heroEnrollBtn').disabled = false;
+  document.getElementById('heroEnrollBtn').textContent = '🎸 Reserve My Slot';
+  showToast('Logged out.');
+}
+
+function updateNavUser() {
+  const nameEl = document.getElementById('navUserName');
+  const dropName = document.getElementById('dropdownName');
+  const dropEmail = document.getElementById('dropdownEmail');
+  if (currentUser) {
+    if (nameEl) nameEl.textContent = currentUser.name;
+    if (dropName) dropName.textContent = currentUser.name;
+    if (dropEmail) dropEmail.textContent = currentUser.email;
+  } else {
+    if (nameEl) nameEl.textContent = '';
+    if (dropName) dropName.textContent = '–';
+    if (dropEmail) dropEmail.textContent = '–';
+  }
+}
+
+/* ── ENROLLMENT STATUS CHECK ── */
+async function checkMyEnrollment() {
+  if (!currentUser) return;
+  try {
+    const res = await fetch(ENROLL_URL + '?action=getByEmail&email=' + encodeURIComponent(currentUser.email));
+    const data = await res.json();
+    if (data.success && data.enrollment) {
+      myEnrollment = data.enrollment;
+      const prevStatus = previousEnrollStatus;
+      previousEnrollStatus = data.enrollment.status;
+      if (prevStatus && prevStatus !== data.enrollment.status) {
+        showStatusNotification(data.enrollment.status, data.enrollment.admin_notes);
+      }
+      renderMyEnrollment();
+      updateStatusBanner();
+    } else {
+      myEnrollment = null;
+      document.getElementById('myEnrollSection').style.display = 'none';
+      document.getElementById('statusBanner').className = 'status-banner';
+      document.getElementById('heroEnrollBtn').disabled = false;
+      document.getElementById('heroEnrollBtn').textContent = '🎸 Reserve My Slot';
+    }
+  } catch(e) {}
+}
+
+function showStatusNotification(status, adminNote) {
+  const msgs = {
+    Confirmed: '🎉 Your enrollment has been confirmed! Keister will reach out to finalize your schedule.',
+    Declined: '📋 Your enrollment was reviewed. Please contact us for more information.',
+    Completed: '✅ Your enrollment has been marked as completed. Thank you!',
+    Pending: '⏳ Your enrollment is pending review.'
+  };
+  const notifBanner = document.getElementById('notifBanner');
+  document.getElementById('notifText').textContent = msgs[status] || 'Your enrollment status has been updated.';
+  notifBanner.style.display = 'flex';
+}
+
+function dismissNotif() {
+  document.getElementById('notifBanner').style.display = 'none';
+}
+
+function updateStatusBanner() {
+  if (!myEnrollment) return;
+  const banner = document.getElementById('statusBanner');
+  const status = myEnrollment.status || 'Pending';
+  const statusMessages = {
+    Pending: '⏳ Your enrollment is pending review. Keister will contact you within 24 hours.',
+    Confirmed: '✅ Your enrollment is CONFIRMED! Keister will reach out to finalize your schedule.',
+    Declined: '❌ Your enrollment was not accepted. Check the details below or contact us.',
+    Completed: '🎓 Your enrollment is complete. Thanks for learning with Guitarify!'
+  };
+  banner.className = 'status-banner ' + status.toLowerCase();
+  banner.textContent = statusMessages[status] || '';
+  const btn = document.getElementById('heroEnrollBtn');
+  if (status === 'Pending' || status === 'Confirmed') {
+    btn.disabled = true;
+    btn.textContent = status === 'Confirmed' ? '✅ Enrollment Confirmed' : '⏳ Enrollment Pending';
+  } else if (status === 'Completed' || status === 'Declined') {
+    btn.disabled = false;
+    btn.textContent = '🎸 Enroll Again';
+  }
+}
+
+function renderMyEnrollment() {
+  if (!myEnrollment) return;
+  document.getElementById('myEnrollSection').style.display = 'block';
+  const e = myEnrollment;
+  const status = e.status || 'Pending';
+  const statusClass = status.toLowerCase();
+  const date = e.submitted_at ? new Date(e.submitted_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : 'N/A';
+  document.getElementById('myEnrollCard').innerHTML = `
+    <div class="enroll-history-header">
+      <span class="enroll-history-ref">${e.ref_id || '—'}</span>
+      <span class="enroll-status-badge ${statusClass}">${status}</span>
+    </div>
+    <div class="enroll-detail-row">
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Preferred Days</div><div class="enroll-detail-value">${e.days || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Time Slot</div><div class="enroll-detail-value">${e.time_slot || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Mode</div><div class="enroll-detail-value">${e.mode || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Frequency</div><div class="enroll-detail-value">${e.frequency || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Level</div><div class="enroll-detail-value">${e.level || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Submitted</div><div class="enroll-detail-value">${date}</div></div>
+    </div>
+    ${e.admin_notes ? `<div class="enroll-admin-note show">📩 Message from Keister: ${e.admin_notes}</div>` : ''}
+    ${status === 'Pending' ? `<div style="margin-top:14px;"><button class="cancel-btn" onclick="cancelEnrollment('${e.ref_id}')">Cancel Enrollment</button><span style="font-size:11px;color:var(--text3);margin-left:12px;">You can cancel while still pending.</span></div>` : ''}
+    ${status === 'Declined' || status === 'Completed' ? `<div style="margin-top:14px;"><button class="hero-btn" style="font-size:12px;padding:10px 20px;" onclick="openEnrollModal()">🎸 Enroll Again</button></div>` : ''}
+  `;
+}
+
+async function cancelEnrollment(refId) {
+  if (!confirm('Are you sure you want to cancel your enrollment?')) return;
+  try {
+    const res = await fetch(ENROLL_URL + '?action=cancel', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ refId, userEmail: currentUser.email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Enrollment cancelled.', 'info');
+      await checkMyEnrollment();
+    } else { showToast(data.message || 'Could not cancel.', 'error'); }
+  } catch(e) { showToast('Connection error.', 'error'); }
+}
+
+/* ── ENROLLMENT MODAL ── */
+function handleEnrollClick() {
+  if (!currentUser) {
+    showToast('Please log in or create an account to enroll.', 'info');
+    openAuth('login');
+    return;
+  }
+  if (myEnrollment && (myEnrollment.status === 'Pending' || myEnrollment.status === 'Confirmed')) {
+    showToast('You already have an active enrollment. Check the section below.', 'info');
+    document.getElementById('myEnrollSection').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  openEnrollModal();
+}
+
+function openEnrollModal() {
+  currentStep = 1;
+  selectedDays.clear();
+  selectedTime = '';
+  selectedLevel = '';
+  document.querySelectorAll('.chip, .level-pill').forEach(c => c.classList.remove('selected'));
+  const fields = ['s1_name','s1_age','s1_contact','s1_email','s1_guardian','s1_guardian_contact','s1_address','s2_mode','s2_freq','s2_startdate','s3_guitar','s3_prev_instrument','s3_genre','s3_goals','s3_special','s3_source'];
+  fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('termsCheck') && (document.getElementById('termsCheck').checked = false);
+  document.getElementById('guardianField').style.display = 'none';
+  if (currentUser) {
+    const emailEl = document.getElementById('s1_email');
+    const nameEl = document.getElementById('s1_name');
+    if (emailEl) emailEl.value = currentUser.email;
+    if (nameEl) nameEl.value = currentUser.name;
+  }
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('enrollModalBody').style.display = 'block';
+  document.getElementById('enrollModalFooter').style.display = 'flex';
+  renderStep(1);
+  document.getElementById('enrollModalBg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEnrollModal() {
+  document.getElementById('enrollModalBg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleModalBgClick(e) {
+  if (e.target === document.getElementById('enrollModalBg')) closeEnrollModal();
+}
+
+function renderStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  document.getElementById('formErr').textContent = '';
+  const titles = {1:'Personal Info', 2:'Pick Schedule', 3:'Your Background', 4:'Review & Submit'};
+  document.getElementById('modalStepTitle').textContent = titles[n];
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
+    const circle = document.getElementById('scircle-' + i);
+    const label = document.getElementById('slabel-' + i);
+    if (i < n) {
+      circle.classList.remove('active'); circle.classList.add('done'); circle.textContent = '✓';
+      label.classList.remove('active'); label.classList.add('done');
+    } else if (i === n) {
+      circle.classList.add('active'); circle.classList.remove('done'); circle.textContent = i;
+      label.classList.add('active'); label.classList.remove('done');
+    } else {
+      circle.classList.remove('active','done'); circle.textContent = i;
+      label.classList.remove('active','done');
+    }
+    if (i < TOTAL_STEPS) document.getElementById('sline-' + i).classList.toggle('done', i < n);
+  }
+  document.getElementById('btnBack').style.display = n > 1 ? 'inline-flex' : 'none';
+  document.getElementById('btnNext').innerHTML = n < TOTAL_STEPS ? 'Continue →' : '🎸 Submit Enrollment';
+  document.getElementById('enrollModal').scrollTop = 0;
+}
+
+function prevStep() { if (currentStep > 1) renderStep(currentStep - 1); }
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  if (currentStep < TOTAL_STEPS) {
+    if (currentStep === TOTAL_STEPS - 1) populateReview();
+    renderStep(currentStep + 1);
+  } else {
+    submitEnrollment();
+  }
+}
+
+/* ── VALIDATION ── */
+function clearErrors() {
+  document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+}
+
+function showErr(id, inputId) {
+  const errEl = document.getElementById(id);
+  if (errEl) errEl.style.display = 'block';
+  if (inputId) {
+    const inputEl = document.getElementById(inputId);
+    if (inputEl) inputEl.classList.add('error');
+  }
+}
+
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+function validateStep(n) {
+  clearErrors();
+  let valid = true;
+  if (n === 1) {
+    if (!v('s1_name')) { showErr('err_name','s1_name'); valid = false; }
+    const age = parseInt(document.getElementById('s1_age')?.value || '0');
+    if (!age || age < 5 || age > 99) { showErr('err_age','s1_age'); valid = false; }
+    const contact = v('s1_contact');
+    if (!contact || contact.length < 7) { showErr('err_contact','s1_contact'); valid = false; }
+    const email = v('s1_email');
+    if (!email || !email.includes('@') || !email.includes('.')) { showErr('err_email','s1_email'); valid = false; }
+    if (age < 18 && !v('s1_guardian')) { showErr('err_guardian','s1_guardian'); valid = false; }
+    if (!v('s1_address')) { showErr('err_address','s1_address'); valid = false; }
+  }
+  if (n === 2) {
+    if (selectedDays.size === 0) { showErr('err_days'); valid = false; }
+    if (!selectedTime) { showErr('err_time'); valid = false; }
+    if (!v('s2_mode')) { showErr('err_mode','s2_mode'); valid = false; }
+    if (!v('s2_freq')) { showErr('err_freq','s2_freq'); valid = false; }
+  }
+  if (n === 3) {
+    if (!selectedLevel) { showErr('err_level'); valid = false; }
+    if (!v('s3_guitar')) { showErr('err_guitar','s3_guitar'); valid = false; }
+  }
+  if (n === 4) {
+    if (!document.getElementById('termsCheck').checked) { showErr('err_terms'); valid = false; }
+  }
+  if (!valid) {
+    document.getElementById('formErr').textContent = 'Please fix the highlighted fields.';
+    const firstErr = document.querySelector('.field-error[style*="block"]');
+    if (firstErr) firstErr.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  return valid;
+}
+
+/* ── CHIP TOGGLES ── */
+function toggleDay(el) {
+  el.classList.toggle('selected');
+  el.classList.contains('selected') ? selectedDays.add(el.dataset.val) : selectedDays.delete(el.dataset.val);
+}
+function toggleTime(el) {
+  document.querySelectorAll('#timeChips .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTime = el.dataset.val;
+}
+function selectLevel(el) {
+  document.querySelectorAll('.level-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedLevel = el.dataset.val;
+}
+
+/* ── AGE-BASED GUARDIAN FIELD ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const ageInput = document.getElementById('s1_age');
+  if (ageInput) {
+    ageInput.addEventListener('input', function() {
+      const age = parseInt(this.value || '0');
+      document.getElementById('guardianField').style.display = (age > 0 && age < 18) ? 'block' : 'none';
+    });
+  }
+});
+
+/* ── REVIEW POPULATE ── */
+function populateReview() {
+  document.getElementById('rv_name').textContent = v('s1_name');
+  document.getElementById('rv_age').textContent = v('s1_age') + ' years old';
+  document.getElementById('rv_contact').textContent = v('s1_contact');
+  document.getElementById('rv_email').textContent = v('s1_email');
+  document.getElementById('rv_address').textContent = v('s1_address');
+  const guardian = v('s1_guardian');
+  document.getElementById('rv_guardian_row').style.display = guardian ? 'flex' : 'none';
+  document.getElementById('rv_guardian').textContent = guardian || '—';
+  document.getElementById('rv_days').textContent = [...selectedDays].join(', ');
+  document.getElementById('rv_time').textContent = selectedTime;
+  document.getElementById('rv_mode').textContent = v('s2_mode');
+  document.getElementById('rv_freq').textContent = v('s2_freq');
+  const startdate = v('s2_startdate');
+  document.getElementById('rv_startdate').textContent = startdate || 'Flexible';
+  document.getElementById('rv_level').textContent = selectedLevel;
+  document.getElementById('rv_guitar').textContent = v('s3_guitar');
+  document.getElementById('rv_genre').textContent = v('s3_genre') || 'Not specified';
+  document.getElementById('rv_goals').textContent = v('s3_goals') || 'Not specified';
+  const special = v('s3_special');
+  document.getElementById('rv_special_row').style.display = special ? 'flex' : 'none';
+  document.getElementById('rv_special').textContent = special;
+}
+
+/* ── SUBMIT ── */
+async function submitEnrollment() {
+  const btnNext = document.getElementById('btnNext');
+  btnNext.disabled = true;
+  btnNext.innerHTML = '⏳ Submitting…';
+  const payload = {
+    name: v('s1_name'), age: v('s1_age'), contact: v('s1_contact'), email: v('s1_email'),
+    guardian: v('s1_guardian'), guardian_contact: v('s1_guardian_contact'), address: v('s1_address'),
+    days: [...selectedDays].join(', '), time: selectedTime, mode: v('s2_mode'),
+    frequency: v('s2_freq'), start_date: v('s2_startdate'),
+    level: selectedLevel, guitar: v('s3_guitar'), prev_instrument: v('s3_prev_instrument'),
+    genre: v('s3_genre'), goals: v('s3_goals'), special_needs: v('s3_special'),
+    source: v('s3_source'), user_email: currentUser ? currentUser.email : ''
+  };
+  try {
+    const res = await fetch(ENROLL_URL + '?action=submit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('enrollModalBody').style.display = 'none';
+      document.getElementById('enrollModalFooter').style.display = 'none';
+      document.getElementById('successRefId').textContent = data.refId;
+      document.getElementById('successScreen').classList.add('show');
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const c = document.getElementById('scircle-' + i);
+        const l = document.getElementById('slabel-' + i);
+        c.classList.remove('active'); c.classList.add('done'); c.textContent = '✓';
+        l.classList.remove('active'); l.classList.add('done');
+      }
+      ['sline-1','sline-2','sline-3'].forEach(id => document.getElementById(id).classList.add('done'));
+      await checkMyEnrollment();
+    } else {
+      document.getElementById('formErr').textContent = data.message || 'Submission failed. Please try again.';
+      btnNext.disabled = false;
+      btnNext.innerHTML = '🎸 Submit Enrollment';
+    }
+  } catch(e) {
+    document.getElementById('formErr').textContent = 'Connection error. Make sure XAMPP is running.';
+    btnNext.disabled = false;
+    btnNext.innerHTML = '🎸 Submit Enrollment';
+  }
+}
+
+/* ── AUTH MODAL ── */
+function handleUserIconClick() {
+  if (currentUser) { document.getElementById('userDropdown').classList.toggle('open'); }
+  else { openAuth('login'); }
+}
+function openAuth(tab='login') { document.getElementById('authBg').classList.add('open'); switchAuthTab(tab); }
+function closeAuth() { document.getElementById('authBg').classList.remove('open'); }
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab==='login' ? '' : 'none';
+  document.getElementById('signupForm').style.display = tab==='signup' ? '' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
+}
+
+/* ── TOAST ── */
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + (type || ''); t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── DROPDOWN CLOSE ── */
+document.addEventListener('click', e => {
+  const dd = document.getElementById('userDropdown');
+  const btn = document.getElementById('navUserBtn');
+  if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('open');
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeEnrollModal(); closeAuth(); }
+});
+
+/* ── POLLING: Check status every 30 seconds if logged in ── */
+setInterval(async () => {
+  if (currentUser && myEnrollment) await checkMyEnrollment();
+}, 30000);
+
+checkSession();
+</script>
+</body>
+</html>

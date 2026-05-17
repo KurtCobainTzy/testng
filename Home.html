@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guitarify</title>
+  <style>
+/* ── SHARED BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #111; color: #f0ede0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; overflow-x: hidden; }
+.site { display: flex; flex-direction: column; min-height: 100vh; width: 100%; overflow-x: hidden; }
+
+/* ── NAV ── */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 56px; background: #111;
+  border-bottom: 0.5px solid #2a2a2a; position: sticky; top: 0; z-index: 200;
+}
+.nav-left { display: flex; align-items: center; gap: 16px; }
+.nav-logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: #f0ede0; }
+.nav-city { font-size: 11px; color: #444; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { font-size: 12px; font-weight: 600; color: #666; text-decoration: none; letter-spacing: 0.5px; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color: #f0ede0; }
+.nav-links a.enroll-link { color: #f66e06 !important; font-weight: 700; }
+.nav-icons { position: relative; }
+.nav-user-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: background 0.15s; }
+.nav-user-btn:hover { background: #1a1a1a; }
+.nav-user-name { font-size: 12px; color: #aaa; }
+.user-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 10px; min-width: 200px; overflow: hidden; z-index: 300; }
+.user-dropdown.open { display: block; }
+.user-dropdown-header { padding: 14px 16px; border-bottom: 0.5px solid #2a2a2a; }
+.user-dropdown-name { font-size: 13px; font-weight: 700; color: #f0ede0; }
+.user-dropdown-email { font-size: 11px; color: #666; margin-top: 2px; }
+.user-dropdown-item { padding: 11px 16px; font-size: 12px; color: #aaa; cursor: pointer; transition: background 0.15s; }
+.user-dropdown-item:hover { background: #252525; color: #f0ede0; }
+.user-dropdown-item.danger { color: #e05555; }
+
+/* ── SECTION SHARED ── */
+.section-tag { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: #f66e06; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.section-tag::before { content:''; display:block; width:20px; height:1px; background:#f66e06; }
+.section-title { font-size: clamp(28px,4vw,42px); font-weight: 900; letter-spacing: -1px; color: #f0ede0; text-transform: uppercase; line-height: 1; margin-bottom: 6px; }
+
+/* ── HERO ── */
+.hero { position: relative; min-height: 440px; background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(246,110,6,0.15) 0%, transparent 70%), #111; overflow: hidden; display: flex; align-items: center; padding: 60px 40px; }
+.hero-bg-text { position: absolute; right: 60px; top: 50%; transform: translateY(-50%); font-size: 160px; font-weight: 900; line-height: 0.85; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.04); pointer-events: none; letter-spacing: 4px; text-transform: uppercase; user-select: none; }
+.hero-content { position: relative; z-index: 1; max-width: 580px; }
+.hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: #f66e06; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
+.hero-eyebrow::before { content: ''; display: block; width: 30px; height: 1px; background: #f66e06; }
+.hero-title { font-size: clamp(52px, 8vw, 96px); font-weight: 900; line-height: 0.92; letter-spacing: -2px; color: #f66e06; text-transform: uppercase; margin-bottom: 20px; }
+.hero-title .white { color: #f0ede0; display: block; }
+.hero-subtitle { font-size: 15px; color: #888; line-height: 1.7; max-width: 420px; margin-bottom: 32px; }
+.hero-subtitle strong { color: #ccc; font-weight: 700; }
+.hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn-primary { background: #f66e06; color: #fff; font-size: 13px; font-weight: 700; padding: 11px 26px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; letter-spacing: 0.5px; transition: opacity 0.2s, transform 0.15s; display: inline-block; }
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-outline { background: transparent; color: #f66e06; font-size: 13px; font-weight: 700; padding: 11px 26px; border-radius: 4px; border: 1.5px solid #f66e06; cursor: pointer; text-decoration: none; letter-spacing: 0.5px; transition: background 0.2s, transform 0.15s; display: inline-block; }
+.btn-outline:hover { background: rgba(246,110,6,0.1); transform: translateY(-1px); }
+
+/* ENROLL NOW button — special style */
+.btn-enroll {
+  background: #fff; color: #111; font-size: 12px; font-weight: 900;
+  padding: 11px 22px; border-radius: 4px; border: none; cursor: pointer;
+  text-decoration: none; letter-spacing: 1px; text-transform: uppercase;
+  transition: background 0.2s, transform 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-enroll:hover { background: #f0ede0; transform: translateY(-1px); }
+.btn-enroll .enroll-dot { width: 7px; height: 7px; border-radius: 50%; background: #f66e06; flex-shrink: 0; }
+
+/* ── INTRO ── */
+.intro-section { padding: 60px 40px; border-bottom: 0.5px solid #2a2a2a; border-top: 0.5px solid #2a2a2a; background: #111; display: grid; grid-template-columns: 1fr 2fr; gap: 48px; align-items: center; }
+.intro-label { font-size: 36px; font-weight: 900; letter-spacing: -1px; color: #f0ede0; text-transform: uppercase; line-height: 1.1; }
+.intro-label span { color: #f66e06; }
+.intro-text { font-size: 14px; color: #888; line-height: 1.85; border-left: 2px solid #f66e06; padding-left: 20px; }
+
+/* ── FEATURES ── */
+.section { padding: 48px 40px; }
+.features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 24px; }
+.feature-card { background: #1e1e1e; border-radius: 8px; padding: 26px 20px; border: 0.5px solid #2a2a2a; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.25s; }
+.feature-card:hover { transform: translateY(-4px); border-color: rgba(246,110,6,0.4); }
+.feature-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #f66e06; transform: scaleX(0); transition: transform 0.3s; }
+.feature-card:hover::after { transform: scaleX(1); }
+.feature-icon { font-size: 26px; margin-bottom: 14px; display: block; }
+.feature-name { font-size: 14px; font-weight: 900; color: #f0ede0; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+.feature-desc { font-size: 12px; color: #666; line-height: 1.7; }
+
+/* ── WHY ── */
+.why-section { padding: 60px 40px; background: #161616; border-top: 0.5px solid #2a2a2a; display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: center; }
+.why-text { font-size: 14px; color: #888; line-height: 1.85; margin-top: 14px; }
+.why-stats { display: flex; flex-direction: column; gap: 12px; }
+.stat-item { padding: 18px 22px; background: #1e1e1e; border: 0.5px solid #2a2a2a; border-radius: 8px; border-left: 3px solid #f66e06; }
+.stat-number { font-size: 38px; font-weight: 900; color: #f66e06; letter-spacing: -1px; line-height: 1; }
+.stat-label { font-size: 11px; color: #666; margin-top: 4px; }
+
+/* ── ENROLL BANNER (NEW LAYOUT) ── */
+.enroll-banner {
+  padding: 60px 40px;
+  background: #161616;
+  border-top: 0.5px solid #2a2a2a;
+  border-bottom: 0.5px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.enroll-text-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.enroll-banner-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #f66e06;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.enroll-banner-tag::before { content:''; display:block; width:18px; height:1px; background:#f66e06; }
+
+.enroll-banner-title {
+  font-size: clamp(22px, 3vw, 36px);
+  font-weight: 900;
+  color: #f0ede0;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  line-height: 1.05;
+}
+
+.enroll-banner-divider {
+  width: 40px;
+  height: 2px;
+  background: #f66e06;
+  margin-bottom: 16px;
+}
+
+.enroll-banner-sub {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.75;
+  max-width: 420px;
+}
+.enroll-banner-sub strong { color: #bbb; }
+
+/* Photo + button column */
+.enroll-photo-col {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 220px;
+}
+
+.enroll-photo-placeholder {
+  width: 220px;
+  height: 260px;
+  border-radius: 10px;
+  background: #1e1e1e;
+  border: 1.5px dashed #383838;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #444;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  /* Replace this entire element with <img> when you have the photo */
+}
+.enroll-photo-placeholder svg { opacity: 0.35; }
+
+.enroll-photo-name {
+  font-size: 15px;
+  font-weight: 900;
+  color: #f0ede0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.enroll-photo-role {
+  font-size: 11px;
+  color: #f66e06;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: -8px;
+}
+
+.btn-enroll-big {
+  background: #f66e06;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 13px 28px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.btn-enroll-big:hover { opacity: 0.88; transform: translateY(-2px); }
+
+/* ── CTA ── */
+.cta-section { padding: 90px 40px; text-align: center; background: #111; border-top: 0.5px solid #2a2a2a; position: relative; overflow: hidden; }
+.cta-bg { position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%); font-size: 130px; font-weight: 900; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.03); pointer-events: none; white-space: nowrap; text-transform: uppercase; letter-spacing: 4px; }
+.cta-eyebrow { font-size: 11px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+.cta-title { font-size: clamp(36px, 6vw, 64px); font-weight: 900; letter-spacing: -2px; color: #f0ede0; text-transform: uppercase; line-height: 1; margin-bottom: 28px; }
+.cta-title span { color: #f66e06; }
+.cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-btn { display: inline-block; background: #f66e06; color: #fff; font-size: 13px; font-weight: 700; padding: 13px 36px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; transition: opacity 0.2s, transform 0.15s; }
+.cta-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.cta-btn-enroll { display: inline-block; background: transparent; color: #f0ede0; font-size: 13px; font-weight: 700; padding: 13px 36px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; border: 1.5px solid #444; transition: border-color 0.2s, transform 0.15s; }
+.cta-btn-enroll:hover { border-color: #f66e06; color: #f66e06; transform: translateY(-1px); }
+
+/* ── FOOTER ── */
+.footer { border-top: 0.5px solid #2a2a2a; padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.footer-logo { font-size: 14px; font-weight: 900; letter-spacing: 3px; color: #333; }
+.footer-copy { font-size: 11px; color: #444; }
+
+/* ── AUTH MODAL ── */
+.auth-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+.auth-bg.open { display: flex; }
+.auth-modal { background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; position: relative; }
+.auth-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #666; cursor: pointer; z-index: 1; }
+.auth-tabs { display: flex; border-bottom: 0.5px solid #2a2a2a; }
+.auth-tab { flex: 1; padding: 14px; text-align: center; font-size: 13px; font-weight: 700; color: #666; cursor: pointer; transition: color 0.2s; }
+.auth-tab.active { color: #f0ede0; border-bottom: 2px solid #f66e06; }
+.auth-body { padding: 24px; }
+.auth-greeting { font-size: 22px; font-weight: 900; color: #f0ede0; margin-bottom: 4px; }
+.auth-sub { font-size: 12px; color: #666; margin-bottom: 20px; }
+.auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.auth-field label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+.auth-field input { background: #111; border: 0.5px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #f0ede0; outline: none; transition: border-color 0.2s; }
+.auth-field input:focus { border-color: #f66e06; }
+.auth-error { font-size: 12px; color: #e05555; margin-bottom: 10px; min-height: 16px; }
+.auth-submit { width: 100%; background: #f66e06; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; transition: opacity 0.2s; }
+.auth-submit:hover { opacity: 0.88; }
+.auth-divider { font-size: 12px; color: #666; text-align: center; margin-top: 16px; }
+.auth-divider span { color: #f66e06; cursor: pointer; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; border: 0.5px solid #2a2a2a; color: #f0ede0; font-size: 13px; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 600; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+      <div class="nav-city"><span></span></div>
+    </div>
+    <div class="nav-links">
+      <a href="Home.html" class="active">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html">Lesson</a>
+      <a href="Recommendations.html">Recommendations</a>
+      <a href="practice.html">Quizzes</a>
+      <a href="Enroll.html" class="enroll-link">✦ Enroll</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg-text">Guitarify</div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Guitar Learning Platform</div>
+      <h1 class="hero-title">
+        Learn Guitar
+        <span class="white">The Easy Way.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Master <strong>chords, songs, and strumming</strong> step by step.
+        Built for beginners, designed for progress.
+      </p>
+      <div class="hero-buttons">
+        <a href="lessons.html" class="btn-primary">Start Learning</a>
+        <a href="Enroll.html" class="btn-enroll">Enroll Now!</a>
+         
+         
+      
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro-section">
+    <div class="intro-label">
+      What is<br/><span>Guitarify</span><br/>Website?
+    </div>
+    <p class="intro-text">
+      Welcome to Guitarify, a beginner-friendly guitar learning website designed to help you explore chords, songs, and tutorials all in one place. Whether you're picking up a guitar for the first time or simply reviewing the basics, this platform provides everything you need to get started and improve your skills.
+
+      Our goal is to make learning guitar simple, organized, and enjoyable for everyone. With easy-to-follow lessons, accessible chord guides, and song examples, you can learn at your own pace without feeling overwhelmed. Each section is carefully arranged to guide you step by step, making it easier to understand and apply what you learn.
+
+      Guitarify is built for students and aspiring guitarists who want a convenient and reliable way to practice anytime, anywhere. From basic chords to actual song applications, everything is designed to support your learning journey in a clear and practical way—all in one place, organized, simple, and free.
+    </p>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section">
+    <div class="section-tag">What's Inside</div>
+    <div class="section-title">Everything You Need</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🎸</span>
+        <div class="feature-name">Lessons</div>
+        <p class="feature-desc">Step-by-step guitar tutorials for beginners. Start from zero and build your skills at your own pace.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📚</span>
+        <div class="feature-name">Chord Library</div>
+        <p class="feature-desc">Easy access to basic and advanced guitar chords with diagrams and finger positioning guides.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎵</span>
+        <div class="feature-name">Songs</div>
+        <p class="feature-desc">Practice with real song examples. Learn the chords and strumming patterns of your favorite tracks.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎥</span>
+        <div class="feature-name">Videos</div>
+        <p class="feature-desc">Watch tutorials for better learning. Visual guides make it easier to understand techniques.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY -->
+  <div class="why-section">
+    <div>
+      <div class="section-tag">Why Guitarify</div>
+      <div class="section-title">Built For Beginners</div>
+      <p class="why-text">
+        This platform is designed to make learning guitar simple, organized, and accessible for students through interactive lessons and practical examples. It focuses on providing a smooth and easy learning experience, especially for beginners who may find traditional methods confusing or overwhelming.
+
+        Instead of complex theories and technical explanations, the content is presented in a clear and straightforward way, allowing users to quickly understand and apply what they learn. Each lesson is structured to guide learners step by step, helping them build confidence as they progress.
+
+        With a combination of chords, song applications, and video tutorials, this platform encourages hands-on practice and real musical experience. The goal is to help users start playing actual songs as early as possible while continuously improving their skills in a simple and enjoyable way.
+      </p>
+    </div>
+    <div class="why-stats">
+      <div class="stat-item">
+        <div class="stat-number">Guitar Basics</div>
+        <div class="stat-label">Lessons available</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">Core Chords</div>
+        <div class="stat-label">Chords in the library</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">FREE</div>
+        <div class="stat-label">No sign-up needed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ENROLL BANNER (UPDATED) ── -->
+  <div class="enroll-banner">
+
+    <!-- Left: text -->
+    <div class="enroll-text-col">
+      <div class="enroll-banner-tag">✦ One-on-One Lessons</div>
+      <div class="enroll-banner-title">Ready To Learn<br>From A Pro?</div>
+      <div class="enroll-banner-divider"></div>
+      <div class="enroll-banner-sub">
+        Take your guitar journey to the next level with <strong>personalized lessons from Jeannie Trinidad</strong>,
+        a professional guitar teacher. Flexible schedules, beginner-friendly,
+        and designed around your goals.
+      </div>
+    </div>
+
+    <!-- Right: two instructor cards -->
+    <div style="display:flex; gap:24px; flex-shrink:0;">
+
+      <!-- Instructor 1 -->
+      <div class="enroll-photo-col">
+        <img src="C:\xampp\htdocs\WebSystem\image\picture1.png" alt="Keister Logan"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          style="width:220px; height:260px; border-radius:10px; object-fit:cover; object-position:top; display:block;">
+        <div style="width:220px; height:260px; border-radius:10px; background:#1e1e1e; border:1.5px dashed #383838; display:none; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#444; font-size:11px; letter-spacing:1px; text-transform:uppercase;">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.2" style="opacity:0.35">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Photo Here</span>
+        </div>
+        <div class="enroll-photo-name">Keister Logan</div>
+        <div class="enroll-photo-role">Guitar Teacher</div>
+        <a href="Enroll.html" class="btn-enroll-big">🎸 Enroll Now!</a>
+      </div>
+
+      <!-- Instructor 2 -->
+      <div class="enroll-photo-col">
+        <img src="C:\Users\Keneth\OneDrive\Pictures\Screenshots\image.png" alt="Instructor 2"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          style="width:220px; height:260px; border-radius:10px; object-fit:cover; object-position:top; display:block;">
+        <div style="width:220px; height:260px; border-radius:10px; background:#1e1e1e; border:1.5px dashed #383838; display:none; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#444; font-size:11px; letter-spacing:1px; text-transform:uppercase;">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.2" style="opacity:0.35">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Photo Here</span>
+        </div>
+        <div class="enroll-photo-name">Instructor Name</div>
+        <div class="enroll-photo-role">Guitar Teacher</div>
+        <a href="Enroll.html" class="btn-enroll-big">🎸 Enroll Now!</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-bg">Guitarify</div>
+    <p class="cta-eyebrow">Start your guitar journey today</p>
+    <div class="cta-title">Ready To <span>Play?</span></div>
+    <div class="cta-buttons">
+      <a href="lessons.html" class="cta-btn">Go To Lessons →</a>
+      <a href="enrollment.html" class="cta-btn-enroll">✦ Enroll Now!</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">Guitarify</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+    <div class="auth-modal">
+      <button class="auth-close" onclick="closeAuth()">✕</button>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+        <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+      </div>
+      <div class="auth-body" id="loginForm">
+        <div class="auth-greeting">Welcome Back</div>
+        <div class="auth-sub">Log in to continue your guitar journey.</div>
+        <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-submit" onclick="doLogin()">Log In</button>
+        <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+      </div>
+      <div class="auth-body" id="signupForm" style="display:none;">
+        <div class="auth-greeting">Join Guitarify</div>
+        <div class="auth-sub">Create a free account and start learning.</div>
+        <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+        <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+        <div class="auth-error" id="signupError"></div>
+        <button class="auth-submit" onclick="doSignup()">Create Account</button>
+        <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AUTH_URL = 'auth.php';
+let currentUser = null;
+
+async function checkSession() {
+    try {
+        const res = await fetch(AUTH_URL + '?action=check');
+        const data = await res.json();
+        if (data.loggedIn && data.user) {
+            currentUser = data.user;
+            updateNavUser();
+        }
+    } catch(e) {}
+}
+
+async function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    const err = document.getElementById('signupError');
+    err.textContent = '';
+    if (!name || !email || !password || !confirm) { err.textContent = 'Please fill in all fields.'; return; }
+    if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    try {
+        const res = await fetch(AUTH_URL + '?action=signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    err.textContent = '';
+    if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+    try {
+        const res = await fetch(AUTH_URL + '?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function logout() {
+    try { await fetch(AUTH_URL + '?action=logout'); } catch(e) {}
+    currentUser = null;
+    updateNavUser();
+    document.getElementById('userDropdown').classList.remove('open');
+    showToast('Logged out.');
+}
+
+function updateNavUser() {
+    const nameEl = document.getElementById('navUserName');
+    const dropName = document.getElementById('dropdownName');
+    const dropEmail = document.getElementById('dropdownEmail');
+    if (currentUser) {
+        if (nameEl) nameEl.textContent = currentUser.name;
+        if (dropName) dropName.textContent = currentUser.name;
+        if (dropEmail) dropEmail.textContent = currentUser.email;
+    } else {
+        if (nameEl) nameEl.textContent = '';
+        if (dropName) dropName.textContent = '–';
+        if (dropEmail) dropEmail.textContent = '–';
+    }
+}
+
+function handleUserIconClick() {
+    if (currentUser) {
+        document.getElementById('userDropdown').classList.toggle('open');
+    } else {
+        openAuth();
+    }
+}
+
+function openAuth() { document.getElementById('authBg').classList.add('open'); }
+function closeAuth() { document.getElementById('authBg').classList.remove('open'); }
+function handleAuthBgClick(e) { if (e.target === document.getElementById('authBg')) closeAuth(); }
+function switchAuthTab(tab) {
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('click', function(e) {
+    const dd = document.getElementById('userDropdown');
+    const btn = document.getElementById('navUserBtn');
+    if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('open');
+});
+
+checkSession();
+</script>
+</body>
+</html>

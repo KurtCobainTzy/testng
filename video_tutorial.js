@@ -1,5 +1,7 @@
 // ── VIDEO DATA ──
-// Replace youtubeId with actual YouTube video IDs
+// Put your MP4 files in a "videos/" folder next to your HTML file
+// Then reference them as 'videos/yourfile.mp4'
+// DO NOT use full Windows paths like C:\Users\... — browsers cannot access those
 const VIDEOS = [
   {
     id: 1,
@@ -7,7 +9,7 @@ const VIDEOS = [
     tag: 'beginner',
     duration: '12:34',
     emoji: '🎸',
-    youtubeId: 'BBz-Jyr23M4', // replace with your video ID
+    videoSrc: 'videos/WONDERWALL.mp4',
     desc: 'The perfect starting point. Learn how to hold the guitar, tune it, and play your first notes.'
   },
   {
@@ -16,7 +18,7 @@ const VIDEOS = [
     tag: 'beginner',
     duration: '8:20',
     emoji: '📄',
-    youtubeId: 'aX5KBnXDpCU',
+    videoSrc: 'videos/guitar-tabs.mp4',
     desc: 'Learn how to read tablature (tabs) so you can play any song you find online.'
   },
   {
@@ -25,7 +27,7 @@ const VIDEOS = [
     tag: 'chords',
     duration: '15:00',
     emoji: '🤚',
-    youtubeId: 'OZEKdNBl5OA',
+    videoSrc: 'videos/cgdem-chords.mp4',
     desc: 'Master these 4 chords and you can play hundreds of popular songs right away.'
   },
   {
@@ -34,7 +36,7 @@ const VIDEOS = [
     tag: 'strumming',
     duration: '10:45',
     emoji: '🥁',
-    youtubeId: 'aWAHGIa4AJM',
+    videoSrc: 'videos/strumming-patterns.mp4',
     desc: 'Learn the most common strumming patterns used in pop, rock, and folk music.'
   },
   {
@@ -43,7 +45,7 @@ const VIDEOS = [
     tag: 'chords',
     duration: '11:22',
     emoji: '🎼',
-    youtubeId: 'Qe6xUkpVB60',
+    videoSrc: 'videos/TUTU.mp4',
     desc: 'This four-chord progression is used in thousands of songs. Learn it and unlock your repertoire.'
   },
   {
@@ -52,7 +54,7 @@ const VIDEOS = [
     tag: 'songs',
     duration: '18:10',
     emoji: '✈️',
-    youtubeId: 'MDBykpSXsSE',
+    videoSrc: 'videos/leaving-on-a-jet-plane.mp4',
     desc: 'A perfect beginner song using G, C, and D chords. Includes chords, strumming, and tips.'
   },
   {
@@ -61,7 +63,7 @@ const VIDEOS = [
     tag: 'beginner',
     duration: '14:05',
     emoji: '🎵',
-    youtubeId: 'vJLOQQUsFXk',
+    videoSrc: 'videos/TUTS 3.mp4',
     desc: 'Introduction to fingerpicking patterns. Start slow and build up speed over time.'
   },
   {
@@ -70,7 +72,7 @@ const VIDEOS = [
     tag: 'chords',
     duration: '20:30',
     emoji: '💪',
-    youtubeId: '0YFlJQHLWlU',
+    videoSrc: 'videos/TUTS 2.mp4',
     desc: 'Barre chords unlock the entire fretboard. Learn the technique step by step.'
   },
   {
@@ -79,7 +81,7 @@ const VIDEOS = [
     tag: 'songs',
     duration: '9:55',
     emoji: '🎤',
-    youtubeId: 'ckVSJgPdR0I',
+    videoSrc: 'videos/knockin-on-heavens-door.mp4',
     desc: 'Classic Bob Dylan song using G, D, Am, and C chords. Great for beginners.'
   },
 ];
@@ -98,12 +100,7 @@ function renderVideos(filter) {
     card.onclick = () => openVmodal(v);
     card.innerHTML = `
       <div class="video-thumb">
-        <img
-          src="https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg"
-          alt="${v.title}"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-        />
-        <div class="video-thumb-placeholder" style="display:none;">${v.emoji}</div>
+        <div class="video-thumb-placeholder" style="display:flex;">${v.emoji}</div>
         <div class="video-play-overlay">
           <div class="video-play-circle">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -135,14 +132,26 @@ function openVmodal(video) {
   document.getElementById('vmodalTag').textContent = video.tag.toUpperCase() + ' · ' + video.duration;
   document.getElementById('vmodalTitle').textContent = video.title;
   document.getElementById('vmodalDesc').textContent = video.desc;
+
+  // Use HTML5 <video> instead of YouTube iframe
   document.getElementById('vmodalPlayer').innerHTML = `
-    <iframe
-      src="https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0"
-      allow="autoplay; encrypted-media"
-      allowfullscreen>
-    </iframe>
+    <video
+      src="${video.videoSrc}"
+      controls
+      autoplay
+      style="width:100%; height:100%; background:#000;">
+      Your browser does not support the video tag.
+    </video>
   `;
-  document.getElementById('vmodalYtBtn').href = `https://www.youtube.com/watch?v=${video.youtubeId}`;
+
+  // Update the button to link directly to the video file (download/open)
+  const ytBtn = document.getElementById('vmodalYtBtn');
+  if (ytBtn) {
+    ytBtn.href = video.videoSrc;
+    ytBtn.textContent = '📥 Open Video File';
+    ytBtn.removeAttribute('target'); // open in same tab, not YouTube
+  }
+
   document.getElementById('vmodalBg').classList.add('open');
 }
 

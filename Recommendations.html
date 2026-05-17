@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recommendations – Guitarify</title>
+  <style>
+    /* ── RESET / BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #111; color: #f0ede0; font-family: 'Segoe UI', sans-serif; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── NAV ── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 60px;
+      background: #111; border-bottom: 0.5px solid #2a2a2a;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 24px; }
+    .nav-logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: #f66e06; text-transform: uppercase; }
+    .nav-city { font-size: 11px; color: #555; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #666; text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: #f0ede0; }
+    .nav-links a.active { color: #f66e06; }
+    .nav-icons { display: flex; align-items: center; }
+    .nav-user-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: transparent; border: 1px solid #2a2a2a;
+      color: #aaa; font-size: 12px; font-weight: 700;
+      padding: 6px 14px; border-radius: 4px; cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .nav-user-btn:hover { border-color: #f66e06; color: #f66e06; }
+    .user-dropdown {
+      display: none; position: absolute; top: 64px; right: 40px;
+      background: #1a1a1a; border: 0.5px solid #2a2a2a;
+      border-radius: 8px; min-width: 200px; z-index: 200;
+    }
+    .user-dropdown.open { display: block; }
+    .user-dropdown-header { padding: 16px 16px 12px; border-bottom: 0.5px solid #2a2a2a; }
+    .user-dropdown-name { font-size: 13px; font-weight: 700; color: #f0ede0; }
+    .user-dropdown-email { font-size: 11px; color: #555; margin-top: 2px; }
+    .user-dropdown-item { padding: 10px 16px; font-size: 12px; color: #888; cursor: pointer; transition: color 0.2s, background 0.2s; }
+    .user-dropdown-item:hover { background: #222; color: #f0ede0; }
+    .user-dropdown-item.danger:hover { color: #e05252; }
+
+    /* ── SHARED SECTION LABELS ── */
+    .section-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      color: #f66e06; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 28px; font-weight: 900; color: #f0ede0;
+      letter-spacing: -0.5px; text-transform: uppercase;
+    }
+
+    /* ── HERO ── */
+    .rec-hero {
+      position: relative; min-height: 340px;
+      background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(246,110,6,0.12) 0%, transparent 70%), #111;
+      overflow: hidden; display: flex; align-items: center; padding: 60px 40px;
+    }
+    .rec-hero-bg-text {
+      position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+      font-size: 130px; font-weight: 900; line-height: 0.85; color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.04); pointer-events: none;
+      letter-spacing: 4px; text-transform: uppercase; user-select: none;
+    }
+    .rec-hero-content { position: relative; z-index: 1; max-width: 560px; }
+    .hero-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      color: #f66e06; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .hero-title {
+      font-size: 52px; font-weight: 900; line-height: 1.05;
+      text-transform: uppercase; letter-spacing: -1px; margin-bottom: 18px;
+      color: #f66e06;
+    }
+    .hero-title .white { color: #f0ede0; }
+    .hero-subtitle { font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 28px; }
+    .hero-subtitle strong { color: #f0ede0; }
+    .hero-buttons { display: flex; gap: 12px; }
+    .btn-primary {
+      background: #f66e06; color: #fff; font-size: 12px; font-weight: 700;
+      padding: 12px 24px; border-radius: 4px; letter-spacing: 1px;
+      text-transform: uppercase; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #d95e00; }
+    .btn-outline {
+      background: transparent; color: #888; font-size: 12px; font-weight: 700;
+      padding: 12px 24px; border-radius: 4px; letter-spacing: 1px;
+      text-transform: uppercase; border: 1px solid #2a2a2a; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: #f66e06; color: #f66e06; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      padding: 24px 40px; background: #161616;
+      border-bottom: 0.5px solid #2a2a2a; border-top: 0.5px solid #2a2a2a;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .filter-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      color: #555; text-transform: uppercase; margin-right: 6px;
+    }
+    .filter-btn {
+      background: transparent; border: 1px solid #2a2a2a; color: #666;
+      font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 4px;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: #f66e06; color: #f66e06; }
+    .filter-btn.active { background: #f66e06; border-color: #f66e06; color: #fff; }
+
+    /* ── SECTIONS ── */
+    .rec-section { padding: 48px 40px; border-bottom: 0.5px solid #2a2a2a; }
+    .rec-section:last-of-type { border-bottom: none; }
+
+    /* ── GUITAR CARDS GRID ── */
+    .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+    .rec-card {
+      background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 10px;
+      overflow: hidden; transition: transform 0.2s, border-color 0.25s, box-shadow 0.25s;
+      cursor: pointer; display: flex; flex-direction: column;
+    }
+    .rec-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(246,110,6,0.4);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    .rec-card-img {
+      width: 100%; aspect-ratio: 4/3; background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 72px; position: relative; overflow: hidden;
+    }
+    .rec-card-img img {
+      width: 100%; height: 100%; object-fit: contain; padding: 14px;
+      display: block; transition: transform 0.35s ease;
+    }
+    .rec-card:hover .rec-card-img img { transform: scale(1.07); }
+    .rec-card-badge {
+      position: absolute; top: 12px; left: 12px; background: #f66e06;
+      color: #fff; font-size: 10px; font-weight: 700; padding: 4px 10px;
+      border-radius: 3px; letter-spacing: 1px; text-transform: uppercase; z-index: 1;
+    }
+    .rec-card-badge.budget { background: #2a8a4a; }
+    .rec-card-badge.premium { background: #7c3aed; }
+    .rec-card-shop-hint {
+      position: absolute; bottom: 12px; right: 12px;
+      background: rgba(246,110,6,0.92); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 5px 10px;
+      border-radius: 3px; letter-spacing: 0.5px;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity 0.2s, transform 0.2s; z-index: 2; pointer-events: none;
+    }
+    .rec-card:hover .rec-card-shop-hint { opacity: 1; transform: translateY(0); }
+    .rec-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .rec-card-type { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #f66e06; text-transform: uppercase; margin-bottom: 6px; }
+    .rec-card-name { font-size: 16px; font-weight: 900; color: #f0ede0; letter-spacing: -0.3px; margin-bottom: 8px; line-height: 1.3; }
+    .rec-card-desc { font-size: 12px; color: #666; line-height: 1.7; flex: 1; margin-bottom: 16px; }
+    .rec-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 14px; border-top: 0.5px solid #2a2a2a;
+    }
+    .rec-card-price { font-size: 20px; font-weight: 900; color: #f66e06; letter-spacing: -0.5px; }
+    .rec-card-price small { font-size: 11px; color: #555; font-weight: 400; display: block; letter-spacing: 0; }
+    .rec-card-stars { display: flex; gap: 2px; color: #f66e06; font-size: 13px; }
+
+    /* ── TIPS GRID ── */
+    .tips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 28px; }
+    .tip-card {
+      background: #1a1a1a; border: 0.5px solid #2a2a2a;
+      border-left: 3px solid #f66e06; border-radius: 8px;
+      padding: 22px 20px; transition: transform 0.2s;
+    }
+    .tip-card:hover { transform: translateX(4px); }
+    .tip-number { font-size: 11px; font-weight: 700; color: #f66e06; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .tip-title { font-size: 14px; font-weight: 900; color: #f0ede0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .tip-text { font-size: 12px; color: #666; line-height: 1.7; }
+
+    /* ── ACCESSORIES GRID ── */
+    .acc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 28px; }
+    .acc-card {
+      background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 10px;
+      overflow: hidden; text-align: left;
+      transition: transform 0.2s, border-color 0.25s, box-shadow 0.25s;
+      cursor: pointer; display: flex; flex-direction: column;
+      text-decoration: none; color: inherit; position: relative;
+    }
+    .acc-card:hover { transform: translateY(-5px); border-color: rgba(246,110,6,0.4); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+    .acc-img-wrap {
+      width: 100%; aspect-ratio: 1/1; background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; font-size: 52px;
+    }
+    .acc-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 12px; display: block; transition: transform 0.3s; }
+    .acc-card:hover .acc-img-wrap img { transform: scale(1.06); }
+    .acc-product-label { font-size: 10px; font-weight: 700; color: #f66e06; letter-spacing: 1.5px; text-transform: uppercase; padding: 12px 14px 0; }
+    .acc-name { font-size: 13px; font-weight: 900; color: #f0ede0; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 14px 0; }
+    .acc-why { font-size: 11px; color: #666; line-height: 1.6; padding: 6px 14px 0; flex: 1; }
+    .acc-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 14px; border-top: 0.5px solid #2a2a2a; margin-top: 12px; }
+    .acc-price { font-size: 15px; font-weight: 700; color: #f66e06; }
+    .acc-search-hint {
+      font-size: 10px; font-weight: 700; color: #555; letter-spacing: 0.5px;
+      opacity: 0; transform: translateX(4px);
+      transition: opacity 0.2s, transform 0.2s, color 0.2s;
+    }
+    .acc-card:hover .acc-search-hint { opacity: 1; transform: translateX(0); color: #f66e06; }
+
+    /* ── CTA ── */
+    .rec-cta {
+      padding: 80px 40px; text-align: center;
+      background: #111; border-top: 0.5px solid #2a2a2a;
+      position: relative; overflow: hidden;
+    }
+    .rec-cta-bg {
+      position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%);
+      font-size: 110px; font-weight: 900; color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.03); pointer-events: none;
+      white-space: nowrap; text-transform: uppercase; letter-spacing: 4px;
+    }
+    .cta-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: #555; text-transform: uppercase; margin-bottom: 12px; }
+    .cta-title { font-size: 52px; font-weight: 900; color: #f0ede0; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 32px; }
+    .cta-title span { color: #f66e06; }
+    .cta-btn {
+      display: inline-block; background: #f66e06; color: #fff;
+      font-size: 13px; font-weight: 700; padding: 14px 32px;
+      border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #d95e00; }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 32px 40px; border-top: 0.5px solid #2a2a2a;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo { font-size: 16px; font-weight: 900; letter-spacing: 3px; color: #f66e06; text-transform: uppercase; }
+    .footer-copy { font-size: 11px; color: #444; }
+
+    /* ── AUTH MODAL ── */
+    .auth-bg {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .auth-bg.open { display: flex; }
+    .auth-modal {
+      background: #1a1a1a; border: 0.5px solid #2a2a2a;
+      border-radius: 12px; width: 400px; position: relative; padding: 32px;
+    }
+    .auth-close {
+      position: absolute; top: 16px; right: 16px;
+      background: transparent; border: none; color: #555;
+      font-size: 16px; cursor: pointer; transition: color 0.2s;
+    }
+    .auth-close:hover { color: #f0ede0; }
+    .auth-tabs { display: flex; gap: 0; margin-bottom: 28px; border-bottom: 0.5px solid #2a2a2a; }
+    .auth-tab {
+      flex: 1; padding: 10px; text-align: center; font-size: 12px;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      color: #555; cursor: pointer; border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .auth-tab.active { color: #f66e06; border-bottom-color: #f66e06; }
+    .auth-greeting { font-size: 22px; font-weight: 900; color: #f0ede0; margin-bottom: 4px; }
+    .auth-sub { font-size: 12px; color: #666; margin-bottom: 24px; }
+    .auth-field { margin-bottom: 14px; }
+    .auth-field label { display: block; font-size: 11px; font-weight: 700; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .auth-field input {
+      width: 100%; background: #111; border: 1px solid #2a2a2a;
+      border-radius: 4px; padding: 10px 14px; color: #f0ede0;
+      font-size: 13px; transition: border-color 0.2s;
+    }
+    .auth-field input:focus { outline: none; border-color: #f66e06; }
+    .auth-error { font-size: 12px; color: #e05252; min-height: 16px; margin-bottom: 10px; }
+    .auth-submit {
+      width: 100%; background: #f66e06; color: #fff; border: none;
+      font-size: 13px; font-weight: 700; padding: 12px; border-radius: 4px;
+      cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .auth-submit:hover { background: #d95e00; }
+    .auth-divider { font-size: 12px; color: #555; text-align: center; margin-top: 16px; }
+    .auth-divider span { color: #f66e06; cursor: pointer; font-weight: 700; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* anchor card resets */
+    a.rec-card, a.acc-card { text-decoration: none; color: inherit; display: flex; }
+  </style>
+</head>
+<body>
+<div class="site">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">GUITARIFY</div>
+      <div class="nav-city"><span></span></div>
+    </div>
+    <div class="nav-links">
+      <a href="Home.html">Home</a>
+      <a href="About.html">About</a>
+      <a href="Chord_Library.html">Chord Library</a>
+      <a href="lessons.html">Lesson</a>
+      <a href="Recommendations.html" class="active">Recommendations</a>
+      <a href="practice.html">Quizzes</a>
+      <a href="Enroll.html" class="enroll-link">✦ Enroll</a>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
+    </div>
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-header">
+        <div class="user-dropdown-name" id="dropdownName">–</div>
+        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      </div>
+      <div class="user-dropdown-item">My Profile</div>
+      <div class="user-dropdown-item">My Lessons</div>
+      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="rec-hero">
+    <div class="rec-hero-bg-text">GEAR</div>
+    <div class="rec-hero-content">
+      <div class="hero-eyebrow">Beginner's Buying Guide</div>
+      <h1 class="hero-title">
+        Best Gear
+        <span class="white">To Start With.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Don't know what guitar to buy? We picked the <strong>best beginner-friendly guitars</strong> and accessories so you can focus on learning, not shopping.
+      </p>
+      <div class="hero-buttons">
+        <a href="#guitars" class="btn-primary">See Guitars</a>
+        <a href="#accessories" class="btn-outline">Accessories</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-label">Filter by:</span>
+    <button class="filter-btn active" onclick="filterCards('all', this)">All</button>
+    <button class="filter-btn" onclick="filterCards('budget', this)">Budget (Under ₱5,000)</button>
+    <button class="filter-btn" onclick="filterCards('mid', this)">Mid-range (₱5k–₱12k)</button>
+    <button class="filter-btn" onclick="filterCards('premium', this)">Premium (₱12k+)</button>
+    <button class="filter-btn" onclick="filterCards('acoustic', this)">Acoustic</button>
+    <button class="filter-btn" onclick="filterCards('electric', this)">Electric</button>
+    <button class="filter-btn" onclick="filterCards('classical', this)">Classical</button>
+  </div>
+
+  <!-- GUITAR RECOMMENDATIONS -->
+  <div class="rec-section" id="guitars">
+    <div class="section-tag">Top Picks</div>
+    <div class="section-title">Recommended Guitars</div>
+
+    <div class="rec-grid" id="guitarGrid">
+
+      <!-- Card 1: Yamaha F310 -->
+      <a class="rec-card" data-category="acoustic budget" href="https://www.google.com/search?q=Yamaha+F310+guitar+Philippines+price" target="_blank" rel="noopener">
+        <div class="rec-card-img" style="background:#f5f5f5; padding:0; overflow:hidden;">
+          <img src="image/Yamaha_F310.jpg"
+               onerror="this.src='https://m.media-amazon.com/images/I/81Hy3iFVVSL._AC_SL1500_.jpg'; this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='flex';};"
+               alt="Yamaha F310" style="width:100%;height:100%;object-fit:contain;padding:12px;display:block;transition:transform 0.3s;">
+          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f5f5f5;">🎸</div>
+          <span class="rec-card-badge budget">Budget Pick</span>
+          <div class="rec-card-shop-hint">🔍 Search on Google</div>
+        </div>
+        <div class="rec-card-body">
+          <div class="rec-card-type">Acoustic · Steel String</div>
+          <div class="rec-card-name">Yamaha F310</div>
+          <p class="rec-card-desc">The go-to starter acoustic guitar. Great tone for the price, comfortable neck for beginners, and very durable. Widely available in the Philippines.</p>
+          <div class="rec-card-footer">
+            <div class="rec-card-price">₱3,500<small>Estimated price</small></div>
+            <div class="rec-card-stars">★★★★☆</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Fender CD-60S -->
+      <a class="rec-card" data-category="acoustic mid" href="https://www.google.com/search?q=Fender+CD-60S+acoustic+guitar+Philippines+price" target="_blank" rel="noopener">
+        <div class="rec-card-img" style="background:#f5f5f5; padding:0; overflow:hidden;">
+          <img src="image/Fender_CD-60S.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Fender CD-60S" style="width:100%;height:100%;object-fit:contain;padding:12px;display:block;transition:transform 0.3s;">
+          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f5f5f5;">🎸</div>
+          <span class="rec-card-badge">Best Value</span>
+          <div class="rec-card-shop-hint">🔍 Search on Google</div>
+        </div>
+        <div class="rec-card-body">
+          <div class="rec-card-type">Acoustic · Steel String</div>
+          <div class="rec-card-name">Fender CD-60S</div>
+          <p class="rec-card-desc">A step up from entry-level. Solid spruce top gives it a richer, more resonant sound. Perfect if you're serious about sticking with guitar long-term.</p>
+          <div class="rec-card-footer">
+            <div class="rec-card-price">₱7,500<small>Estimated price</small></div>
+            <div class="rec-card-stars">★★★★★</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Yamaha C40 -->
+      <a class="rec-card" data-category="classical budget" href="https://www.google.com/search?q=Yamaha+C40+classical+guitar+Philippines+price" target="_blank" rel="noopener">
+        <div class="rec-card-img" style="background:#f5f5f5; padding:0; overflow:hidden;">
+          <img src="image/Yamaha_C40.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Yamaha C40" style="width:100%;height:100%;object-fit:contain;padding:12px;display:block;transition:transform 0.3s;">
+          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f5f5f5;">🎻</div>
+          <span class="rec-card-badge budget">Budget Pick</span>
+          <div class="rec-card-shop-hint">🔍 Search on Google</div>
+        </div>
+        <div class="rec-card-body">
+          <div class="rec-card-type">Classical · Nylon String</div>
+          <div class="rec-card-name">Yamaha C40</div>
+          <p class="rec-card-desc">The most popular classical guitar for students in PH schools. Nylon strings are easier on fingers — great if you're just starting out.</p>
+          <div class="rec-card-footer">
+            <div class="rec-card-price">₱3,200<small>Estimated price</small></div>
+            <div class="rec-card-stars">★★★★☆</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Squier Affinity Stratocaster -->
+      <a class="rec-card" data-category="electric mid" href="https://www.google.com/search?q=Squier+Affinity+Stratocaster+electric+guitar+Philippines+price" target="_blank" rel="noopener">
+        <div class="rec-card-img" style="background:#f5f5f5; padding:0; overflow:hidden;">
+          <img src="image/Squier Affinity Stratocaster.webp"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Squier Affinity Stratocaster" style="width:100%;height:100%;object-fit:contain;padding:12px;display:block;transition:transform 0.3s;">
+          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f5f5f5;">⚡</div>
+          <span class="rec-card-badge">Editor's Pick</span>
+          <div class="rec-card-shop-hint">🔍 Search on Google</div>
+        </div>
+        <div class="rec-card-body">
+          <div class="rec-card-type">Electric · Solid Body</div>
+          <div class="rec-card-name">Squier Affinity Stratocaster</div>
+          <p class="rec-card-desc">The best beginner electric guitar. Iconic Fender shape, comfortable to play. Starter packs available with amp and accessories included.</p>
+          <div class="rec-card-footer">
+            <div class="rec-card-price">₱9,000<small>Estimated price</small></div>
+            <div class="rec-card-stars">★★★★★</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 5: Valencia VA434 -->
+      <a class="rec-card" data-category="acoustic budget" href="https://www.google.com/search?q=Valencia+VA434+acoustic+guitar+Philippines+price" target="_blank" rel="noopener">
+        <div class="rec-card-img" style="background:#f5f5f5; padding:0; overflow:hidden;">
+          <img src="image/Valencia VA434.webp"
+               onerror="this.src='https://valenciamusic.com.au/wp-content/uploads/2022/01/VA434-600x600.jpg'; this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='flex';};"
+               alt="Valencia VA434" style="width:100%;height:100%;object-fit:contain;padding:12px;display:block;transition:transform 0.3s;">
+          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f5f5f5;">🎸</div>
+          <span class="rec-card-badge budget">Budget Pick</span>
+          <div class="rec-card-shop-hint">🔍 Search on Google</div>
+        </div>
+        <div class="rec-card-body">
+          <div class="rec-card-type">Acoustic · Steel String</div>
+          <div class="rec-card-name">Valencia VA434</div>
+          <p class="rec-card-desc">A very affordable local option. Solid enough for daily practice. If you're unsure if you'll commit to guitar, this is a safe low-risk first buy.</p>
+          <div class="rec-card-footer">
+            <div class="rec-card-price">₱2,200<small>Estimated price</small></div>
+            <div class="rec-card-stars">★★★☆☆</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 6: Taylor Academy 10 -->
+      <a class="rec-card" data-category="acoustic premium" href="https://www.google.com/search?q=Taylor+Academy+10+acoustic+guitar+Philippines+price" target="_blank" rel="noopener">
+        <div class="rec-card-img" style="background:#f5f5f5; padding:0; overflow:hidden;">
+          <img src="image/Taylor Academy.jpg"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+               alt="Taylor Academy 10" style="width:100%;height:100%;object-fit:contain;padding:12px;display:block;transition:transform 0.3s;">
+          <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f5f5f5;">🌟</div>
+          <span class="rec-card-badge premium">Premium</span>
+          <div class="rec-card-shop-hint">🔍 Search on Google</div>
+        </div>
+        <div class="rec-card-body">
+          <div class="rec-card-type">Acoustic · Steel String</div>
+          <div class="rec-card-name">Taylor Academy 10</div>
+          <p class="rec-card-desc">If you want to invest properly, this is a dream beginner guitar. Exceptional playability, beautiful tone, and will last years into your journey.</p>
+          <div class="rec-card-footer">
+            <div class="rec-card-price">₱22,000<small>Estimated price</small></div>
+            <div class="rec-card-stars">★★★★★</div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- BUYING TIPS -->
+  <div class="rec-section" style="background:#161616; border-top:0.5px solid #2a2a2a;">
+    <div class="section-tag">Before You Buy</div>
+    <div class="section-title">Beginner Buying Tips</div>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-number">Tip 01</div>
+        <div class="tip-title">Start with Nylon Strings</div>
+        <p class="tip-text">Classical guitars with nylon strings are gentler on your fingers while you're still building calluses. Less pain = more practice time.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-number">Tip 02</div>
+        <div class="tip-title">Don't Over-Spend at First</div>
+        <p class="tip-text">A ₱3,000–5,000 guitar is more than enough to start. Upgrade once you know you're committed. Gear doesn't make you play better — practice does.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-number">Tip 03</div>
+        <div class="tip-title">Try Before You Buy</div>
+        <p class="tip-text">If possible, go to a music store and hold the guitar. Make sure the neck feels comfortable in your hand and that the body size suits you.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-number">Tip 04</div>
+        <div class="tip-title">Check the Action</div>
+        <p class="tip-text">"Action" means how high the strings are from the fretboard. High action = harder to press = more pain. Ask the store to set it up properly before you leave.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-number">Tip 05</div>
+        <div class="tip-title">Acoustic First, Electric Later</div>
+        <p class="tip-text">Learning on acoustic builds more finger strength and technique. Once you've got the basics down, switching to electric is easy and enjoyable.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-number">Tip 06</div>
+        <div class="tip-title">Don't Forget the Accessories</div>
+        <p class="tip-text">A tuner, pick, extra strings, and a capo are small investments that make a huge difference. Check the accessories section below for our picks.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCESSORIES -->
+  <div class="rec-section" id="accessories">
+    <div class="section-tag">Complete Your Setup</div>
+    <div class="section-title">Must-Have Accessories</div>
+    <div class="acc-grid">
+
+      <a class="acc-card" href="https://www.google.com/search?q=Snark+SN-8+clip+on+guitar+tuner+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/tuner.webp" alt="Snark SN-8 Clip-On Tuner" onerror="this.parentElement.innerHTML='🎛️'" />
+        </div>
+        <div class="acc-product-label">Snark SN-8</div>
+        <div class="acc-name">Clip-On Tuner</div>
+        <p class="acc-why">Always keep your guitar in tune. A tuner is non-negotiable — an out-of-tune guitar sounds bad no matter how well you play.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱250</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=Dunlop+Tortex+guitar+picks+medium+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/picks.jpg" alt="Dunlop Tortex Picks" onerror="this.parentElement.innerHTML='🎵'" />
+        </div>
+        <div class="acc-product-label">Dunlop Tortex</div>
+        <div class="acc-name">Guitar Picks</div>
+        <p class="acc-why">Start with medium thickness picks. Versatile for strumming and single notes. Buy a bunch — they disappear fast.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱30 each</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=Kyser+Quick-Change+capo+guitar+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/capo.webp" alt="Kyser Quick-Change Capo" onerror="this.parentElement.innerHTML='🔩'" />
+        </div>
+        <div class="acc-product-label">Kyser Quick-Change</div>
+        <div class="acc-name">Capo</div>
+        <p class="acc-why">Lets you change key without changing chord shapes. Essential for playing along to many popular songs.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱200</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=Ernie+Ball+Super+Slinky+guitar+strings+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/strings.jpg" alt="Ernie Ball Super Slinky Strings" onerror="this.parentElement.innerHTML='〰️'" />
+        </div>
+        <div class="acc-product-label">Ernie Ball Super Slinky</div>
+        <div class="acc-name">Extra Strings</div>
+        <p class="acc-why">Strings break at the worst times. Light gauge (0.009s) are easiest on beginner fingers. Always keep a spare set.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱150/set</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=Fender+gig+bag+guitar+case+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/bag.jpg" alt="Fender Guitar Gig Bag" onerror="this.parentElement.innerHTML='🎒'" />
+        </div>
+        <div class="acc-product-label">Fender Gig Bag</div>
+        <div class="acc-name">Guitar Bag</div>
+        <p class="acc-why">Protects your guitar on the go. Even a basic gig bag is better than nothing. Most starter packs already include one.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱400</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=Levy%27s+guitar+strap+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/strap.jpg" alt="Levy's Guitar Strap" onerror="this.parentElement.innerHTML='🔗'" />
+        </div>
+        <div class="acc-product-label">Levy's Leather Strap</div>
+        <div class="acc-name">Guitar Strap</div>
+        <p class="acc-why">Play standing up and keep proper posture even sitting. A strap is one of the most underrated beginner accessories.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱150</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=D%27Addario+string+winder+cutter+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/winder.jpg" alt="D'Addario String Winder" onerror="this.parentElement.innerHTML='🔧'" />
+        </div>
+        <div class="acc-product-label">D'Addario Pro Winder</div>
+        <div class="acc-name">String Winder</div>
+        <p class="acc-why">Restring 10x faster. Many include a built-in cutter and bridge pin puller — a tiny tool that saves a ton of frustration.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱80</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+      <a class="acc-card" href="https://www.google.com/search?q=Hercules+guitar+stand+buy+Philippines" target="_blank" rel="noopener">
+        <div class="acc-img-wrap">
+          <img src="image/stand.webp" alt="Hercules Guitar Stand" onerror="this.parentElement.innerHTML='🎸'" />
+        </div>
+        <div class="acc-product-label">Hercules GS414B</div>
+        <div class="acc-name">Guitar Stand</div>
+        <p class="acc-why">Keep your guitar visible and easy to grab. A stand on your room floor means you'll pick it up more often and practice consistently.</p>
+        <div class="acc-footer">
+          <div class="acc-price">~₱350</div>
+          <div class="acc-search-hint">🔍 Google</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="rec-cta">
+    <div class="rec-cta-bg">PLAY NOW</div>
+    <p class="cta-eyebrow">You've got the gear in mind</p>
+    <div class="cta-title">Now Let's <span>Learn.</span></div>
+    <a href="lessons.html" class="cta-btn">Go To Lessons →</a>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">Guitarify</div>
+    <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+    <div class="auth-modal">
+      <button class="auth-close" onclick="closeAuth()">✕</button>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+        <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+      </div>
+      <div class="auth-body" id="loginForm">
+        <div class="auth-greeting">Welcome Back</div>
+        <div class="auth-sub">Log in to continue your guitar journey.</div>
+        <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-submit" onclick="doLogin()">Log In</button>
+        <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+      </div>
+      <div class="auth-body" id="signupForm" style="display:none;">
+        <div class="auth-greeting">Join Guitarify</div>
+        <div class="auth-sub">Create a free account and start learning.</div>
+        <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+        <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+        <div class="auth-error" id="signupError"></div>
+        <button class="auth-submit" onclick="doSignup()">Create Account</button>
+        <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentUser = null;
+
+function handleUserIconClick() {
+    if (currentUser) {
+        document.getElementById('userDropdown').classList.toggle('open');
+    } else {
+        openAuth();
+    }
+}
+
+function openAuth() { document.getElementById('authBg').classList.add('open'); }
+function closeAuth() { document.getElementById('authBg').classList.remove('open'); }
+function handleAuthBgClick(e) { if (e.target === document.getElementById('authBg')) closeAuth(); }
+function switchAuthTab(tab) {
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+function updateNavUser() {
+    const nameEl = document.getElementById('navUserName');
+    const dropName = document.getElementById('dropdownName');
+    const dropEmail = document.getElementById('dropdownEmail');
+    if (currentUser) {
+        if (nameEl) nameEl.textContent = currentUser.name;
+        if (dropName) dropName.textContent = currentUser.name;
+        if (dropEmail) dropEmail.textContent = currentUser.email;
+    } else {
+        if (nameEl) nameEl.textContent = '';
+        if (dropName) dropName.textContent = '–';
+        if (dropEmail) dropEmail.textContent = '–';
+    }
+}
+
+async function checkSession() {
+    try {
+        const res = await fetch('auth.php?action=check');
+        const data = await res.json();
+        if (data.loggedIn && data.user) {
+            currentUser = data.user;
+            updateNavUser();
+        }
+    } catch(e) {}
+}
+
+async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+    try {
+        const res = await fetch('auth.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    const err = document.getElementById('signupError');
+    if (!name || !email || !password || !confirm) { err.textContent = 'Please fill in all fields.'; return; }
+    if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    try {
+        const res = await fetch('auth.php?action=signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function logout() {
+    try { await fetch('auth.php?action=logout'); } catch(e) {}
+    currentUser = null;
+    updateNavUser();
+    document.getElementById('userDropdown').classList.remove('open');
+    showToast('Logged out.');
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('click', function(e) {
+    const dd = document.getElementById('userDropdown');
+    const btn = document.getElementById('navUserBtn');
+    if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('open');
+});
+
+checkSession();
+</script>
+
+<div class="toast" id="toast"></div>
+
+</body>
+</html>

@@ -1,4 +1,6 @@
 // ── SONG DATA ──
+// Place your MP4 files in a "videos/" folder next to your HTML file
+// Reference them as 'videos/filename.mp4' — do NOT use full Windows paths like C:\Users\...
 const SONGS = [
   {
     id: 1,
@@ -16,7 +18,7 @@ const SONGS = [
     ],
     strumPattern: "D DU UDU",
     progression: ["G","C","G","D"],
-    youtubeId: "MDBykpSXsSE",
+    videoSrc: "videos/leaving-on-a-jet-plane.mp4",
     lyrics: `[G]All my bags are [C]packed, I'm ready to [G]go
 [G]I'm standin' here [C]outside your [D]door
 [G]I hate to wake you [C]up to say good[G]bye [D]
@@ -50,7 +52,7 @@ const SONGS = [
     ],
     strumPattern: "D D DU",
     progression: ["G","D","Am","G","D","C"],
-    youtubeId: "ckVSJgPdR0I",
+    videoSrc: "videos/knockin-on-heavens-door.mp4",
     lyrics: `[G]Mama, take this [D]badge off of [Am]me
 [G]I can't use it [D]anymore [C]
 [G]It's gettin' dark, [D]too dark for me to [Am]see
@@ -76,7 +78,7 @@ const SONGS = [
     ],
     strumPattern: "DU DU DU DU",
     progression: ["G","D","Em","C"],
-    youtubeId: "RBumgq5yVrA",
+    videoSrc: "videos/let-her-go.mp4",
     lyrics: `[G]Well you only need the [D]light when it's burning [Em]low
 [C]Only miss the sun when it starts to [G]snow
 [G]Only know you love her when you [D]let her go [Em][C]
@@ -104,7 +106,7 @@ const SONGS = [
     ],
     strumPattern: "DU U DU D",
     progression: ["Em7","G","Dsus4","A7sus4"],
-    youtubeId: "6hzrDeceEKc",
+    videoSrc: "videos/WONDERWALL.mp4",
     lyrics: `[Em7]Today is gonna be the day that they're
 [G]gonna throw it back to [Dsus4]you [A7sus4]
 [Em7]By now you should've somehow
@@ -135,7 +137,7 @@ But you [Em7]never really had a [G]doubt`
     ],
     strumPattern: "D DU UDU",
     progression: ["A","F#m","D","E","A"],
-    youtubeId: "hwZNL7QVJjE",
+    videoSrc: "videos/stand-by-me.mp4",
     lyrics: `[A]When the night has come
 And the land is [F#m]dark
 And the moon is the [D]only light we'll [E]see
@@ -163,7 +165,7 @@ Stand by [D]me [E][A]`
     ],
     strumPattern: "D D DU D DU",
     progression: ["Em","D6","Em","D6"],
-    youtubeId: "B40N1iCXJU4",
+    videoSrc: "videos/horse-with-no-name.mp4",
     lyrics: `[Em]On the first part of the [D6]journey
 [Em]I was looking at all the [D6]life
 [Em]There were plants and birds and [D6]rocks and things
@@ -268,14 +270,31 @@ function openSongModal(song) {
   const lyricsHTML = song.lyrics.replace(/\[([^\]]+)\]/g, '<span class="chord-mark">[$1]</span>');
   document.getElementById('smLyrics').innerHTML = lyricsHTML;
 
-  // YouTube
-  document.getElementById('smYtBtn').href = `https://www.youtube.com/watch?v=${song.youtubeId}`;
+  // ── VIDEO: inject HTML5 <video> directly into smVideoPlayer inside the modal ──
+  document.getElementById('smVideoPlayer').innerHTML = `
+    <video
+      src="${song.videoSrc}"
+      controls
+      autoplay
+      style="width:100%; height:100%; background:#000;">
+      Your browser does not support the video tag.
+    </video>
+  `;
+
+  // Update footer button to link to video file
+  const smYtBtn = document.getElementById('smYtBtn');
+  if (smYtBtn) {
+    smYtBtn.href = song.videoSrc;
+    smYtBtn.textContent = '📥 Open Video File';
+    smYtBtn.removeAttribute('target'); // no new tab, stays in page
+  }
 
   document.getElementById('songModalBg').classList.add('open');
 }
 
 function closeSongModal() {
   document.getElementById('songModalBg').classList.remove('open');
+  document.getElementById('smVideoPlayer').innerHTML = ''; // stop video when modal closes
 }
 
 function handleSongBgClick(e) {

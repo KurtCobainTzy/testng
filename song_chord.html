@@ -4,8 +4,152 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Song Chord — Guitarify</title>
-  <link rel="stylesheet" href="shared.css" />
-  <link rel="stylesheet" href="song_chord.css" />
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #111; color: #f0ede0; font-family: sans-serif; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── SITE WRAPPER ── */
+    .site { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── NAV ── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 56px;
+      background: #111; border-bottom: 0.5px solid #2a2a2a;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 32px; }
+    .nav-logo { font-size: 15px; font-weight: 900; letter-spacing: 4px; color: #f0ede0; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { font-size: 12px; font-weight: 600; color: #666; letter-spacing: 0.5px; transition: color 0.2s; }
+    .nav-links a:hover { color: #ccc; }
+    .nav-links a.active { color: #f66e06; }
+    .nav-icons { position: relative; }
+    .nav-user-btn {
+      display: flex; align-items: center; gap: 7px;
+      background: transparent; border: 0.5px solid #2a2a2a;
+      border-radius: 20px; padding: 6px 14px; cursor: pointer;
+      color: #aaa; font-size: 12px; font-weight: 600; transition: border-color 0.2s;
+    }
+    .nav-user-btn:hover { border-color: #444; color: #ccc; }
+    .nav-user-name { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-dropdown {
+      display: none; position: absolute; right: 0; top: calc(100% + 8px);
+      background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 8px;
+      min-width: 200px; overflow: hidden; z-index: 300;
+    }
+    .user-dropdown.open { display: block; }
+    .user-dropdown-header { padding: 14px 16px; border-bottom: 0.5px solid #2a2a2a; }
+    .user-dropdown-name { font-size: 13px; font-weight: 700; color: #f0ede0; margin-bottom: 2px; }
+    .user-dropdown-email { font-size: 11px; color: #555; }
+    .user-dropdown-item { padding: 11px 16px; font-size: 12px; font-weight: 600; color: #999; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .user-dropdown-item:hover { background: #222; color: #f0ede0; }
+    .user-dropdown-item.danger:hover { color: #e53e3e; }
+
+    /* ── PAGE HERO ── */
+    .page-hero { padding:52px 40px 0; background:#111; border-bottom:0.5px solid #2a2a2a; }
+    .page-hero-tag { font-size:10px; font-weight:700; letter-spacing:3px; color:#f66e06; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+    .page-hero-tag::before { content:''; display:block; width:24px; height:1px; background:#f66e06; }
+    .page-hero-title { font-size:clamp(36px,5vw,58px); font-weight:900; letter-spacing:-2px; color:#f0ede0; text-transform:uppercase; line-height:1; margin-bottom:10px; }
+    .page-hero-title span { color:#f66e06; }
+    .page-hero-sub { font-size:13px; color:#666; line-height:1.7; max-width:480px; margin-bottom:28px; }
+    .sub-tabs { display:flex; border-top:0.5px solid #2a2a2a; margin-top:10px; }
+    .sub-tab { padding:14px 24px; font-size:12px; font-weight:600; color:#666; text-decoration:none; border-bottom:2px solid transparent; transition:color 0.2s,border-color 0.2s; }
+    .sub-tab:hover { color:#aaa; }
+    .sub-tab.active { color:#f66e06; border-bottom-color:#f66e06; }
+
+    /* ── SONG WRAP ── */
+    .song-wrap { padding:36px 40px 52px; }
+
+    /* ── TOOLBAR ── */
+    .song-toolbar { display:flex; align-items:center; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+    .song-search-wrap { display:flex; align-items:center; gap:8px; background:#1a1a1a; border:0.5px solid #333; border-radius:6px; padding:8px 14px; flex:0 0 260px; }
+    .song-search { background:none; border:none; outline:none; color:#ccc; font-size:12px; width:100%; }
+    .song-search::placeholder { color:#555; }
+    .song-filter { display:flex; gap:8px; flex-wrap:wrap; }
+    .sf-btn { padding:6px 16px; border-radius:20px; border:0.5px solid #333; background:transparent; color:#666; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+    .sf-btn:hover { color:#ccc; border-color:#555; }
+    .sf-btn.active { background:#f66e06; color:#fff; border-color:#f66e06; }
+
+    /* ── SONGS GRID ── */
+    .songs-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    @media (max-width:900px) { .songs-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:580px) { .songs-grid { grid-template-columns:1fr; } }
+
+    /* ── SONG CARD ── */
+    .song-card { background:#1a1a1a; border:0.5px solid #2a2a2a; border-radius:10px; padding:20px; cursor:pointer; transition:transform 0.2s,border-color 0.2s; position:relative; }
+    .song-card:hover { transform:translateY(-3px); border-color:rgba(246,110,6,0.4); }
+    .song-card-top { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+    .song-emoji { font-size:28px; flex-shrink:0; }
+    .song-card-title { font-size:14px; font-weight:700; color:#f0ede0; line-height:1.3; margin-bottom:3px; }
+    .song-card-artist { font-size:11px; color:#666; }
+    .song-card-chords { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px; }
+    .chord-pill { background:#222; border:0.5px solid #333; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; color:#f66e06; }
+    .song-card-footer { display:flex; align-items:center; justify-content:space-between; }
+    .song-difficulty { font-size:10px; font-weight:600; padding:2px 9px; border-radius:20px; text-transform:uppercase; }
+    .song-difficulty.beginner     { background:rgba(76,175,80,0.15);  color:#4caf50; }
+    .song-difficulty.intermediate { background:rgba(246,110,6,0.15);  color:#f66e06; }
+    .song-genre { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:1px; }
+
+    /* ── SONG MODAL ── */
+    .song-modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center; padding:20px; }
+    .song-modal-bg.open { display:flex; }
+    .song-modal { background:#1a1a1a; border:0.5px solid #333; border-radius:12px; width:100%; max-width:620px; max-height:88vh; overflow-y:auto; display:flex; flex-direction:column; }
+    .song-modal-header { display:flex; justify-content:space-between; align-items:flex-start; padding:22px 24px 16px; border-bottom:0.5px solid #2a2a2a; position:sticky; top:0; background:#1a1a1a; z-index:1; }
+    .song-modal-artist { font-size:11px; color:#f66e06; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+    .song-modal-title  { font-size:22px; font-weight:900; color:#f0ede0; letter-spacing:-0.5px; }
+    .song-modal-meta   { font-size:11px; color:#555; margin-top:4px; }
+    .song-modal-close  { background:#2a2a2a; border:none; color:#aaa; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:12px; flex-shrink:0; }
+    .song-modal-close:hover { background:#383838; color:#fff; }
+    .song-modal-body { padding:20px 24px; }
+    .sm-section-label { font-size:10px; font-weight:700; color:#f66e06; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+    .sm-chords-row { display:flex; flex-wrap:wrap; gap:10px; }
+    .sm-chord-box { background:#222; border:0.5px solid #333; border-radius:6px; padding:10px 16px; text-align:center; min-width:56px; transition:border-color 0.2s; }
+    .sm-chord-box:hover { border-color:rgba(246,110,6,0.4); }
+    .sm-chord-name  { font-size:18px; font-weight:900; color:#f66e06; }
+    .sm-chord-shape { font-size:10px; color:#555; margin-top:3px; }
+    .sm-strum { background:#222; border:0.5px solid #2a2a2a; border-radius:6px; padding:14px 18px; font-size:20px; letter-spacing:6px; color:#f0ede0; font-weight:900; }
+    .sm-progression { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .sm-prog-chord { background:#1e1e1e; border:0.5px solid #333; border-left:2px solid #f66e06; border-radius:4px; padding:6px 14px; font-size:14px; font-weight:700; color:#f0ede0; }
+    .sm-prog-arrow { color:#333; font-size:14px; }
+    .sm-lyrics { font-family:'Courier New',monospace; font-size:12px; line-height:2; color:#888; background:#141414; border:0.5px solid #2a2a2a; border-radius:6px; padding:16px 18px; white-space:pre-wrap; }
+    .sm-lyrics .chord-mark { color:#f66e06; font-weight:700; font-size:11px; }
+    .song-modal-footer { padding:14px 24px; border-top:0.5px solid #2a2a2a; background:#1a1a1a; position:sticky; bottom:0; }
+    .song-yt-btn { display:inline-flex; align-items:center; gap:7px; background:#f66e06; color:#fff; padding:9px 20px; border-radius:4px; font-size:12px; font-weight:700; text-decoration:none; transition:opacity 0.15s; }
+    .song-yt-btn:hover { opacity:0.85; }
+
+    /* ── FOOTER ── */
+    .footer { margin-top:auto; padding:28px 40px; border-top:0.5px solid #2a2a2a; display:flex; align-items:center; justify-content:space-between; }
+    .footer-logo { font-size:13px; font-weight:900; letter-spacing:4px; color:#f0ede0; }
+    .footer-copy { font-size:11px; color:#444; }
+
+    /* ── AUTH MODAL ── */
+    .auth-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:400; align-items:center; justify-content:center; padding:20px; }
+    .auth-bg.open { display:flex; }
+    .auth-modal { background:#1a1a1a; border:0.5px solid #2a2a2a; border-radius:12px; width:100%; max-width:380px; padding:28px; position:relative; }
+    .auth-close { position:absolute; top:14px; right:14px; background:#2a2a2a; border:none; color:#aaa; width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:11px; }
+    .auth-close:hover { background:#333; color:#fff; }
+    .auth-tabs { display:flex; gap:20px; margin-bottom:24px; border-bottom:0.5px solid #2a2a2a; }
+    .auth-tab { padding:0 0 12px; font-size:13px; font-weight:700; color:#555; cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
+    .auth-tab.active { color:#f66e06; border-bottom-color:#f66e06; }
+    .auth-greeting { font-size:20px; font-weight:900; color:#f0ede0; margin-bottom:4px; }
+    .auth-sub { font-size:12px; color:#555; margin-bottom:20px; }
+    .auth-field { margin-bottom:14px; }
+    .auth-field label { display:block; font-size:11px; font-weight:700; color:#666; margin-bottom:6px; letter-spacing:0.5px; }
+    .auth-field input { width:100%; background:#111; border:0.5px solid #2a2a2a; border-radius:6px; padding:10px 12px; color:#f0ede0; font-size:13px; outline:none; transition:border-color 0.2s; }
+    .auth-field input:focus { border-color:#f66e06; }
+    .auth-error { font-size:12px; color:#e53e3e; min-height:18px; margin-bottom:8px; }
+    .auth-submit { width:100%; background:#f66e06; border:none; border-radius:6px; padding:12px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; transition:opacity 0.15s; margin-bottom:16px; }
+    .auth-submit:hover { opacity:0.88; }
+    .auth-divider { font-size:12px; color:#555; text-align:center; }
+    .auth-divider span { color:#f66e06; cursor:pointer; font-weight:600; }
+
+    /* ── TOAST ── */
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px); background:#1a1a1a; border:0.5px solid #333; border-radius:6px; padding:10px 20px; font-size:12px; font-weight:600; color:#f0ede0; opacity:0; transition:opacity 0.2s,transform 0.2s; pointer-events:none; z-index:999; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  </style>
 </head>
 <body>
 <div class="site">
@@ -20,6 +164,9 @@
       <a href="About.html">About</a>
       <a href="Chord_Library.html">Chord Library</a>
       <a href="lessons.html" class="active">Lesson</a>
+      <a href="Recommendations.html">Recommendations</a>
+      <a href="practice.html">Quizzes</a>
+      <a href="Enroll.html" class="enroll-link">✦ Enroll</a>
     </div>
     <div class="nav-icons">
       <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
@@ -29,15 +176,15 @@
         </svg>
         <span class="nav-user-name" id="navUserName"></span>
       </button>
-    </div>
-    <div class="user-dropdown" id="userDropdown">
-      <div class="user-dropdown-header">
-        <div class="user-dropdown-name" id="dropdownName">–</div>
-        <div class="user-dropdown-email" id="dropdownEmail">–</div>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-name" id="dropdownName">–</div>
+          <div class="user-dropdown-email" id="dropdownEmail">–</div>
+        </div>
+        <div class="user-dropdown-item">My Profile</div>
+        <div class="user-dropdown-item">My Lessons</div>
+        <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
       </div>
-      <div class="user-dropdown-item">My Profile</div>
-      <div class="user-dropdown-item">My Lessons</div>
-      <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
     </div>
   </nav>
 
@@ -46,7 +193,6 @@
     <div class="page-hero-tag">Play Real Songs</div>
     <div class="page-hero-title">Song <span>Chords</span></div>
     <p class="page-hero-sub">Practice with real songs. Each song shows the chords you need, the strumming pattern, and the key.</p>
-    <!-- SUB TABS -->
     <div class="sub-tabs">
       <a href="lessons.html" class="sub-tab">📖 Lessons</a>
       <a href="video_tutorial.html" class="sub-tab">🎥 Video Tutorial</a>
@@ -56,8 +202,6 @@
 
   <!-- SONG CONTENT -->
   <div class="song-wrap">
-
-    <!-- SEARCH + FILTER -->
     <div class="song-toolbar">
       <div class="song-search-wrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2">
@@ -74,10 +218,7 @@
         <button class="sf-btn" onclick="filterSongs('folk', this)">Folk</button>
       </div>
     </div>
-
-    <!-- SONGS GRID -->
     <div class="songs-grid" id="songsGrid"></div>
-
   </div>
 
   <!-- SONG MODAL -->
@@ -92,16 +233,12 @@
         <button class="song-modal-close" onclick="closeSongModal()">✕</button>
       </div>
       <div class="song-modal-body">
-        <!-- Chord Boxes -->
         <div class="sm-section-label">Chords Used</div>
         <div class="sm-chords-row" id="smChordsRow"></div>
-        <!-- Strumming -->
         <div class="sm-section-label" style="margin-top:20px;">Strumming Pattern</div>
         <div class="sm-strum" id="smStrum"></div>
-        <!-- Chord Progression -->
         <div class="sm-section-label" style="margin-top:20px;">Chord Progression</div>
         <div class="sm-progression" id="smProgression"></div>
-        <!-- Lyrics + Chords -->
         <div class="sm-section-label" style="margin-top:20px;">Lyrics & Chords</div>
         <div class="sm-lyrics" id="smLyrics"></div>
       </div>
@@ -154,7 +291,424 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="auth.js"></script>
-<script src="song_chord.js"></script>
+
+<script>
+// ══════════════════════════════════════════════
+//  AUTH (from auth.js)
+// ══════════════════════════════════════════════
+
+let currentUser = null;
+
+function handleUserIconClick() {
+  if (currentUser) {
+    document.getElementById('userDropdown').classList.toggle('open');
+  } else {
+    openAuth('login');
+  }
+}
+
+function openAuth(tab = 'login') {
+  document.getElementById('authBg').classList.add('open');
+  switchAuthTab(tab);
+}
+
+function closeAuth() {
+  document.getElementById('authBg').classList.remove('open');
+}
+
+function handleAuthBgClick(e) {
+  if (e.target === document.getElementById('authBg')) closeAuth();
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display  = tab === 'login'  ? '' : 'none';
+  document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active',  tab === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+}
+
+function updateNavUser() {
+    const nameEl = document.getElementById('navUserName');
+    const dropName = document.getElementById('dropdownName');
+    const dropEmail = document.getElementById('dropdownEmail');
+    if (currentUser) {
+        if (nameEl) nameEl.textContent = currentUser.name;
+        if (dropName) dropName.textContent = currentUser.name;
+        if (dropEmail) dropEmail.textContent = currentUser.email;
+    } else {
+        if (nameEl) nameEl.textContent = '';
+        if (dropName) dropName.textContent = '–';
+        if (dropEmail) dropEmail.textContent = '–';
+    }
+}
+
+async function checkSession() {
+    try {
+        const res = await fetch('auth.php?action=check');
+        const data = await res.json();
+        if (data.loggedIn && data.user) {
+            currentUser = data.user;
+            updateNavUser();
+        }
+    } catch(e) {}
+}
+
+async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+    try {
+        const res = await fetch('auth.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    const err = document.getElementById('signupError');
+    if (!name || !email || !password || !confirm) { err.textContent = 'Please fill in all fields.'; return; }
+    if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    try {
+        const res = await fetch('auth.php?action=signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function logout() {
+    try { await fetch('auth.php?action=logout'); } catch(e) {}
+    currentUser = null;
+    updateNavUser();
+    document.getElementById('userDropdown').classList.remove('open');
+    showToast('Logged out.');
+}
+
+document.addEventListener('click', function(e) {
+  const dd  = document.getElementById('userDropdown');
+  const btn = document.getElementById('navUserBtn');
+  if (dd.classList.contains('open') && !dd.contains(e.target) && !btn.contains(e.target)) {
+    dd.classList.remove('open');
+  }
+});
+
+// ══════════════════════════════════════════════
+//  SONG CHORD (from song_chord.js)
+// ══════════════════════════════════════════════
+
+const SONGS = [
+  {
+    id: 1,
+    title: "Leaving on a Jet Plane",
+    artist: "John Denver",
+    emoji: "✈️",
+    difficulty: "beginner",
+    genre: "folk",
+    key: "G",
+    bpm: 100,
+    chords: [
+      { name:"G", shape:"320003" },
+      { name:"C", shape:"x32010" },
+      { name:"D", shape:"xx0232" },
+    ],
+    strumPattern: "D DU UDU",
+    progression: ["G","C","G","D"],
+    youtubeId: "MDBykpSXsSE",
+    lyrics: `[G]All my bags are [C]packed, I'm ready to [G]go
+[G]I'm standin' here [C]outside your [D]door
+[G]I hate to wake you [C]up to say good[G]bye [D]
+
+[G]But the dawn is [C]breakin', it's early [G]morn
+[G]The taxi's waitin', [C]he's blowin' his [D]horn
+[G]Already I'm so [C]lonesome I could [D]die
+
+[G]So kiss me and [C]smile for me
+[G]Tell me that you'll [C]wait for me
+[G]Hold me like you'll [D]never let me go
+
+[G]'Cause I'm [C]leavin' on a jet [G]plane
+[D]Don't know when I'll be back a[G]gain
+[G]Oh babe, I [C]hate to [D]go`
+  },
+  {
+    id: 2,
+    title: "Knockin' on Heaven's Door",
+    artist: "Bob Dylan",
+    emoji: "🚪",
+    difficulty: "beginner",
+    genre: "rock",
+    key: "G",
+    bpm: 75,
+    chords: [
+      { name:"G", shape:"320003" },
+      { name:"D", shape:"xx0232" },
+      { name:"Am", shape:"x02210" },
+      { name:"C", shape:"x32010" },
+    ],
+    strumPattern: "D D DU",
+    progression: ["G","D","Am","G","D","C"],
+    youtubeId: "ckVSJgPdR0I",
+    lyrics: `[G]Mama, take this [D]badge off of [Am]me
+[G]I can't use it [D]anymore [C]
+[G]It's gettin' dark, [D]too dark for me to [Am]see
+[G]I feel like I'm [D]knockin' on heaven's [C]door
+
+[G]Knock, knock, [D]knockin' on heaven's [Am]door
+[G]Knock, knock, [D]knockin' on heaven's [C]door`
+  },
+  {
+    id: 3,
+    title: "Let Her Go",
+    artist: "Passenger",
+    emoji: "🌙",
+    difficulty: "beginner",
+    genre: "folk",
+    key: "G",
+    bpm: 105,
+    chords: [
+      { name:"G", shape:"320003" },
+      { name:"D", shape:"xx0232" },
+      { name:"Em", shape:"022000" },
+      { name:"C", shape:"x32010" },
+    ],
+    strumPattern: "DU DU DU DU",
+    progression: ["G","D","Em","C"],
+    youtubeId: "RBumgq5yVrA",
+    lyrics: `[G]Well you only need the [D]light when it's burning [Em]low
+[C]Only miss the sun when it starts to [G]snow
+[G]Only know you love her when you [D]let her go [Em][C]
+
+[G]Only know you've been high when you're [D]feeling low
+[Em]Only hate the road when you're [C]missing home
+[G]Only know you love her when you [D]let her go
+[Em][C]And you let her go`
+  },
+  {
+    id: 4,
+    title: "Wonderwall",
+    artist: "Oasis",
+    emoji: "🧱",
+    difficulty: "intermediate",
+    genre: "rock",
+    key: "Am",
+    bpm: 87,
+    chords: [
+      { name:"Em7", shape:"022033" },
+      { name:"G", shape:"320033" },
+      { name:"Dsus4", shape:"xx0233" },
+      { name:"A7sus4", shape:"x02033" },
+      { name:"C", shape:"x32033" },
+    ],
+    strumPattern: "DU U DU D",
+    progression: ["Em7","G","Dsus4","A7sus4"],
+    youtubeId: "6hzrDeceEKc",
+    lyrics: `[Em7]Today is gonna be the day that they're
+[G]gonna throw it back to [Dsus4]you [A7sus4]
+[Em7]By now you should've somehow
+[G]Realized what you gotta [Dsus4]do [A7sus4]
+
+[Em7]I don't believe that anybody
+[G]Feels the way I do a[Dsus4]bout you [A7sus4]now
+
+[C]Backbeat, the word was on the [Dsus4]street
+That the [Em7]fire in your heart is [G]out
+[C]I'm sure you've heard it all be[Dsus4]fore
+But you [Em7]never really had a [G]doubt`
+  },
+  {
+    id: 5,
+    title: "Stand By Me",
+    artist: "Ben E. King",
+    emoji: "🌟",
+    difficulty: "beginner",
+    genre: "pop",
+    key: "A",
+    bpm: 120,
+    chords: [
+      { name:"A", shape:"x02220" },
+      { name:"F#m", shape:"244222" },
+      { name:"D", shape:"xx0232" },
+      { name:"E", shape:"022100" },
+    ],
+    strumPattern: "D DU UDU",
+    progression: ["A","F#m","D","E","A"],
+    youtubeId: "hwZNL7QVJjE",
+    lyrics: `[A]When the night has come
+And the land is [F#m]dark
+And the moon is the [D]only light we'll [E]see
+[A]No I won't be afraid
+Oh I [F#m]won't be afraid
+Just as [D]long as you stand, [E]stand by [A]me
+
+So [A]darling, darling stand by [F#m]me
+Oh stand by [D]me [E]
+Oh [A]stand, stand by [F#m]me
+Stand by [D]me [E][A]`
+  },
+  {
+    id: 6,
+    title: "Horse With No Name",
+    artist: "America",
+    emoji: "🐴",
+    difficulty: "beginner",
+    genre: "folk",
+    key: "Em",
+    bpm: 112,
+    chords: [
+      { name:"Em", shape:"022000" },
+      { name:"D6", shape:"xx0202" },
+    ],
+    strumPattern: "D D DU D DU",
+    progression: ["Em","D6","Em","D6"],
+    youtubeId: "B40N1iCXJU4",
+    lyrics: `[Em]On the first part of the [D6]journey
+[Em]I was looking at all the [D6]life
+[Em]There were plants and birds and [D6]rocks and things
+[Em]There was sand and hills and [D6]rings
+
+[Em]The first thing I met was a [D6]fly with a buzz
+[Em]And the sky with no [D6]clouds
+[Em]The heat was hot and the [D6]ground was dry
+[Em]But the air was full of [D6]sound
+
+[Em]I've been through the desert on a [D6]horse with no name
+[Em]It felt good to be out of the [D6]rain`
+  },
+];
+
+let currentFilter = 'all';
+let searchQuery = '';
+
+function renderSongs() {
+  const grid = document.getElementById('songsGrid');
+  grid.innerHTML = '';
+  let list = SONGS;
+  if (currentFilter !== 'all') {
+    list = list.filter(s => s.difficulty === currentFilter || s.genre === currentFilter);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+  }
+  if (list.length === 0) {
+    grid.innerHTML = '<div style="color:#555;font-size:13px;padding:20px 0;">No songs found.</div>';
+    return;
+  }
+  list.forEach(song => {
+    const card = document.createElement('div');
+    card.className = 'song-card';
+    card.onclick = () => openSongModal(song);
+    card.innerHTML = `
+      <div class="song-card-top">
+        <div class="song-emoji">${song.emoji}</div>
+        <div class="song-card-info">
+          <div class="song-card-title">${song.title}</div>
+          <div class="song-card-artist">${song.artist}</div>
+        </div>
+      </div>
+      <div class="song-card-chords">
+        ${song.chords.map(c => `<span class="chord-pill">${c.name}</span>`).join('')}
+      </div>
+      <div class="song-card-footer">
+        <span class="song-difficulty ${song.difficulty}">${song.difficulty}</span>
+        <span class="song-genre">${song.genre} · Key of ${song.key}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function filterSongs(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.sf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSongs();
+}
+
+function searchSongs() {
+  searchQuery = document.getElementById('songSearch').value;
+  renderSongs();
+}
+
+function openSongModal(song) {
+  document.getElementById('smArtist').textContent = song.artist;
+  document.getElementById('smTitle').textContent  = song.title;
+  document.getElementById('smMeta').textContent   = `Key of ${song.key} · ${song.bpm} BPM · ${song.difficulty} · ${song.genre}`;
+
+  document.getElementById('smChordsRow').innerHTML = song.chords.map(c => `
+    <div class="sm-chord-box">
+      <div class="sm-chord-name">${c.name}</div>
+      <div class="sm-chord-shape">${c.shape}</div>
+    </div>
+  `).join('');
+
+  const strumHTML = song.strumPattern.split('').map(ch => {
+    if (ch === 'D') return `<span style="color:#f66e06">D</span>`;
+    if (ch === 'U') return `<span style="color:#aaa">U</span>`;
+    return `<span style="color:#333"> </span>`;
+  }).join('');
+  document.getElementById('smStrum').innerHTML = strumHTML;
+
+  const prog = song.progression;
+  document.getElementById('smProgression').innerHTML = prog.map((c, i) =>
+    `<span class="sm-prog-chord">${c}</span>${i < prog.length-1 ? '<span class="sm-prog-arrow">→</span>' : ''}`
+  ).join('');
+
+  const lyricsHTML = song.lyrics.replace(/\[([^\]]+)\]/g, '<span class="chord-mark">[$1]</span>');
+  document.getElementById('smLyrics').innerHTML = lyricsHTML;
+
+  document.getElementById('smYtBtn').href = `https://www.youtube.com/watch?v=${song.youtubeId}`;
+  document.getElementById('songModalBg').classList.add('open');
+}
+
+function closeSongModal() {
+  document.getElementById('songModalBg').classList.remove('open');
+}
+
+function handleSongBgClick(e) {
+  if (e.target === document.getElementById('songModalBg')) closeSongModal();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderSongs();
+checkSession();
+</script>
 </body>
 </html>

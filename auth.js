@@ -1,209 +1,199 @@
-// ══════════════════════════════════════
-//  GUITARIFY — auth.js  (updated)
-// ══════════════════════════════════════
+// ============================================
+//  auth.js — Frontend Auth (PHP version)
+//  Replace your old auth.js with this file
+//  Works with auth.php backend
+// ============================================
 
-document.addEventListener('DOMContentLoaded', function () {
-  updateNavUser();
+const AUTH_URL = 'auth.php';  // same folder as your HTML files
 
-  document.addEventListener('click', function (e) {
-    const btn      = document.getElementById('navUserBtn');
-    const dropdown = document.getElementById('userDropdown');
-    if (!btn || !dropdown) return;
-    if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.remove('open');
+let currentUser = null;
+
+// ── CHECK SESSION ON PAGE LOAD ──────────────
+async function checkSession() {
+    try {
+        const res  = await fetch(`${AUTH_URL}?action=check`);
+        const data = await res.json();
+
+        if (data.loggedIn && data.user) {
+            currentUser = data.user;
+            updateNavUser();
+        }
+    } catch (e) {
+        console.error('Session check failed:', e);
     }
-  });
-});
-
-// ── NAV USER ICON ──
-function handleUserIconClick() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  if (isLoggedIn) {
-    document.getElementById('userDropdown').classList.toggle('open');
-  } else {
-    openAuth('login');
-  }
 }
 
-// ── UPDATE NAV ──
+// ── SIGN UP ─────────────────────────────────
+async function doSignup() {
+    const name     = document.getElementById('signupName').value.trim();
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm  = document.getElementById('signupConfirm').value;
+    const err      = document.getElementById('signupError');
+
+    err.textContent = '';
+
+    if (!name || !email || !password || !confirm) {
+        err.textContent = 'Please fill in all fields.';
+        return;
+    }
+    if (password !== confirm) {
+        err.textContent = 'Passwords do not match.';
+        return;
+    }
+    if (password.length < 6) {
+        err.textContent = 'Password must be at least 6 characters.';
+        return;
+    }
+
+    try {
+        const res  = await fetch(`${AUTH_URL}?action=signup`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+
+            // Auto-fill enrollment form if on enroll page
+            if (document.getElementById('f_email')) document.getElementById('f_email').value = email;
+            if (document.getElementById('f_name'))  document.getElementById('f_name').value  = name;
+        } else {
+            err.textContent = data.message;
+        }
+    } catch (e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+// ── LOGIN ────────────────────────────────────
+async function doLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const err      = document.getElementById('loginError');
+
+    err.textContent = '';
+
+    if (!email || !password) {
+        err.textContent = 'Please fill in all fields.';
+        return;
+    }
+
+    try {
+        const res  = await fetch(`${AUTH_URL}?action=login`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+
+            // Auto-fill enrollment form if on enroll page
+            if (document.getElementById('f_email')) document.getElementById('f_email').value = email;
+            if (document.getElementById('f_name'))  document.getElementById('f_name').value  = data.user.name;
+        } else {
+            err.textContent = data.message;
+        }
+    } catch (e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+// ── LOGOUT ───────────────────────────────────
+async function logout() {
+    try {
+        await fetch(`${AUTH_URL}?action=logout`);
+    } catch (e) {}
+
+    currentUser = null;
+    updateNavUser();
+
+    const dd = document.getElementById('userDropdown');
+    if (dd) dd.classList.remove('open');
+
+    showToast('Logged out.');
+}
+
+// ── UPDATE NAV UI ────────────────────────────
 function updateNavUser() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const userName   = localStorage.getItem('userName') || '';
-  const userEmail  = localStorage.getItem('userEmail') || '';
+    const nameEl    = document.getElementById('navUserName');
+    const dropName  = document.getElementById('dropdownName');
+    const dropEmail = document.getElementById('dropdownEmail');
 
-  const navUserName   = document.getElementById('navUserName');
-  const dropdownName  = document.getElementById('dropdownName');
-  const dropdownEmail = document.getElementById('dropdownEmail');
-
-  if (navUserName)   navUserName.textContent   = isLoggedIn ? userName : '';
-  if (dropdownName)  dropdownName.textContent  = isLoggedIn ? userName : '–';
-  if (dropdownEmail) dropdownEmail.textContent = isLoggedIn ? userEmail : '–';
+    if (currentUser) {
+        if (nameEl)    nameEl.textContent    = currentUser.name;
+        if (dropName)  dropName.textContent  = currentUser.name;
+        if (dropEmail) dropEmail.textContent = currentUser.email;
+    } else {
+        if (nameEl)    nameEl.textContent    = '';
+        if (dropName)  dropName.textContent  = '–';
+        if (dropEmail) dropEmail.textContent = '–';
+    }
 }
 
-// ══════════════════════════════════════
-//  AUTH MODAL
-// ══════════════════════════════════════
+// ── MODAL HELPERS ────────────────────────────
+function handleUserIconClick() {
+    if (currentUser) {
+        const dd = document.getElementById('userDropdown');
+        if (dd) dd.classList.toggle('open');
+    } else {
+        openAuth();
+    }
+}
 
-function openAuth(tab) {
-  const bg = document.getElementById('authBg');
-  if (!bg) return;
-  bg.classList.add('open');
-  switchAuthTab(tab || 'login');
+function openAuth() {
+    const bg = document.getElementById('authBg');
+    if (bg) bg.classList.add('open');
 }
 
 function closeAuth() {
-  const bg = document.getElementById('authBg');
-  if (bg) bg.classList.remove('open');
+    const bg = document.getElementById('authBg');
+    if (bg) bg.classList.remove('open');
 }
 
 function handleAuthBgClick(e) {
-  if (e.target === document.getElementById('authBg')) closeAuth();
+    if (e.target === document.getElementById('authBg')) closeAuth();
 }
 
 function switchAuthTab(tab) {
-  const loginForm  = document.getElementById('loginForm');
-  const signupForm = document.getElementById('signupForm');
-  const tabLogin   = document.getElementById('tabLogin');
-  const tabSignup  = document.getElementById('tabSignup');
+    const loginForm  = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const tabLogin   = document.getElementById('tabLogin');
+    const tabSignup  = document.getElementById('tabSignup');
 
-  if (tab === 'login') {
-    if (loginForm)  loginForm.style.display  = 'block';
-    if (signupForm) signupForm.style.display = 'none';
-    if (tabLogin)   tabLogin.classList.add('active');
-    if (tabSignup)  tabSignup.classList.remove('active');
-  } else {
-    if (loginForm)  loginForm.style.display  = 'none';
-    if (signupForm) signupForm.style.display = 'block';
-    if (tabLogin)   tabLogin.classList.remove('active');
-    if (tabSignup)  tabSignup.classList.add('active');
-  }
-
-  const loginError  = document.getElementById('loginError');
-  const signupError = document.getElementById('signupError');
-  if (loginError)  loginError.textContent  = '';
-  if (signupError) signupError.textContent = '';
+    if (loginForm)  loginForm.style.display  = tab === 'login'  ? 'block' : 'none';
+    if (signupForm) signupForm.style.display = tab === 'signup' ? 'block' : 'none';
+    if (tabLogin)   tabLogin.classList.toggle('active',  tab === 'login');
+    if (tabSignup)  tabSignup.classList.toggle('active', tab === 'signup');
 }
 
-// ══════════════════════════════════════
-//  LOGIN
-// ══════════════════════════════════════
-
-function doLogin() {
-  const email   = document.getElementById('loginEmail').value.trim();
-  const password= document.getElementById('loginPassword').value;
-  const errorEl = document.getElementById('loginError');
-
-  if (!email || !password) {
-    errorEl.textContent = 'Please fill in all fields.';
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('login_submit', true);
-  formData.append('loginEmail', email);
-  formData.append('loginPassword', password);
-
-  fetch('auth.php', { method: 'POST', body: formData })
-    .then(r => r.text())
-    .then(data => {
-      const res = data.trim();
-
-      // PHP returns "success|ActualName" on successful login
-      if (res.startsWith('success')) {
-        const parts = res.split('|');
-        const name  = parts[1] || email.split('@')[0];
-
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('userName', name);
-
-        closeAuth();
-        updateNavUser();
-        showToast('👋 Welcome back, ' + name + '!');
-      } else {
-        errorEl.textContent = res || 'Invalid email or password.';
-      }
-    })
-    .catch(() => {
-      errorEl.textContent = 'Connection error. Please try again.';
-    });
-}
-
-// ══════════════════════════════════════
-//  SIGNUP
-// ══════════════════════════════════════
-
-function doSignup() {
-  const name    = document.getElementById('signupName').value.trim();
-  const email   = document.getElementById('signupEmail').value.trim();
-  const pass    = document.getElementById('signupPassword').value;
-  const confirm = document.getElementById('signupConfirm').value;
-  const errorEl = document.getElementById('signupError');
-
-  if (!name || !email || !pass || !confirm) {
-    errorEl.textContent = 'Please fill in all fields.';
-    return;
-  }
-  if (pass !== confirm) {
-    errorEl.textContent = 'Passwords do not match.';
-    return;
-  }
-  if (pass.length < 6) {
-    errorEl.textContent = 'Password must be at least 6 characters.';
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('signup_submit', true);
-  formData.append('signupName', name);
-  formData.append('signupEmail', email);
-  formData.append('signupPassword', pass);
-
-  fetch('auth.php', { method: 'POST', body: formData })
-    .then(r => r.text())
-    .then(data => {
-      const res = data.trim();
-      if (res === 'success') {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userEmail', email);
-
-        closeAuth();
-        updateNavUser();
-        showToast('🎸 Account created! Welcome, ' + name + '!');
-      } else {
-        errorEl.textContent = res || 'Signup failed. Try again.';
-      }
-    })
-    .catch(() => {
-      errorEl.textContent = 'Connection error. Please try again.';
-    });
-}
-
-// ══════════════════════════════════════
-//  LOGOUT
-// ══════════════════════════════════════
-
-function logout() {
-  localStorage.removeItem('isLoggedIn');
-  localStorage.removeItem('userName');
-  localStorage.removeItem('userEmail');
-
-  const dropdown = document.getElementById('userDropdown');
-  if (dropdown) dropdown.classList.remove('open');
-
-  updateNavUser();
-  showToast('✓ Logged out successfully.');
-}
-
-// ══════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════
-
+// ── TOAST ────────────────────────────────────
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
 }
+
+// ── CLOSE DROPDOWN ON OUTSIDE CLICK ─────────
+document.addEventListener('click', function (e) {
+    const dd  = document.getElementById('userDropdown');
+    const btn = document.getElementById('navUserBtn');
+    if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
+        dd.classList.remove('open');
+    }
+});
+
+// ── AUTO-RUN ON PAGE LOAD ────────────────────
+checkSession();

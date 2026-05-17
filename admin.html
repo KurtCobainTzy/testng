@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guitarify — Admin Panel</title>
+  <style>
+:root {
+  --bg: #0a0a0a;
+  --bg1: #111;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --border: #222;
+  --border2: #2a2a2a;
+  --orange: #f66e06;
+  --orange-d: rgba(246,110,6,0.12);
+  --orange-b: rgba(246,110,6,0.25);
+  --text: #f0ede0;
+  --text2: #999;
+  --text3: #555;
+  --green: #22c55e;
+  --green-d: rgba(34,197,94,0.1);
+  --red: #ef4444;
+  --red-d: rgba(239,68,68,0.1);
+  --blue: #3b82f6;
+  --blue-d: rgba(59,130,246,0.1);
+  --yellow: #f59e0b;
+  --yellow-d: rgba(245,158,11,0.1);
+  --purple: #8b5cf6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── LOGIN SCREEN ── */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
+.login-screen.hidden{display:none;}
+.login-box{width:360px;background:var(--bg1);border:1px solid var(--border2);border-radius:4px;overflow:hidden;}
+.login-header{padding:28px 28px 20px;border-bottom:1px solid var(--border);}
+.login-logo{font-size:11px;font-weight:700;letter-spacing:4px;color:var(--orange);text-transform:uppercase;margin-bottom:6px;}
+.login-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.5px;}
+.login-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.login-body{padding:24px 28px 28px;}
+.lf{margin-bottom:16px;}
+.lf label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+.lf input{width:100%;background:#0a0a0a;border:1px solid var(--border2);border-radius:2px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'Courier New',monospace;outline:none;transition:border-color 0.15s;}
+.lf input:focus{border-color:var(--orange);}
+.login-err{font-size:11px;color:var(--red);min-height:14px;margin-bottom:12px;}
+.login-btn{width:100%;background:var(--orange);border:none;border-radius:2px;padding:11px;color:#fff;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:'Courier New',monospace;cursor:pointer;transition:opacity 0.15s;}
+.login-btn:hover{opacity:0.85;}
+.login-warn{font-size:10px;color:var(--text3);text-align:center;margin-top:20px;letter-spacing:1px;}
+
+/* ── LAYOUT ── */
+.admin-wrap{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+.admin-wrap.hidden{display:none;}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.brand-tag{font-size:9px;letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:4px;}
+.brand-title{font-size:14px;font-weight:700;color:var(--text);letter-spacing:1px;}
+.brand-sub{font-size:9px;color:var(--text3);margin-top:2px;letter-spacing:1px;}
+.sidebar-nav{flex:1;padding:12px 0;}
+.nav-section{margin-bottom:4px;}
+.nav-section-label{font-size:9px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;padding:12px 20px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;text-decoration:none;}
+.nav-item:hover{background:var(--bg2);color:var(--text);}
+.nav-item.active{background:var(--orange-d);border-left-color:var(--orange);color:var(--orange);}
+.nav-item-icon{font-size:13px;flex-shrink:0;}
+.nav-item-label{font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--text2);}
+.nav-item.active .nav-item-label{color:var(--orange);}
+.nav-item:hover .nav-item-label{color:var(--text);}
+.nav-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--orange-d);color:var(--orange);border:1px solid var(--orange-b);}
+.nav-badge.green{background:var(--green-d);color:var(--green);border-color:rgba(34,197,94,0.25);}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);}
+.sidebar-admin-info{font-size:10px;color:var(--text3);margin-bottom:8px;letter-spacing:0.5px;}
+.sidebar-logout{font-size:10px;letter-spacing:2px;color:var(--red);text-transform:uppercase;cursor:pointer;background:none;border:none;font-family:'Courier New',monospace;}
+.sidebar-logout:hover{text-decoration:underline;}
+
+/* ── MAIN ── */
+.main{background:var(--bg);overflow-y:auto;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);background:var(--bg1);position:sticky;top:0;z-index:10;}
+.topbar-title{font-size:13px;font-weight:700;color:var(--text);letter-spacing:1px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.topbar-tag{font-size:9px;letter-spacing:2px;color:var(--orange);text-transform:uppercase;border:1px solid var(--orange-b);padding:3px 10px;border-radius:2px;}
+.content{padding:28px 32px;}
+
+/* ── PANEL ── */
+.panel{display:none;}
+.panel.active{display:block;}
+.panel-header{margin-bottom:24px;}
+.panel-eyebrow{font-size:9px;letter-spacing:3px;color:var(--orange);text-transform:uppercase;margin-bottom:6px;}
+.panel-title{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-1px;}
+.panel-title span{color:var(--orange);}
+.panel-sub{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.6;}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--bg1);border:1px solid var(--border);border-radius:4px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.orange::before{background:var(--orange);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.purple::before{background:var(--purple);}
+.stat-label{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-1px;line-height:1;}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:6px;}
+
+/* ── CARD ── */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:16px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);}
+.card-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;}
+.card-body{padding:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);}
+.tbl td{font-size:11px;color:var(--text2);padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg2);}
+.tbl td:first-child{color:var(--text);}
+
+/* ── BADGES ── */
+.badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:2px;letter-spacing:1px;text-transform:uppercase;}
+.badge.green{background:var(--green-d);color:var(--green);border:1px solid rgba(34,197,94,0.2);}
+.badge.red{background:var(--red-d);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.badge.orange{background:var(--orange-d);color:var(--orange);border:1px solid var(--orange-b);}
+.badge.blue{background:var(--blue-d);color:var(--blue);border:1px solid rgba(59,130,246,0.2);}
+.badge.yellow{background:var(--yellow-d);color:var(--yellow);border:1px solid rgba(245,158,11,0.2);}
+.badge.gray{background:var(--bg3);color:var(--text3);border:1px solid var(--border2);}
+.badge.purple{background:rgba(139,92,246,0.12);color:var(--purple);border:1px solid rgba(139,92,246,0.25);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Courier New',monospace;cursor:pointer;transition:all 0.15s;border:none;}
+.btn-primary{background:var(--orange);color:#fff;}
+.btn-primary:hover{opacity:0.85;}
+.btn-danger{background:var(--red-d);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:#555;color:var(--text);}
+.btn-success{background:var(--green-d);color:var(--green);border:1px solid rgba(34,197,94,0.2);}
+.btn-success:hover{background:var(--green);color:#fff;}
+.btn-sm{padding:5px 10px;font-size:9px;}
+
+/* ── FORMS ── */
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:2px;padding:9px 12px;color:var(--text);font-size:12px;font-family:'Courier New',monospace;outline:none;transition:border-color 0.15s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--orange);}
+.form-select{cursor:pointer;}
+.form-textarea{min-height:80px;resize:vertical;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px;}
+.form-group-title{font-size:10px;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-bottom:14px;}
+
+/* ── ENROLLMENT DETAIL CARD ── */
+.enroll-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.enroll-detail-item{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:10px 12px;}
+.enroll-detail-label{font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;}
+.enroll-detail-value{font-size:12px;color:var(--text);font-weight:700;}
+.enroll-ref-tag{font-family:'Courier New',monospace;font-size:11px;background:var(--orange-d);color:var(--orange);border:1px solid var(--orange-b);padding:4px 10px;border-radius:2px;letter-spacing:1px;}
+.status-select{background:var(--bg);border:1px solid var(--border2);border-radius:2px;padding:4px 8px;color:var(--text);font-size:10px;font-family:'Courier New',monospace;outline:none;cursor:pointer;}
+.status-select:focus{border-color:var(--orange);}
+
+/* ── PROGRESS CHART ── */
+.chart-bar-wrap{display:flex;flex-direction:column;gap:10px;}
+.chart-bar-row{display:flex;align-items:center;gap:12px;}
+.chart-bar-label{font-size:10px;color:var(--text2);width:80px;text-align:right;flex-shrink:0;}
+.chart-bar-track{flex:1;height:8px;background:var(--bg2);border-radius:99px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:99px;transition:width 0.6s ease;}
+.chart-bar-val{font-size:10px;color:var(--text3);width:40px;flex-shrink:0;}
+
+/* ── LOG LIST ── */
+.log-item{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);}
+.log-item:last-child{border-bottom:none;}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.log-dot.green{background:var(--green);}
+.log-dot.orange{background:var(--orange);}
+.log-dot.red{background:var(--red);}
+.log-dot.blue{background:var(--blue);}
+.log-content{flex:1;}
+.log-action{font-size:11px;color:var(--text);}
+.log-meta{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg1);border:1px solid var(--border2);border-radius:4px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-wide{max-width:680px;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:14px;font-weight:700;color:var(--text);}
+.modal-close{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg1);border:1px solid var(--border2);border-radius:4px;padding:12px 20px;font-size:11px;color:var(--text);opacity:0;transform:translateY(10px);transition:all 0.25s;pointer-events:none;z-index:9999;letter-spacing:0.5px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{border-left:3px solid var(--green);}
+.toast.error{border-left:3px solid var(--red);}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:20px 0;}
+.empty-state{text-align:center;padding:40px;color:var(--text3);font-size:12px;}
+.action-row{display:flex;gap:8px;align-items:center;}
+.search-input{background:var(--bg);border:1px solid var(--border2);border-radius:2px;padding:7px 12px;color:var(--text);font-size:11px;font-family:'Courier New',monospace;outline:none;width:220px;}
+.search-input:focus{border-color:var(--orange);}
+.tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;letter-spacing:1px;text-transform:uppercase;background:var(--bg3);color:var(--text3);margin:2px;}
+.confirm-text{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:16px;}
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════ LOGIN ══════════════════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-logo">Guitarify</div>
+      <div class="login-title">Admin Panel</div>
+      <div class="login-sub">Restricted access — administrators only</div>
+    </div>
+    <div class="login-body">
+      <div class="lf"><label>Username</label><input type="text" id="adminUser" placeholder="admin" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+      <div class="lf"><label>Password</label><input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+      <div class="login-err" id="loginErr"></div>
+      <button class="login-btn" onclick="doAdminLogin()">→ ACCESS PANEL</button>
+    </div>
+  </div>
+  <div class="login-warn">⚠ This page is not linked from the public site.</div>
+</div>
+
+<!-- ══════════════════════ ADMIN WRAP ══════════════════════ -->
+<div class="admin-wrap hidden" id="adminWrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-tag">Guitarify</div>
+      <div class="brand-title">Admin Panel</div>
+      <div class="brand-sub">v1.1 — Restricted</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="switchTab('dashboard')" id="nav-dashboard">
+          <div class="nav-item-icon">📊</div>
+          <div class="nav-item-label">Dashboard</div>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Content</div>
+        <div class="nav-item" onclick="switchTab('chords')" id="nav-chords">
+          <div class="nav-item-icon">🎸</div>
+          <div class="nav-item-label">Chord Library</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('lessons')" id="nav-lessons">
+          <div class="nav-item-icon">📖</div>
+          <div class="nav-item-label">Lessons</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('videos')" id="nav-videos">
+          <div class="nav-item-icon">🎥</div>
+          <div class="nav-item-label">Videos</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('songs')" id="nav-songs">
+          <div class="nav-item-icon">🎵</div>
+          <div class="nav-item-label">Song Chords</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('quizzes')" id="nav-quizzes">
+          <div class="nav-item-icon">🧠</div>
+          <div class="nav-item-label">Quizzes</div>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Enrollments</div>
+        <div class="nav-item" onclick="switchTab('enrollments')" id="nav-enrollments">
+          <div class="nav-item-icon">📋</div>
+          <div class="nav-item-label">Enrollments</div>
+          <div class="nav-badge green" id="enrollBadge">0</div>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Users</div>
+        <div class="nav-item" onclick="switchTab('users')" id="nav-users">
+          <div class="nav-item-icon">👥</div>
+          <div class="nav-item-label">Users</div>
+          <div class="nav-badge" id="userBadge">0</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('logs')" id="nav-logs">
+          <div class="nav-item-icon">🗒️</div>
+          <div class="nav-item-label">Activity Logs</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('progress')" id="nav-progress">
+          <div class="nav-item-icon">📈</div>
+          <div class="nav-item-label">Progress Tracker</div>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <div class="nav-item" onclick="switchTab('settings')" id="nav-settings">
+          <div class="nav-item-icon">⚙️</div>
+          <div class="nav-item-label">Site Settings</div>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-admin-info" id="sidebarAdminInfo">Logged in as: admin</div>
+      <button class="sidebar-logout" onclick="adminLogout()">→ Log Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-tag">ADMIN</div>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Overview</div>
+          <h2 class="panel-title">Admin <span>Dashboard</span></h2>
+          <p class="panel-sub">Real-time snapshot of all registered users, enrollments, activity, and site content.</p>
+        </div>
+        <div class="stats-row" id="dashStats"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent Logins</div></div>
+            <div id="recentLogins"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Content Summary</div></div>
+            <div class="card-body" id="contentSummary"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Enrollments</div>
+            <button class="btn btn-ghost btn-sm" onclick="switchTab('enrollments')">View All →</button>
+          </div>
+          <div id="dashEnrollments"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">User Registration — Last 7 Days</div></div>
+          <div class="card-body" id="regChart"></div>
+        </div>
+      </div>
+
+      <!-- ══ CHORD LIBRARY EDITOR ══ -->
+      <div class="panel" id="panel-chords">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Content Editor</div>
+          <h2 class="panel-title">Chord <span>Library</span></h2>
+          <p class="panel-sub">Add, edit, or remove chords. Changes apply site-wide.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <input class="search-input" placeholder="Search chords…" oninput="filterChords(this.value)" />
+          <button class="btn btn-primary" onclick="openChordModal()">+ Add Chord</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <table class="tbl" id="chordsTable">
+            <thead><tr><th>Name</th><th>Label</th><th>Type</th><th>Shape</th><th>Songs</th><th>Actions</th></tr></thead>
+            <tbody id="chordsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ LESSONS EDITOR ══ -->
+      <div class="panel" id="panel-lessons">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Content Editor</div>
+          <h2 class="panel-title">Guitar <span>Lessons</span></h2>
+          <p class="panel-sub">Manage the lesson modules. Edit titles, content, and difficulty.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="openLessonModal()">+ Add Module</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <table class="tbl">
+            <thead><tr><th>#</th><th>Title</th><th>Level</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="lessonsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ VIDEOS EDITOR ══ -->
+      <div class="panel" id="panel-videos">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Content Editor</div>
+          <h2 class="panel-title">Video <span>Tutorials</span></h2>
+          <p class="panel-sub">Manage YouTube video links and descriptions.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="openVideoModal()">+ Add Video</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <table class="tbl">
+            <thead><tr><th>Title</th><th>Tag</th><th>Duration</th><th>YouTube ID</th><th>Actions</th></tr></thead>
+            <tbody id="videosBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ SONGS EDITOR ══ -->
+      <div class="panel" id="panel-songs">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Content Editor</div>
+          <h2 class="panel-title">Song <span>Chords</span></h2>
+          <p class="panel-sub">Manage song chord sheets, progressions, and strumming patterns.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="openSongModal()">+ Add Song</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <table class="tbl">
+            <thead><tr><th>Title</th><th>Artist</th><th>Difficulty</th><th>Genre</th><th>Key</th><th>Actions</th></tr></thead>
+            <tbody id="songsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ QUIZZES EDITOR ══ -->
+      <div class="panel" id="panel-quizzes">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Content Editor</div>
+          <h2 class="panel-title">Quiz <span>Questions</span></h2>
+          <p class="panel-sub">Add or edit quiz questions across all quiz types.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <select class="form-select" style="width:200px;" id="quizTypeFilter" onchange="renderQuizzesTable()">
+            <option value="mcq">Theory Quiz (MCQ)</option>
+            <option value="truefalse">True or False</option>
+            <option value="fill">Fill in the Blank</option>
+            <option value="fret">Fretboard Quiz</option>
+          </select>
+          <button class="btn btn-primary" onclick="openQuizModal()">+ Add Question</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <table class="tbl">
+            <thead><tr><th>#</th><th>Question</th><th>Type</th><th>Answer</th><th>Actions</th></tr></thead>
+            <tbody id="quizzesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ ENROLLMENTS ══ -->
+      <div class="panel" id="panel-enrollments">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Enrollment Management</div>
+          <h2 class="panel-title">Student <span>Enrollments</span></h2>
+          <p class="panel-sub">All enrollment submissions from the Enroll page. Update statuses and view full details per student.</p>
+        </div>
+
+        <!-- Enrollment Stats -->
+        <div class="stats-row" id="enrollStats"></div>
+
+        <div class="action-row" style="margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <input class="search-input" placeholder="Search by name or email…" oninput="filterEnrollments(this.value)" />
+          <select class="form-select" style="width:180px;" id="enrollStatusFilter" onchange="renderEnrollmentsTable()">
+            <option value="all">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Declined">Declined</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select class="form-select" style="width:180px;" id="enrollModeFilter" onchange="renderEnrollmentsTable()">
+            <option value="all">All Modes</option>
+            <option value="In-Person">In-Person</option>
+            <option value="Online">Online</option>
+            <option value="Home Service">Home Service</option>
+          </select>
+          <button class="btn btn-ghost" onclick="refreshEnrollments()">↻ Refresh</button>
+          <button class="btn btn-ghost" onclick="exportEnrollments()">↓ Export CSV</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmClearEnrollments()">✕ Clear All</button>
+        </div>
+
+        <div class="card" style="padding:0;">
+          <table class="tbl" id="enrollmentsTable">
+            <thead>
+              <tr>
+                <th>Ref ID</th>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Schedule</th>
+                <th>Mode</th>
+                <th>Level</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="enrollmentsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ USERS ══ -->
+      <div class="panel" id="panel-users">
+        <div class="panel-header">
+          <div class="panel-eyebrow">User Management</div>
+          <h2 class="panel-title">Registered <span>Users</span></h2>
+          <p class="panel-sub">View all registered accounts, login history, and manage access.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <input class="search-input" placeholder="Search users…" oninput="filterUsers(this.value)" />
+          <button class="btn btn-ghost" onclick="refreshUsers()">↻ Refresh</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <table class="tbl">
+            <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Last Login</th><th>Quizzes</th><th>XP</th><th>Actions</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ ACTIVITY LOGS ══ -->
+      <div class="panel" id="panel-logs">
+        <div class="panel-header">
+          <div class="panel-eyebrow">System Logs</div>
+          <h2 class="panel-title">Activity <span>Logs</span></h2>
+          <p class="panel-sub">All user login/logout events and admin actions are recorded here.</p>
+        </div>
+        <div class="action-row" style="margin-bottom:16px;">
+          <select class="form-select" style="width:180px;" onchange="filterLogs(this.value)">
+            <option value="all">All Events</option>
+            <option value="login">Logins</option>
+            <option value="logout">Logouts</option>
+            <option value="signup">Signups</option>
+            <option value="admin">Admin Actions</option>
+          </select>
+          <button class="btn btn-danger btn-sm" onclick="clearLogs()">Clear Logs</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <div id="logsContainer"></div>
+        </div>
+      </div>
+
+      <!-- ══ PROGRESS TRACKER ══ -->
+      <div class="panel" id="panel-progress">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Analytics</div>
+          <h2 class="panel-title">Progress <span>Tracker</span></h2>
+          <p class="panel-sub">Site-wide practice stats, XP distribution, and quiz completion rates.</p>
+        </div>
+        <div class="stats-row" id="progressStats"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quiz Completion by Type</div></div>
+            <div class="card-body" id="quizCompChart"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Top XP Earners</div></div>
+            <div id="topXPList"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">User Progress Table</div></div>
+          <table class="tbl">
+            <thead><tr><th>User</th><th>Total XP</th><th>Level</th><th>Quizzes Done</th><th>Accuracy</th><th>Streak</th><th>Achievements</th></tr></thead>
+            <tbody id="progressTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ SETTINGS ══ -->
+      <div class="panel" id="panel-settings">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Configuration</div>
+          <h2 class="panel-title">Site <span>Settings</span></h2>
+          <p class="panel-sub">Configure site-wide options, admin credentials, and data management.</p>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Admin Credentials</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-row"><label>Admin Username</label><input class="form-input" id="settAdminUser" /></div>
+              <div class="form-row"><label>New Password</label><input class="form-input" type="password" id="settAdminPass" placeholder="Leave blank to keep current"/></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveAdminCreds()">Save Credentials</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Site Information</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-row"><label>Site Name</label><input class="form-input" id="settSiteName" value="Guitarify"/></div>
+              <div class="form-row"><label>Footer Copyright</label><input class="form-input" id="settCopyright" value="© 2025 Guitarify. All rights reserved."/></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveSiteSettings()">Save Settings</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Data Management</div></div>
+          <div class="card-body">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-ghost" onclick="exportData()">↓ Export All Data (JSON)</button>
+              <button class="btn btn-danger" onclick="confirmClearUsers()">✕ Clear All Users</button>
+              <button class="btn btn-danger" onclick="confirmClearLogs()">✕ Clear All Logs</button>
+              <button class="btn btn-danger" onclick="confirmClearEnrollments()">✕ Clear All Enrollments</button>
+            </div>
+            <div style="margin-top:14px;font-size:10px;color:var(--text3);line-height:1.7;">All data is stored in the browser's localStorage. Use Export to back up before clearing.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /admin-wrap -->
+
+<!-- ══ MODAL: CHORD ══ -->
+<div class="modal-bg" id="chordModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="chordModalTitle">Add Chord</div>
+      <button class="modal-close" onclick="closeModal('chordModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row"><label>Chord Name (e.g. Em)</label><input class="form-input" id="cf_name"/></div>
+        <div class="form-row"><label>Label (e.g. E Minor)</label><input class="form-input" id="cf_label"/></div>
+      </div>
+      <div class="form-row">
+        <label>Type</label>
+        <select class="form-select" id="cf_type">
+          <option value="major">Major</option>
+          <option value="minor">Minor</option>
+          <option value="7th">7th</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Shape (e.g. 022000)</label><input class="form-input" id="cf_shape" placeholder="x = mute, 0 = open, 1-9 = fret"/></div>
+      <div class="form-row"><label>YouTube ID</label><input class="form-input" id="cf_youtube" placeholder="e.g. BBz-Jyr23M4"/></div>
+      <div class="form-row"><label>Song Examples (comma-separated)</label><input class="form-input" id="cf_songs" placeholder="Song 1, Song 2, Song 3"/></div>
+      <div class="form-row"><label>Muted Strings (comma-separated, 1=high e 6=low E)</label><input class="form-input" id="cf_muted" placeholder="e.g. 6 or 6,5"/></div>
+      <div class="form-row"><label>Open Strings (comma-separated)</label><input class="form-input" id="cf_open" placeholder="e.g. 1,2,3"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('chordModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveChord()">Save Chord</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: LESSON ══ -->
+<div class="modal-bg" id="lessonModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="lessonModalTitle">Add Lesson Module</div>
+      <button class="modal-close" onclick="closeModal('lessonModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row"><label>Module Number (e.g. Module 01)</label><input class="form-input" id="lf_number"/></div>
+        <div class="form-row"><label>Icon (emoji)</label><input class="form-input" id="lf_icon" placeholder="🎸"/></div>
+      </div>
+      <div class="form-row"><label>Title</label><input class="form-input" id="lf_title"/></div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Level</label>
+          <select class="form-select" id="lf_level">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Duration (e.g. 10 min)</label><input class="form-input" id="lf_duration"/></div>
+      </div>
+      <div class="form-row"><label>Content (HTML allowed)</label><textarea class="form-textarea" id="lf_content" style="min-height:150px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('lessonModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLesson()">Save Lesson</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: VIDEO ══ -->
+<div class="modal-bg" id="videoModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="videoModalTitle">Add Video</div>
+      <button class="modal-close" onclick="closeModal('videoModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Title</label><input class="form-input" id="vf_title"/></div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Tag / Category</label>
+          <select class="form-select" id="vf_tag">
+            <option value="beginner">Beginner</option>
+            <option value="chords">Chords</option>
+            <option value="strumming">Strumming</option>
+            <option value="songs">Songs</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Duration (e.g. 12:34)</label><input class="form-input" id="vf_duration"/></div>
+      </div>
+      <div class="form-row"><label>YouTube Video ID</label><input class="form-input" id="vf_youtube" placeholder="e.g. BBz-Jyr23M4 (from youtube.com/watch?v=BBz-Jyr23M4)"/></div>
+      <div class="form-row"><label>Emoji Icon</label><input class="form-input" id="vf_emoji" placeholder="🎸"/></div>
+      <div class="form-row"><label>Description</label><textarea class="form-textarea" id="vf_desc"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('videoModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveVideo()">Save Video</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: SONG ══ -->
+<div class="modal-bg" id="songModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="songModalTitle">Add Song</div>
+      <button class="modal-close" onclick="closeModal('songModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row"><label>Song Title</label><input class="form-input" id="sf_title"/></div>
+        <div class="form-row"><label>Artist</label><input class="form-input" id="sf_artist"/></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Difficulty</label>
+          <select class="form-select" id="sf_difficulty">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Genre</label>
+          <select class="form-select" id="sf_genre">
+            <option value="folk">Folk</option>
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="opm">OPM</option>
+            <option value="country">Country</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row"><label>Key (e.g. G)</label><input class="form-input" id="sf_key"/></div>
+        <div class="form-row"><label>BPM (e.g. 100)</label><input class="form-input" id="sf_bpm" type="number"/></div>
+      </div>
+      <div class="form-row"><label>Emoji</label><input class="form-input" id="sf_emoji" placeholder="🎵"/></div>
+      <div class="form-row"><label>Chords Used (comma-separated, e.g. G,C,D,Em)</label><input class="form-input" id="sf_chords"/></div>
+      <div class="form-row"><label>Strumming Pattern (e.g. D DU UDU)</label><input class="form-input" id="sf_strum"/></div>
+      <div class="form-row"><label>Chord Progression (comma-separated, e.g. G,C,D,Em)</label><input class="form-input" id="sf_progression"/></div>
+      <div class="form-row"><label>YouTube ID</label><input class="form-input" id="sf_youtube"/></div>
+      <div class="form-row"><label>Lyrics with Chords (use [Chord] before the word)</label><textarea class="form-textarea" id="sf_lyrics" style="min-height:120px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('songModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSong()">Save Song</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: QUIZ QUESTION ══ -->
+<div class="modal-bg" id="quizModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Quiz Question</div>
+      <button class="modal-close" onclick="closeModal('quizModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label>Question</label><textarea class="form-textarea" id="qf_question"></textarea></div>
+      <div id="qf_mcq_extra">
+        <div class="form-row"><label>Option A</label><input class="form-input" id="qf_optA"/></div>
+        <div class="form-row"><label>Option B</label><input class="form-input" id="qf_optB"/></div>
+        <div class="form-row"><label>Option C</label><input class="form-input" id="qf_optC"/></div>
+        <div class="form-row"><label>Option D</label><input class="form-input" id="qf_optD"/></div>
+        <div class="form-row">
+          <label>Correct Answer</label>
+          <select class="form-select" id="qf_correct">
+            <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
+          </select>
+        </div>
+      </div>
+      <div id="qf_tf_extra" style="display:none;">
+        <div class="form-row">
+          <label>Correct Answer</label>
+          <select class="form-select" id="qf_tf_answer">
+            <option value="true">True</option><option value="false">False</option>
+          </select>
+        </div>
+      </div>
+      <div id="qf_fill_extra" style="display:none;">
+        <div class="form-row"><label>Correct Answer (one word, uppercase)</label><input class="form-input" id="qf_fill_answer"/></div>
+        <div class="form-row"><label>Hint</label><input class="form-input" id="qf_hint"/></div>
+      </div>
+      <div class="form-row"><label>Explanation (shown after answer)</label><textarea class="form-textarea" id="qf_explain"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('quizModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveQuizQuestion()">Save Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ENROLLMENT DETAIL ══ -->
+<div class="modal-bg" id="enrollModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div class="modal-title">Enrollment Details</div>
+      <button class="modal-close" onclick="closeModal('enrollModal')">✕</button>
+    </div>
+    <div class="modal-body" id="enrollModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-success" onclick="setEnrollStatus('Confirmed')">✓ Confirm</button>
+      <button class="btn btn-danger" onclick="setEnrollStatus('Declined')">✕ Decline</button>
+      <button class="btn btn-ghost" onclick="setEnrollStatus('Completed')">✔ Mark Completed</button>
+      <button class="btn btn-ghost" onclick="closeModal('enrollModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: USER DETAIL ══ -->
+<div class="modal-bg" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">User Details</div>
+      <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    </div>
+    <div class="modal-body" id="userModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="userDeleteBtn" onclick="deleteUser()">Delete User</button>
+      <button class="btn btn-ghost" onclick="closeModal('userModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CONFIRM ══ -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title">Confirm Action</div>
+      <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-text" id="confirmText"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  ADMIN CREDENTIALS
+// ══════════════════════════════════════════
+const ADMIN_KEY = 'guitarify_admin_creds';
+
+function getAdminCreds() {
+  try { return JSON.parse(localStorage.getItem(ADMIN_KEY)) || {user:'admin',pass:'admin123'}; }
+  catch(e) { return {user:'admin',pass:'admin123'}; }
+}
+
+async function doAdminLogin() {
+    const u = document.getElementById('adminUser').value.trim();
+    const p = document.getElementById('adminPass').value;
+    const err = document.getElementById('loginErr');
+
+    if (!u || !p) { err.textContent = 'Please fill in all fields.'; return; }
+
+    try {
+        const res  = await fetch('auth.php?action=login', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email: u, password: p })
+        });
+        const data = await res.json();
+
+        if (data.success && data.user.role === 'admin') {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('adminWrap').classList.remove('hidden');
+            document.getElementById('sidebarAdminInfo').textContent = 'Logged in as: ' + data.user.name;
+            addLog('login', 'Admin logged in', data.user.email);
+            refreshAll();
+        } else if (data.success && data.user.role !== 'admin') {
+            err.textContent = 'Access denied. Admins only.';
+        } else {
+            err.textContent = data.message || 'Invalid credentials.';
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function adminLogout() {
+    addLog('logout', 'Admin logged out', 'admin');
+    await fetch('auth.php?action=logout');
+    document.getElementById('adminWrap').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminPass').value = '';
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+const PANEL_TITLES = {
+  dashboard:'Dashboard', chords:'Chord Library', lessons:'Lessons',
+  videos:'Video Tutorials', songs:'Song Chords', quizzes:'Quiz Questions',
+  enrollments:'Enrollments', users:'Users', logs:'Activity Logs',
+  progress:'Progress Tracker', settings:'Settings'
+};
+
+function switchTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  document.getElementById('topbarTitle').textContent = PANEL_TITLES[id] || id;
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'chords') renderChordsTable();
+  if (id === 'lessons') renderLessonsTable();
+  if (id === 'videos') renderVideosTable();
+  if (id === 'songs') renderSongsTable();
+  if (id === 'quizzes') renderQuizzesTable();
+  if (id === 'enrollments') renderEnrollmentsPanel();
+  if (id === 'users') renderUsersTable();
+  if (id === 'logs') renderLogs('all');
+  if (id === 'progress') renderProgress();
+  if (id === 'settings') loadSettings();
+}
+
+async function refreshAll() {
+    await renderDashboard();
+    renderChordsTable();
+    renderLessonsTable();
+    renderVideosTable();
+    renderSongsTable();
+    renderUsersTable();
+    renderLogs('all');
+    renderProgress();
+    updateUserBadge();
+    await updateEnrollBadge();
+}
+
+// ══════════════════════════════════════════
+//  DATA STORES
+// ══════════════════════════════════════════
+const DEFAULT_CHORDS = [
+  {name:'G',type:'major',label:'G Major',shape:'320003',songs:['Leaving on a Jet Plane','Knockin on Heavens Door','Country Roads'],youtubeId:'OZEKdNBl5OA',muted:[],open:[4,3,2]},
+  {name:'C',type:'major',label:'C Major',shape:'x32010',songs:['Let Her Go','Hallelujah','Stand By Me'],youtubeId:'aWAHGIa4AJM',muted:[6],open:[3,1]},
+  {name:'D',type:'major',label:'D Major',shape:'xx0232',songs:['Wonderwall','Brown Eyed Girl','Sweet Home Alabama'],youtubeId:'aWAHGIa4AJM',muted:[6,5],open:[4]},
+  {name:'E',type:'major',label:'E Major',shape:'022100',songs:['Smells Like Teen Spirit','Purple Haze','Back in Black'],youtubeId:'BBz-Jyr23M4',muted:[],open:[6,2,1]},
+  {name:'A',type:'major',label:'A Major',shape:'x02220',songs:['Wish You Were Here','Hotel California','Sweet Child O Mine'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[5,1]},
+  {name:'F',type:'major',label:'F Major',shape:'133211',songs:['Let Her Go','Wonderwall','No Woman No Cry'],youtubeId:'0YFlJQHLWlU',muted:[],open:[]},
+  {name:'Em',type:'minor',label:'E Minor',shape:'022000',songs:['Wonderwall','Horse With No Name','Nothing Else Matters'],youtubeId:'BBz-Jyr23M4',muted:[],open:[6,3,2,1]},
+  {name:'Am',type:'minor',label:'A Minor',shape:'x02210',songs:['Stairway to Heaven','The Sound of Silence','Harana'],youtubeId:'aWAHGIa4AJM',muted:[6],open:[5,1]},
+  {name:'Dm',type:'minor',label:'D Minor',shape:'xx0231',songs:['Losing My Religion','Eleanor Rigby','House of the Rising Sun'],youtubeId:'BBz-Jyr23M4',muted:[6,5],open:[4]},
+  {name:'Gm',type:'minor',label:'G Minor',shape:'355333',songs:['Huling El Bimbo','Alapaap','Tadhana'],youtubeId:'BBz-Jyr23M4',muted:[],open:[]},
+  {name:'Bm',type:'minor',label:'B Minor',shape:'x24432',songs:['Wonderwall','Let Her Go','Stay With Me'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[]},
+  {name:'Cm',type:'minor',label:'C Minor',shape:'x35543',songs:['Chandelier','Someone Like You','The Night We Met'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[]},
+  {name:'G7',type:'7th',label:'G7',shape:'320001',songs:['Twist and Shout','La Bamba','Johnny B. Goode'],youtubeId:'BBz-Jyr23M4',muted:[],open:[4,3,2]},
+  {name:'C7',type:'7th',label:'C7',shape:'x32310',songs:['Blue Suede Shoes','Rock Around the Clock'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[1]},
+  {name:'D7',type:'7th',label:'D7',shape:'xx0212',songs:['Brown Eyed Girl','Knockin on Heavens Door'],youtubeId:'BBz-Jyr23M4',muted:[6,5],open:[4]},
+  {name:'E7',type:'7th',label:'E7',shape:'020100',songs:['Lay Down Sally','Crossroads'],youtubeId:'BBz-Jyr23M4',muted:[],open:[6,4,2,1]},
+  {name:'A7',type:'7th',label:'A7',shape:'x02020',songs:['She Loves You','From Me to You'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[5,3,1]},
+  {name:'B7',type:'7th',label:'B7',shape:'x21202',songs:['Norwegian Wood','Love Me Do'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[]},
+  {name:'Cadd9',type:'other',label:'Cadd9',shape:'x32033',songs:['Wonderwall','Champagne Supernova'],youtubeId:'BBz-Jyr23M4',muted:[6],open:[3,1]},
+  {name:'Dsus2',type:'other',label:'Dsus2',shape:'xx0230',songs:['Creep','With or Without You'],youtubeId:'BBz-Jyr23M4',muted:[6,5],open:[4,1]},
+];
+
+const DEFAULT_LESSONS = [
+  {id:1,icon:'🎸',number:'Module 01',title:'Getting Started with Guitar',level:'beginner',duration:'10 min',content:'<h3>What You Need</h3><ul><li>An acoustic or electric guitar</li><li>A quiet space to practice</li></ul>',status:'published'},
+  {id:2,icon:'🎵',number:'Module 02',title:'Reading Guitar Tabs',level:'beginner',duration:'8 min',content:'<h3>What is a Tab?</h3><p>Guitar tabs are a simple way to read music without knowing sheet music.</p>',status:'published'},
+  {id:3,icon:'🤚',number:'Module 03',title:'Your First Chords: C and G',level:'beginner',duration:'15 min',content:'<h3>The C Major Chord</h3>',status:'published'},
+  {id:4,icon:'🎼',number:'Module 04',title:'More Chords: D, Em, Am',level:'beginner',duration:'15 min',content:'',status:'published'},
+  {id:5,icon:'🥁',number:'Module 05',title:'Basic Strumming Patterns',level:'beginner',duration:'12 min',content:'',status:'published'},
+  {id:6,icon:'🎶',number:'Module 06',title:'Chord Transitions',level:'intermediate',duration:'20 min',content:'',status:'published'},
+  {id:7,icon:'🎤',number:'Module 07',title:'Playing Your First Song',level:'intermediate',duration:'25 min',content:'',status:'published'},
+  {id:8,icon:'🔥',number:'Module 08',title:'Barre Chords',level:'advanced',duration:'30 min',content:'',status:'published'},
+  {id:9,icon:'🎯',number:'Module 09',title:'Fingerpicking Basics',level:'advanced',duration:'25 min',content:'',status:'published'},
+];
+
+const DEFAULT_VIDEOS = [
+  {id:1,title:'Guitar for Absolute Beginners',tag:'beginner',duration:'12:34',emoji:'🎸',youtubeId:'BBz-Jyr23M4',desc:'The perfect starting point.'},
+  {id:2,title:'How to Read Guitar Tabs',tag:'beginner',duration:'8:20',emoji:'📄',youtubeId:'aX5KBnXDpCU',desc:'Read tablature so you can play any song.'},
+  {id:3,title:'C, G, D and Em — 4 Essential Chords',tag:'chords',duration:'15:00',emoji:'🤚',youtubeId:'OZEKdNBl5OA',desc:'Master 4 chords and play hundreds of songs.'},
+  {id:4,title:'Beginner Strumming Patterns',tag:'strumming',duration:'10:45',emoji:'🥁',youtubeId:'aWAHGIa4AJM',desc:'The most common strumming patterns.'},
+  {id:5,title:'Am, F, C, G — Most Popular Progression',tag:'chords',duration:'11:22',emoji:'🎼',youtubeId:'Qe6xUkpVB60',desc:'Four chords used in thousands of songs.'},
+  {id:6,title:'Leaving on a Jet Plane — Full Tutorial',tag:'songs',duration:'18:10',emoji:'✈️',youtubeId:'MDBykpSXsSE',desc:'Perfect beginner song.'},
+  {id:7,title:'Fingerpicking for Beginners',tag:'beginner',duration:'14:05',emoji:'🎵',youtubeId:'vJLOQQUsFXk',desc:'Intro to fingerpicking patterns.'},
+  {id:8,title:'How to Play Barre Chords',tag:'chords',duration:'20:30',emoji:'💪',youtubeId:'0YFlJQHLWlU',desc:'Barre chords unlock the entire fretboard.'},
+  {id:9,title:"Knockin' on Heaven's Door — Tutorial",tag:'songs',duration:'9:55',emoji:'🎤',youtubeId:'ckVSJgPdR0I',desc:'Classic Bob Dylan song.'},
+];
+
+const DEFAULT_SONGS = [
+  {id:1,title:'Leaving on a Jet Plane',artist:'John Denver',emoji:'✈️',difficulty:'beginner',genre:'folk',key:'G',bpm:100,chords:['G','C','D'],strumPattern:'D DU UDU',progression:['G','C','G','D'],youtubeId:'MDBykpSXsSE',lyrics:'[G]All my bags are [C]packed...'},
+  {id:2,title:"Knockin' on Heaven's Door",artist:'Bob Dylan',emoji:'🚪',difficulty:'beginner',genre:'rock',key:'G',bpm:75,chords:['G','D','Am','C'],strumPattern:'D D DU',progression:['G','D','Am','C'],youtubeId:'ckVSJgPdR0I',lyrics:'[G]Mama, take this [D]badge...'},
+  {id:3,title:'Let Her Go',artist:'Passenger',emoji:'🌙',difficulty:'beginner',genre:'folk',key:'G',bpm:105,chords:['G','D','Em','C'],strumPattern:'DU DU DU DU',progression:['G','D','Em','C'],youtubeId:'RBumgq5yVrA',lyrics:'[G]Well you only need the [D]light...'},
+  {id:4,title:'Wonderwall',artist:'Oasis',emoji:'🧱',difficulty:'intermediate',genre:'rock',key:'Am',bpm:87,chords:['Em7','G','Dsus4','A7sus4'],strumPattern:'DU U DU D',progression:['Em7','G','Dsus4','A7sus4'],youtubeId:'6hzrDeceEKc',lyrics:'[Em7]Today is gonna be the day...'},
+  {id:5,title:'Stand By Me',artist:'Ben E. King',emoji:'🌟',difficulty:'beginner',genre:'pop',key:'A',bpm:120,chords:['A','F#m','D','E'],strumPattern:'D DU UDU',progression:['A','F#m','D','E'],youtubeId:'hwZNL7QVJjE',lyrics:'[A]When the night has come...'},
+  {id:6,title:'Horse With No Name',artist:'America',emoji:'🐴',difficulty:'beginner',genre:'folk',key:'Em',bpm:112,chords:['Em','D6'],strumPattern:'D D DU D DU',progression:['Em','D6'],youtubeId:'B40N1iCXJU4',lyrics:"[Em]On the first part of the [D6]journey..."},
+];
+
+function getKey(k) { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } }
+function setKey(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+function getData(key, defaults) { return getKey('admin_' + key) || JSON.parse(JSON.stringify(defaults)); }
+function setData(key, val) { setKey('admin_' + key, val); }
+
+let editingChordIdx = null, editingLessonIdx = null, editingVideoIdx = null, editingSongIdx = null;
+let selectedUserEmail = null;
+let selectedEnrollRefId = null;
+
+// ══════════════════════════════════════════
+//  ENROLLMENTS DATA
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  ENROLLMENT FUNCTIONS — PHP/MySQL version
+//  Replace the entire "ENROLLMENTS DATA" section
+//  in your admin panel with this code.
+//  (Search: "ENROLLMENTS DATA" to find it)
+// ══════════════════════════════════════════
+
+const ENROLL_URL = 'enroll.php';
+
+// ── FETCH ALL ENROLLMENTS FROM MySQL ──
+async function getEnrollmentsFromDB() {
+  try {
+    const res  = await fetch(ENROLL_URL + '?action=getAll');
+    const data = await res.json();
+    if (data.success) return data.enrollments;
+    return [];
+  } catch(e) { return []; }
+}
+
+// ── UPDATE STATUS IN MySQL ──
+async function updateStatusInDB(refId, status) {
+  try {
+    const res  = await fetch(ENROLL_URL + '?action=updateStatus', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ refId, status })
+    });
+    const data = await res.json();
+    return data.success;
+  } catch(e) { return false; }
+}
+
+// ── UPDATE ADMIN NOTES IN MySQL ──
+async function updateNotesInDB(refId, notes) {
+  try {
+    const res  = await fetch(ENROLL_URL + '?action=updateNotes', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ refId, notes })
+    });
+    const data = await res.json();
+    return data.success;
+  } catch(e) { return false; }
+}
+
+// ── DELETE ENROLLMENT IN MySQL ──
+async function deleteEnrollmentFromDB(refId) {
+  try {
+    const res  = await fetch(ENROLL_URL + '?action=delete', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ refId })
+    });
+    const data = await res.json();
+    return data.success;
+  } catch(e) { return false; }
+}
+
+// ── UPDATE BADGE ──
+async function updateEnrollBadge() {
+  const enrollments = await getEnrollmentsFromDB();
+  const pendingCount = enrollments.filter(e => e.status === 'Pending').length;
+  const badge = document.getElementById('enrollBadge');
+  badge.textContent = pendingCount;
+  badge.style.display = enrollments.length ? 'inline-block' : 'none';
+}
+
+let enrollSearch = '';
+function filterEnrollments(v) { enrollSearch = v; renderEnrollmentsTable(); }
+async function refreshEnrollments() { await renderEnrollmentsPanel(); toast('Enrollments refreshed.'); }
+
+async function renderEnrollmentsPanel() {
+  await renderEnrollmentsStats();
+  await renderEnrollmentsTable();
+}
+
+async function renderEnrollmentsStats() {
+  const enrollments = await getEnrollmentsFromDB();
+  const total     = enrollments.length;
+  const pending   = enrollments.filter(e => e.status === 'Pending').length;
+  const confirmed = enrollments.filter(e => e.status === 'Confirmed').length;
+  const completed = enrollments.filter(e => e.status === 'Completed').length;
+
+  document.getElementById('enrollStats').innerHTML = `
+    <div class="stat-card orange">
+      <div class="stat-label">Total Enrollments</div>
+      <div class="stat-val">${total}</div>
+      <div class="stat-sub">All submissions</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Pending</div>
+      <div class="stat-val">${pending}</div>
+      <div class="stat-sub">Awaiting confirmation</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Confirmed</div>
+      <div class="stat-val">${confirmed}</div>
+      <div class="stat-sub">Active students</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Completed</div>
+      <div class="stat-val">${completed}</div>
+      <div class="stat-sub">Finished enrollment</div>
+    </div>`;
+}
+
+async function renderEnrollmentsTable() {
+  const enrollments  = await getEnrollmentsFromDB();
+  const statusFilter = document.getElementById('enrollStatusFilter')?.value || 'all';
+  const modeFilter   = document.getElementById('enrollModeFilter')?.value || 'all';
+
+  let filtered = enrollments.slice().reverse();
+
+  if (enrollSearch) {
+    const q = enrollSearch.toLowerCase();
+    filtered = filtered.filter(e =>
+      (e.name  || '').toLowerCase().includes(q) ||
+      (e.email || '').toLowerCase().includes(q) ||
+      (e.ref_id || '').toLowerCase().includes(q)
+    );
+  }
+  if (statusFilter !== 'all') filtered = filtered.filter(e => e.status === statusFilter);
+  if (modeFilter   !== 'all') filtered = filtered.filter(e => e.mode   === modeFilter);
+
+  const tbody = document.getElementById('enrollmentsBody');
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No enrollment submissions yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(e => {
+    const status      = e.status || 'Pending';
+    const statusColor = { Pending:'yellow', Confirmed:'green', Declined:'red', Completed:'blue' }[status] || 'gray';
+    const levelColor  = { 'Complete Beginner':'green', 'Knows a Few Chords':'orange', 'Intermediate':'blue' }[e.level] || 'gray';
+    const modeColor   = e.mode === 'Online' ? 'blue' : e.mode === 'In-Person' ? 'green' : 'orange';
+    const date        = e.submitted_at ? new Date(e.submitted_at).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' }) : 'N/A';
+
+    return `<tr>
+      <td><span class="enroll-ref-tag">${e.ref_id || '—'}</span></td>
+      <td>
+        <div style="font-weight:700;color:var(--text);font-size:12px;">${e.name || '—'}</div>
+        <div style="font-size:10px;color:var(--text3);">${e.email || ''}</div>
+      </td>
+      <td>
+        <div style="font-size:11px;">${e.contact || '—'}</div>
+        <div style="font-size:10px;color:var(--text3);">Age: ${e.age || '—'}</div>
+      </td>
+      <td>
+        <div style="font-size:11px;">${e.days || '—'}</div>
+        <div style="font-size:10px;color:var(--text3);">${e.time_slot || ''}</div>
+      </td>
+      <td><span class="badge ${modeColor}">${e.mode || '—'}</span></td>
+      <td><span class="badge ${levelColor}" style="font-size:8px;">${e.level || '—'}</span></td>
+      <td>
+        <select class="status-select" onchange="quickStatusChange('${e.ref_id}', this.value)">
+          <option value="Pending"   ${status==='Pending'   ?'selected':''}>⏳ Pending</option>
+          <option value="Confirmed" ${status==='Confirmed' ?'selected':''}>✓ Confirmed</option>
+          <option value="Declined"  ${status==='Declined'  ?'selected':''}>✕ Declined</option>
+          <option value="Completed" ${status==='Completed' ?'selected':''}>✔ Completed</option>
+        </select>
+      </td>
+      <td style="font-size:10px;color:var(--text3);white-space:nowrap;">${date}</td>
+      <td>
+        <div class="action-row">
+          <button class="btn btn-ghost btn-sm" onclick="viewEnrollment('${e.ref_id}')">View</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEnrollment('${e.ref_id}')">Del</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function quickStatusChange(refId, newStatus) {
+  const ok = await updateStatusInDB(refId, newStatus);
+  if (ok) {
+    await updateEnrollBadge();
+    addLog('admin', `Enrollment ${refId} status → ${newStatus}`, 'admin');
+    toast(`Status updated to ${newStatus}.`, 'success');
+  } else {
+    toast('Failed to update status.', 'error');
+  }
+}
+
+async function viewEnrollment(refId) {
+  selectedEnrollRefId = refId;
+  const enrollments = await getEnrollmentsFromDB();
+  const e = enrollments.find(x => x.ref_id === refId);
+  if (!e) return;
+
+  const submittedDate = e.submitted_at ? new Date(e.submitted_at).toLocaleString('en-PH') : 'N/A';
+  const status      = e.status || 'Pending';
+  const statusColor = { Pending:'yellow', Confirmed:'green', Declined:'red', Completed:'blue' }[status] || 'gray';
+
+  document.getElementById('enrollModalBody').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <span class="enroll-ref-tag">${e.ref_id}</span>
+      <span class="badge ${statusColor}">${status}</span>
+    </div>
+
+    <div style="font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;">Personal Information</div>
+    <div class="enroll-detail-grid">
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Full Name</div><div class="enroll-detail-value">${e.name || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Age</div><div class="enroll-detail-value">${e.age || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Email</div><div class="enroll-detail-value" style="font-size:11px;">${e.email || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Contact</div><div class="enroll-detail-value">${e.contact || '—'}</div></div>
+    </div>
+
+    <div style="font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:14px 0 10px;">Schedule & Preferences</div>
+    <div class="enroll-detail-grid">
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Days</div><div class="enroll-detail-value">${e.days || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Time Slot</div><div class="enroll-detail-value">${e.time_slot || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Lesson Mode</div><div class="enroll-detail-value">${e.mode || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Frequency</div><div class="enroll-detail-value">${e.frequency || 'Not specified'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Guitar Level</div><div class="enroll-detail-value">${e.level || '—'}</div></div>
+      <div class="enroll-detail-item"><div class="enroll-detail-label">Heard From</div><div class="enroll-detail-value">${e.source || 'Not specified'}</div></div>
+    </div>
+
+    ${e.goals ? `
+    <div style="font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:14px 0 8px;">Goals / Notes from Student</div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.7;">${e.goals}</div>` : ''}
+
+    <div style="font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:14px 0 8px;">Admin Notes</div>
+    <textarea id="enrollNoteInput" class="form-textarea" style="min-height:64px;" placeholder="Add private notes about this student…">${e.admin_notes || ''}</textarea>
+    <button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="saveEnrollNote('${e.ref_id}')">Save Note</button>
+
+    <div style="font-size:10px;color:var(--text3);margin-top:14px;">Submitted: ${submittedDate}</div>`;
+
+  openModal('enrollModal');
+}
+
+async function saveEnrollNote(refId) {
+  const notes = document.getElementById('enrollNoteInput').value;
+  const ok = await updateNotesInDB(refId, notes);
+  toast(ok ? 'Note saved.' : 'Failed to save note.', ok ? 'success' : 'error');
+}
+
+async function setEnrollStatus(status) {
+  if (!selectedEnrollRefId) return;
+  const ok = await updateStatusInDB(selectedEnrollRefId, status);
+  if (ok) {
+    closeModal('enrollModal');
+    await renderEnrollmentsPanel();
+    await updateEnrollBadge();
+    addLog('admin', `Enrollment ${selectedEnrollRefId} marked as ${status}`, 'admin');
+    toast(`Enrollment marked as ${status}.`, 'success');
+  } else {
+    toast('Failed to update status.', 'error');
+  }
+  selectedEnrollRefId = null;
+}
+
+async function deleteEnrollment(refId) {
+  showConfirm(`Delete enrollment ${refId}? This cannot be undone.`, async () => {
+    const ok = await deleteEnrollmentFromDB(refId);
+    if (ok) {
+      await renderEnrollmentsPanel();
+      await updateEnrollBadge();
+      addLog('admin', `Enrollment ${refId} deleted`, 'admin');
+      toast('Enrollment deleted.');
+    } else {
+      toast('Failed to delete.', 'error');
+    }
+  });
+}
+
+async function confirmClearEnrollments() {
+  showConfirm('Delete ALL enrollment submissions? This cannot be undone.', async () => {
+    const enrollments = await getEnrollmentsFromDB();
+    await Promise.all(enrollments.map(e => deleteEnrollmentFromDB(e.ref_id)));
+    await renderEnrollmentsPanel();
+    await updateEnrollBadge();
+    toast('All enrollments cleared.', 'success');
+    addLog('admin', 'All enrollments cleared', 'admin');
+  });
+}
+
+async function exportEnrollments() {
+  const enrollments = await getEnrollmentsFromDB();
+  if (!enrollments.length) { toast('No enrollments to export.', 'error'); return; }
+
+  const headers = ['Ref ID','Name','Age','Email','Contact','Days','Time Slot','Mode','Level','Frequency','Goals','Source','Status','Admin Notes','Submitted'];
+  const rows = enrollments.map(e => [
+    e.ref_id, e.name, e.age, e.email, e.contact,
+    e.days, e.time_slot, e.mode, e.level, e.frequency || '',
+    (e.goals || '').replace(/"/g,'""'),
+    e.source || '',
+    e.status || 'Pending',
+    (e.admin_notes || '').replace(/"/g,'""'),
+    e.submitted_at || ''
+  ].map(v => `"${v}"`).join(','));
+
+  const csv  = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'guitarify_enrollments_' + Date.now() + '.csv';
+  a.click();
+  toast('Enrollments exported as CSV!', 'success');
+  addLog('admin', 'Enrollments exported to CSV', 'admin');
+}
+
+async function exportEnrollments() {
+    const enrollments = await getEnrollmentsFromDB();
+    if (!enrollments.length) { toast('No enrollments to export.', 'error'); return; }
+
+    const headers = ['Ref ID','Name','Age','Email','Contact','Days','Time Slot','Mode','Level','Frequency','Goals','Source','Status','Admin Notes','Submitted'];
+    const rows = enrollments.map(e => [
+        e.ref_id,
+        e.name,
+        e.age,
+        e.email,
+        e.contact,
+        e.days,
+        e.time_slot,
+        e.mode,
+        e.level,
+        e.frequency || '',
+        (e.goals || '').replace(/"/g, '""'),
+        e.source || '',
+        e.status || 'Pending',
+        (e.admin_notes || '').replace(/"/g, '""'),
+        e.submitted_at || ''
+    ].map(v => `"${v}"`).join(','));
+
+    const csv  = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'guitarify_enrollments_' + Date.now() + '.csv';
+    a.click();
+    toast('Enrollments exported as CSV!', 'success');
+    addLog('admin', 'Enrollments exported to CSV', 'admin');
+}
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+async function renderDashboard() {
+  const users = getUsers();
+  const logs = getLogs();
+  const enrollments = await getEnrollmentsFromDB();
+  const chords = getData('chords', DEFAULT_CHORDS);
+  const lessons = getData('lessons', DEFAULT_LESSONS);
+  const videos = getData('videos', DEFAULT_VIDEOS);
+  const songs = getData('songs', DEFAULT_SONGS);
+  const pendingEnroll = enrollments.filter(e => (e.status || 'Pending') === 'Pending').length;
+
+  const signups = logs.filter(l => l.type === 'signup').length;
+  const loginCount = logs.filter(l => l.type === 'login').length;
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-card orange">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-val">${users.length}</div>
+      <div class="stat-sub">${signups} new registrations</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Total Logins</div>
+      <div class="stat-val">${loginCount}</div>
+      <div class="stat-sub">All-time login events</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Enrollments</div>
+      <div class="stat-val">${enrollments.length}</div>
+      <div class="stat-sub">${pendingEnroll} pending review</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Content Items</div>
+      <div class="stat-val">${chords.length + lessons.length + videos.length + songs.length}</div>
+      <div class="stat-sub">Chords, lessons, videos, songs</div>
+    </div>`;
+
+  // Recent logins
+  const recentLogins = logs.filter(l => l.type === 'login' || l.type === 'signup').slice(-8).reverse();
+  document.getElementById('recentLogins').innerHTML = recentLogins.length ? recentLogins.map(l => `
+    <div class="log-item">
+      <div class="log-dot ${l.type === 'signup' ? 'green' : 'blue'}"></div>
+      <div class="log-content">
+        <div class="log-action">${l.user} — ${l.type}</div>
+        <div class="log-meta">${l.timestamp}</div>
+      </div>
+    </div>`).join('') : '<div class="empty-state">No login events yet.</div>';
+
+  // Content summary
+  document.getElementById('contentSummary').innerHTML = `
+    <div class="chart-bar-wrap">
+      <div class="chart-bar-row"><div class="chart-bar-label">Chords</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.min(chords.length/30*100,100)}%;background:var(--orange);"></div></div><div class="chart-bar-val">${chords.length}</div></div>
+      <div class="chart-bar-row"><div class="chart-bar-label">Lessons</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.min(lessons.length/20*100,100)}%;background:var(--blue);"></div></div><div class="chart-bar-val">${lessons.length}</div></div>
+      <div class="chart-bar-row"><div class="chart-bar-label">Videos</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.min(videos.length/20*100,100)}%;background:var(--green);"></div></div><div class="chart-bar-val">${videos.length}</div></div>
+      <div class="chart-bar-row"><div class="chart-bar-label">Songs</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.min(songs.length/20*100,100)}%;background:var(--purple);"></div></div><div class="chart-bar-val">${songs.length}</div></div>
+    </div>`;
+
+  // Recent enrollments preview on dashboard
+  const recentEnroll = enrollments.slice().reverse().slice(0, 5);
+  document.getElementById('dashEnrollments').innerHTML = recentEnroll.length ? `
+    <table class="tbl">
+      <thead><tr><th>Ref ID</th><th>Name</th><th>Mode</th><th>Level</th><th>Status</th><th>Submitted</th></tr></thead>
+      <tbody>
+        ${recentEnroll.map(e => {
+          const status = statuses[e.refId] || 'Pending';
+          const statusBadge = {Pending:'yellow',Confirmed:'green',Declined:'red',Completed:'blue'}[status]||'gray';
+          const date = e.submittedAt ? new Date(e.submittedAt).toLocaleDateString('en-PH',{month:'short',day:'numeric'}) : 'N/A';
+          return `<tr>
+            <td><span class="enroll-ref-tag" style="font-size:9px;">${e.refId}</span></td>
+            <td>${e.name || '—'}<div style="font-size:10px;color:var(--text3);">${e.email||''}</div></td>
+            <td>${e.mode || '—'}</td>
+            <td style="font-size:10px;">${e.level || '—'}</td>
+            <td><span class="badge ${statusBadge}">${status}</span></td>
+            <td style="font-size:10px;color:var(--text3);">${date}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>` : '<div class="empty-state">No enrollments yet. They\'ll appear here once students submit the enrollment form.</div>';
+
+  // Registration chart
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const counts = days.map(() => Math.floor(Math.random() * 3));
+  const signupLogs = logs.filter(l => l.type === 'signup');
+  if (signupLogs.length) counts[6] = signupLogs.length;
+  document.getElementById('regChart').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:10px;height:80px;">
+      ${counts.map((c,i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="width:100%;background:var(--orange);border-radius:2px 2px 0 0;height:${Math.max(c*20,4)}px;opacity:${0.5+i*0.07};"></div>
+        <div style="font-size:9px;color:var(--text3);">${days[i]}</div>
+      </div>`).join('')}
+    </div>`;
+
+  updateUserBadge();
+  updateEnrollBadge();
+}
+
+// ══════════════════════════════════════════
+//  CHORD LIBRARY
+// ══════════════════════════════════════════
+let chordSearch = '';
+function renderChordsTable(search) {
+  if (search !== undefined) chordSearch = search;
+  const chords = getData('chords', DEFAULT_CHORDS);
+  const filtered = chordSearch ? chords.filter(c => c.name.toLowerCase().includes(chordSearch.toLowerCase()) || c.label.toLowerCase().includes(chordSearch.toLowerCase())) : chords;
+  document.getElementById('chordsBody').innerHTML = filtered.map((c, i) => `
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.label}</td>
+      <td><span class="badge ${c.type==='major'?'orange':c.type==='minor'?'blue':c.type==='7th'?'yellow':'gray'}">${c.type}</span></td>
+      <td style="font-family:'Courier New',monospace;font-size:11px;">${c.shape}</td>
+      <td style="font-size:10px;color:var(--text3);">${(c.songs||[]).join(', ')}</td>
+      <td><div class="action-row">
+        <button class="btn btn-ghost btn-sm" onclick="openChordModal(${i})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteChord(${i})">Del</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function filterChords(v) { renderChordsTable(v); }
+
+function openChordModal(idx) {
+  editingChordIdx = idx !== undefined ? idx : null;
+  const chords = getData('chords', DEFAULT_CHORDS);
+  const c = idx !== undefined ? chords[idx] : {name:'',label:'',type:'major',shape:'',songs:[],youtubeId:'',muted:[],open:[]};
+  document.getElementById('chordModalTitle').textContent = editingChordIdx !== null ? 'Edit Chord' : 'Add Chord';
+  document.getElementById('cf_name').value = c.name;
+  document.getElementById('cf_label').value = c.label;
+  document.getElementById('cf_type').value = c.type;
+  document.getElementById('cf_shape').value = c.shape;
+  document.getElementById('cf_youtube').value = c.youtubeId || '';
+  document.getElementById('cf_songs').value = (c.songs||[]).join(', ');
+  document.getElementById('cf_muted').value = (c.muted||[]).join(',');
+  document.getElementById('cf_open').value = (c.open||[]).join(',');
+  openModal('chordModal');
+}
+
+function saveChord() {
+  const chords = getData('chords', DEFAULT_CHORDS);
+  const c = {
+    name: document.getElementById('cf_name').value.trim(),
+    label: document.getElementById('cf_label').value.trim(),
+    type: document.getElementById('cf_type').value,
+    shape: document.getElementById('cf_shape').value.trim(),
+    youtubeId: document.getElementById('cf_youtube').value.trim(),
+    songs: document.getElementById('cf_songs').value.split(',').map(s=>s.trim()).filter(Boolean),
+    muted: document.getElementById('cf_muted').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)),
+    open: document.getElementById('cf_open').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)),
+    fingers: [],
+  };
+  if (!c.name) { toast('Chord name required.','error'); return; }
+  if (editingChordIdx !== null) { chords[editingChordIdx] = {...chords[editingChordIdx],...c}; } else { chords.push(c); }
+  setData('chords', chords);
+  closeModal('chordModal');
+  renderChordsTable();
+  addLog('admin',`Chord "${c.name}" ${editingChordIdx!==null?'edited':'added'}`,'admin');
+  toast(`Chord "${c.name}" saved!`,'success');
+}
+
+function deleteChord(idx) {
+  const chords = getData('chords', DEFAULT_CHORDS);
+  const name = chords[idx].name;
+  showConfirm(`Delete chord "${name}"? This cannot be undone.`, () => {
+    chords.splice(idx,1); setData('chords',chords); renderChordsTable();
+    addLog('admin',`Chord "${name}" deleted`,'admin'); toast(`Chord "${name}" deleted.`);
+  });
+}
+
+// ══════════════════════════════════════════
+//  LESSONS
+// ══════════════════════════════════════════
+function renderLessonsTable() {
+  const lessons = getData('lessons', DEFAULT_LESSONS);
+  document.getElementById('lessonsBody').innerHTML = lessons.map((l,i) => `
+    <tr>
+      <td>${l.number}</td>
+      <td>${l.icon} ${l.title}</td>
+      <td><span class="badge ${l.level==='beginner'?'green':l.level==='intermediate'?'orange':'red'}">${l.level}</span></td>
+      <td>${l.duration}</td>
+      <td><span class="badge ${l.status==='published'?'green':'gray'}">${l.status||'published'}</span></td>
+      <td><div class="action-row">
+        <button class="btn btn-ghost btn-sm" onclick="openLessonModal(${i})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteLesson(${i})">Del</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openLessonModal(idx) {
+  editingLessonIdx = idx !== undefined ? idx : null;
+  const lessons = getData('lessons', DEFAULT_LESSONS);
+  const l = idx !== undefined ? lessons[idx] : {icon:'🎸',number:'',title:'',level:'beginner',duration:'',content:'',status:'published'};
+  document.getElementById('lessonModalTitle').textContent = editingLessonIdx !== null ? 'Edit Lesson' : 'Add Lesson';
+  document.getElementById('lf_number').value = l.number;
+  document.getElementById('lf_icon').value = l.icon;
+  document.getElementById('lf_title').value = l.title;
+  document.getElementById('lf_level').value = l.level;
+  document.getElementById('lf_duration').value = l.duration;
+  document.getElementById('lf_content').value = l.content;
+  openModal('lessonModal');
+}
+
+function saveLesson() {
+  const lessons = getData('lessons', DEFAULT_LESSONS);
+  const l = {
+    id: editingLessonIdx !== null ? lessons[editingLessonIdx].id : Date.now(),
+    icon: document.getElementById('lf_icon').value.trim() || '🎸',
+    number: document.getElementById('lf_number').value.trim(),
+    title: document.getElementById('lf_title').value.trim(),
+    level: document.getElementById('lf_level').value,
+    duration: document.getElementById('lf_duration').value.trim(),
+    content: document.getElementById('lf_content').value,
+    status: 'published',
+  };
+  if (!l.title) { toast('Title required.','error'); return; }
+  if (editingLessonIdx !== null) { lessons[editingLessonIdx] = l; } else { lessons.push(l); }
+  setData('lessons', lessons);
+  closeModal('lessonModal');
+  renderLessonsTable();
+  addLog('admin',`Lesson "${l.title}" ${editingLessonIdx!==null?'edited':'added'}`,'admin');
+  toast(`Lesson "${l.title}" saved!`,'success');
+}
+
+function deleteLesson(idx) {
+  const lessons = getData('lessons', DEFAULT_LESSONS);
+  const title = lessons[idx].title;
+  showConfirm(`Delete lesson "${title}"?`, () => {
+    lessons.splice(idx,1); setData('lessons',lessons); renderLessonsTable();
+    toast(`Lesson "${title}" deleted.`);
+  });
+}
+
+// ══════════════════════════════════════════
+//  VIDEOS
+// ══════════════════════════════════════════
+function renderVideosTable() {
+  const videos = getData('videos', DEFAULT_VIDEOS);
+  document.getElementById('videosBody').innerHTML = videos.map((v,i) => `
+    <tr>
+      <td>${v.emoji} ${v.title}</td>
+      <td><span class="badge ${v.tag==='beginner'?'green':v.tag==='chords'?'orange':v.tag==='strumming'?'blue':'gray'}">${v.tag}</span></td>
+      <td>${v.duration}</td>
+      <td style="font-family:'Courier New',monospace;font-size:10px;"><a href="https://youtube.com/watch?v=${v.youtubeId}" target="_blank" style="color:var(--orange);">${v.youtubeId}</a></td>
+      <td><div class="action-row">
+        <button class="btn btn-ghost btn-sm" onclick="openVideoModal(${i})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteVideo(${i})">Del</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openVideoModal(idx) {
+  editingVideoIdx = idx !== undefined ? idx : null;
+  const videos = getData('videos', DEFAULT_VIDEOS);
+  const v = idx !== undefined ? videos[idx] : {title:'',tag:'beginner',duration:'',emoji:'🎸',youtubeId:'',desc:''};
+  document.getElementById('videoModalTitle').textContent = editingVideoIdx !== null ? 'Edit Video' : 'Add Video';
+  document.getElementById('vf_title').value = v.title;
+  document.getElementById('vf_tag').value = v.tag;
+  document.getElementById('vf_duration').value = v.duration;
+  document.getElementById('vf_youtube').value = v.youtubeId;
+  document.getElementById('vf_emoji').value = v.emoji;
+  document.getElementById('vf_desc').value = v.desc;
+  openModal('videoModal');
+}
+
+function saveVideo() {
+  const videos = getData('videos', DEFAULT_VIDEOS);
+  const v = {
+    id: editingVideoIdx !== null ? videos[editingVideoIdx].id : Date.now(),
+    title: document.getElementById('vf_title').value.trim(),
+    tag: document.getElementById('vf_tag').value,
+    duration: document.getElementById('vf_duration').value.trim(),
+    youtubeId: document.getElementById('vf_youtube').value.trim(),
+    emoji: document.getElementById('vf_emoji').value.trim() || '🎸',
+    desc: document.getElementById('vf_desc').value.trim(),
+  };
+  if (!v.title || !v.youtubeId) { toast('Title and YouTube ID required.','error'); return; }
+  if (editingVideoIdx !== null) { videos[editingVideoIdx] = v; } else { videos.push(v); }
+  setData('videos', videos);
+  closeModal('videoModal');
+  renderVideosTable();
+  addLog('admin',`Video "${v.title}" ${editingVideoIdx!==null?'edited':'added'}`,'admin');
+  toast(`Video "${v.title}" saved!`,'success');
+}
+
+function deleteVideo(idx) {
+  const videos = getData('videos', DEFAULT_VIDEOS);
+  const title = videos[idx].title;
+  showConfirm(`Delete video "${title}"?`, () => {
+    videos.splice(idx,1); setData('videos',videos); renderVideosTable();
+    toast(`Video "${title}" deleted.`);
+  });
+}
+
+// ══════════════════════════════════════════
+//  SONGS
+// ══════════════════════════════════════════
+function renderSongsTable() {
+  const songs = getData('songs', DEFAULT_SONGS);
+  document.getElementById('songsBody').innerHTML = songs.map((s,i) => `
+    <tr>
+      <td>${s.emoji} ${s.title}</td>
+      <td>${s.artist}</td>
+      <td><span class="badge ${s.difficulty==='beginner'?'green':s.difficulty==='intermediate'?'orange':'red'}">${s.difficulty}</span></td>
+      <td><span class="badge gray">${s.genre}</span></td>
+      <td style="font-family:'Courier New',monospace;">${s.key}</td>
+      <td><div class="action-row">
+        <button class="btn btn-ghost btn-sm" onclick="openSongModal(${i})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSong(${i})">Del</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openSongModal(idx) {
+  editingSongIdx = idx !== undefined ? idx : null;
+  const songs = getData('songs', DEFAULT_SONGS);
+  const s = idx !== undefined ? songs[idx] : {title:'',artist:'',emoji:'🎵',difficulty:'beginner',genre:'folk',key:'G',bpm:100,chords:[],strumPattern:'',progression:[],youtubeId:'',lyrics:''};
+  document.getElementById('songModalTitle').textContent = editingSongIdx !== null ? 'Edit Song' : 'Add Song';
+  document.getElementById('sf_title').value = s.title;
+  document.getElementById('sf_artist').value = s.artist;
+  document.getElementById('sf_emoji').value = s.emoji;
+  document.getElementById('sf_difficulty').value = s.difficulty;
+  document.getElementById('sf_genre').value = s.genre;
+  document.getElementById('sf_key').value = s.key;
+  document.getElementById('sf_bpm').value = s.bpm;
+  document.getElementById('sf_chords').value = Array.isArray(s.chords) ? s.chords.map(c=>typeof c==='object'?c.name:c).join(',') : '';
+  document.getElementById('sf_strum').value = s.strumPattern;
+  document.getElementById('sf_progression').value = (s.progression||[]).join(',');
+  document.getElementById('sf_youtube').value = s.youtubeId;
+  document.getElementById('sf_lyrics').value = s.lyrics;
+  openModal('songModal');
+}
+
+function saveSong() {
+  const songs = getData('songs', DEFAULT_SONGS);
+  const chordList = document.getElementById('sf_chords').value.split(',').map(c=>c.trim()).filter(Boolean);
+  const s = {
+    id: editingSongIdx !== null ? songs[editingSongIdx].id : Date.now(),
+    title: document.getElementById('sf_title').value.trim(),
+    artist: document.getElementById('sf_artist').value.trim(),
+    emoji: document.getElementById('sf_emoji').value.trim() || '🎵',
+    difficulty: document.getElementById('sf_difficulty').value,
+    genre: document.getElementById('sf_genre').value,
+    key: document.getElementById('sf_key').value.trim(),
+    bpm: parseInt(document.getElementById('sf_bpm').value)||100,
+    chords: chordList.map(c=>({name:c,shape:''})),
+    strumPattern: document.getElementById('sf_strum').value.trim(),
+    progression: document.getElementById('sf_progression').value.split(',').map(c=>c.trim()).filter(Boolean),
+    youtubeId: document.getElementById('sf_youtube').value.trim(),
+    lyrics: document.getElementById('sf_lyrics').value,
+  };
+  if (!s.title) { toast('Title required.','error'); return; }
+  if (editingSongIdx !== null) { songs[editingSongIdx] = s; } else { songs.push(s); }
+  setData('songs', songs);
+  closeModal('songModal');
+  renderSongsTable();
+  addLog('admin',`Song "${s.title}" ${editingSongIdx!==null?'edited':'added'}`,'admin');
+  toast(`Song "${s.title}" saved!`,'success');
+}
+
+function deleteSong(idx) {
+  const songs = getData('songs', DEFAULT_SONGS);
+  const title = songs[idx].title;
+  showConfirm(`Delete song "${title}"?`, () => {
+    songs.splice(idx,1); setData('songs',songs); renderSongsTable();
+    toast(`Song "${title}" deleted.`);
+  });
+}
+
+// ══════════════════════════════════════════
+//  QUIZ QUESTIONS
+// ══════════════════════════════════════════
+const DEFAULT_QUIZ_QUESTIONS = {
+  mcq: [
+    {type:'mcq',q:'Which guitar type is best for beginners who want no extra equipment?',opts:['Electric','Bass','Steel-string Acoustic','12-String'],a:2,explain:'Steel-string acoustic needs no amp.'},
+    {type:'mcq',q:'Standard guitar tuning from thickest to thinnest string is:',opts:['EBGDAE','BEADGB','EADGBE','GDAEBE'],a:2,explain:'EADGBE — Eddie Ate Dynamite, Good Bye Eddie.'},
+  ],
+  truefalse: [
+    {type:'tf',q:'The thinnest guitar string produces the highest pitch.',a:true,explain:'True. Thinner strings vibrate faster = higher pitch.'},
+    {type:'tf',q:'An out-of-tune guitar can still sound great if you play the right chords.',a:false,explain:'False. Always tune before playing.'},
+  ],
+  fill: [
+    {type:'fill',q:'The six strings in standard tuning are: E _ D G B e',a:'A',hint:'Second string from thickest.',explain:'Standard tuning: E A D G B e.'},
+  ],
+  fret: [
+    {type:'fret',q:'Which string is the thinnest? (Thinnest=1, Thickest=6)',stringNum:1,a:'1',label:'High e',opts:['1','2','3','4','5','6'],explain:'String 1 is the thinnest high e.'},
+  ],
+};
+
+function renderQuizzesTable() {
+  const qtype = document.getElementById('quizTypeFilter').value;
+  const questions = getData('quiz_' + qtype, DEFAULT_QUIZ_QUESTIONS[qtype] || []);
+  document.getElementById('quizzesBody').innerHTML = questions.map((q,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td style="max-width:300px;">${q.q}</td>
+      <td><span class="badge orange">${q.type}</span></td>
+      <td style="font-size:10px;">${q.a!==undefined?q.a.toString():'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteQuestion(${i})">Del</button></td>
+    </tr>`).join('') || '<tr><td colspan="5" class="empty-state">No questions. Add some!</td></tr>';
+}
+
+function openQuizModal() {
+  const qtype = document.getElementById('quizTypeFilter').value;
+  const isTF = qtype === 'truefalse', isFill = qtype === 'fill';
+  document.getElementById('qf_mcq_extra').style.display = (!isTF && !isFill) ? 'block' : 'none';
+  document.getElementById('qf_tf_extra').style.display = isTF ? 'block' : 'none';
+  document.getElementById('qf_fill_extra').style.display = isFill ? 'block' : 'none';
+  document.getElementById('qf_question').value = '';
+  document.getElementById('qf_explain').value = '';
+  openModal('quizModal');
+}
+
+function saveQuizQuestion() {
+  const qtype = document.getElementById('quizTypeFilter').value;
+  const questions = getData('quiz_' + qtype, DEFAULT_QUIZ_QUESTIONS[qtype] || []);
+  const qtext = document.getElementById('qf_question').value.trim();
+  if (!qtext) { toast('Question required.','error'); return; }
+
+  let q = {type: qtype==='truefalse'?'tf':qtype==='fill'?'fill':qtype, q: qtext, explain: document.getElementById('qf_explain').value.trim()};
+
+  if (qtype === 'mcq' || qtype === 'fret') {
+    q.opts = ['A','B','C','D'].map(l=>document.getElementById('qf_opt'+l)?.value?.trim()).filter(Boolean);
+    q.a = parseInt(document.getElementById('qf_correct').value);
+  } else if (qtype === 'truefalse') {
+    q.a = document.getElementById('qf_tf_answer').value === 'true';
+  } else if (qtype === 'fill') {
+    q.a = document.getElementById('qf_fill_answer').value.trim().toUpperCase();
+    q.hint = document.getElementById('qf_hint').value.trim();
+  }
+
+  questions.push(q);
+  setData('quiz_' + qtype, questions);
+  closeModal('quizModal');
+  renderQuizzesTable();
+  toast('Question added!','success');
+}
+
+function deleteQuestion(idx) {
+  const qtype = document.getElementById('quizTypeFilter').value;
+  const questions = getData('quiz_' + qtype, DEFAULT_QUIZ_QUESTIONS[qtype] || []);
+  showConfirm('Delete this question?', () => {
+    questions.splice(idx,1); setData('quiz_'+qtype,questions); renderQuizzesTable();
+    toast('Question deleted.');
+  });
+}
+
+// ══════════════════════════════════════════
+//  USERS
+// ══════════════════════════════════════════
+function getUsers() {
+  const raw = localStorage.getItem('guitarify_users');
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed;
+    return Object.entries(parsed).map(([email,data]) => ({name:data.name,email,password:data.password,registered:'Unknown'}));
+  } catch(e) { return []; }
+}
+
+function updateUserBadge() {
+  document.getElementById('userBadge').textContent = getUsers().length;
+}
+
+let userSearch = '';
+function filterUsers(v) { userSearch = v; renderUsersTable(); }
+function refreshUsers() { renderUsersTable(); toast('Users refreshed.'); }
+
+function renderUsersTable() {
+  const users = getUsers();
+  const pd = getAllPracticeData();
+  const logs = getLogs();
+  const filtered = userSearch ? users.filter(u=>u.name?.toLowerCase().includes(userSearch.toLowerCase())||u.email?.toLowerCase().includes(userSearch.toLowerCase())) : users;
+
+  if (!filtered.length) {
+    document.getElementById('usersBody').innerHTML = '<tr><td colspan="7" class="empty-state">No registered users yet.</td></tr>';
+    return;
+  }
+
+  document.getElementById('usersBody').innerHTML = filtered.map(u => {
+    const d = pd[u.email] || {};
+    const lastLogin = logs.filter(l=>l.user===u.email&&l.type==='login').pop();
+    return `<tr>
+      <td>${u.name||'—'}</td>
+      <td style="font-size:10px;">${u.email}</td>
+      <td style="font-size:10px;">${u.registered||'N/A'}</td>
+      <td style="font-size:10px;">${lastLogin?lastLogin.timestamp:'Never'}</td>
+      <td>${d.quizzesPlayed||0}</td>
+      <td>${d.xp||0} XP</td>
+      <td><div class="action-row">
+        <button class="btn btn-ghost btn-sm" onclick="viewUser('${u.email}')">View</button>
+        <button class="btn btn-danger btn-sm" onclick="promptDeleteUser('${u.email}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function viewUser(email) {
+  selectedUserEmail = email;
+  const users = getUsers();
+  const u = users.find(u=>u.email===email)||{};
+  const logs = getLogs().filter(l=>l.user===email);
+  const pd = getAllPracticeData()[email]||{};
+
+  document.getElementById('userModalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">Name</div><div style="font-size:14px;font-weight:700;">${u.name||'—'}</div></div>
+      <div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">Email</div><div style="font-size:12px;">${u.email}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">
+      <div class="stat-card orange" style="padding:12px 14px;"><div class="stat-label">XP</div><div class="stat-val" style="font-size:20px;">${pd.xp||0}</div></div>
+      <div class="stat-card blue" style="padding:12px 14px;"><div class="stat-label">Quizzes</div><div class="stat-val" style="font-size:20px;">${pd.quizzesPlayed||0}</div></div>
+      <div class="stat-card green" style="padding:12px 14px;"><div class="stat-label">Streak</div><div class="stat-val" style="font-size:20px;">${pd.streak||0}</div></div>
+      <div class="stat-card red" style="padding:12px 14px;"><div class="stat-label">Badges</div><div class="stat-val" style="font-size:20px;">${(pd.achievements||[]).length}</div></div>
+    </div>
+    <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Login History (last 10)</div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;max-height:160px;overflow-y:auto;">
+      ${logs.length ? logs.slice(-10).reverse().map(l=>`
+        <div class="log-item">
+          <div class="log-dot ${l.type==='login'?'blue':l.type==='signup'?'green':'orange'}"></div>
+          <div class="log-content">
+            <div class="log-action">${l.type.toUpperCase()} — ${l.action}</div>
+            <div class="log-meta">${l.timestamp}</div>
+          </div>
+        </div>`).join('') : '<div class="empty-state">No activity logged.</div>'}
+    </div>`;
+  openModal('userModal');
+}
+
+function promptDeleteUser(email) {
+  selectedUserEmail = email;
+  showConfirm(`Delete user "${email}"? This will remove their account permanently.`, () => deleteUser());
+}
+
+function deleteUser() {
+  if (!selectedUserEmail) return;
+  const raw = localStorage.getItem('guitarify_users');
+  if (!raw) return;
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      const idx = parsed.findIndex(u=>u.email===selectedUserEmail);
+      if (idx!==-1) { parsed.splice(idx,1); localStorage.setItem('guitarify_users',JSON.stringify(parsed)); }
+    } else {
+      delete parsed[selectedUserEmail];
+      localStorage.setItem('guitarify_users',JSON.stringify(parsed));
+    }
+  } catch(e) {}
+  addLog('admin',`User "${selectedUserEmail}" deleted`,'admin');
+  closeModal('userModal');
+  closeModal('confirmModal');
+  renderUsersTable();
+  updateUserBadge();
+  toast('User deleted.','success');
+  selectedUserEmail = null;
+}
+
+// ══════════════════════════════════════════
+//  ACTIVITY LOGS
+// ══════════════════════════════════════════
+function getLogs() { return getKey('guitarify_admin_logs') || []; }
+function saveLogs(logs) { setKey('guitarify_admin_logs', logs); }
+
+function addLog(type, action, user) {
+  const logs = getLogs();
+  logs.push({type, action, user:user||'unknown', timestamp:new Date().toLocaleString()});
+  if (logs.length > 500) logs.splice(0, logs.length - 500);
+  saveLogs(logs);
+}
+
+function renderLogs(filter) {
+  let logs = getLogs();
+  if (filter && filter !== 'all') logs = logs.filter(l=>l.type===filter);
+  logs = logs.slice().reverse();
+  const typeColors = {login:'blue',logout:'orange',signup:'green',admin:'yellow'};
+  document.getElementById('logsContainer').innerHTML = logs.length ? logs.map(l=>`
+    <div class="log-item">
+      <div class="log-dot ${typeColors[l.type]||'orange'}"></div>
+      <div class="log-content">
+        <div class="log-action"><span class="badge ${typeColors[l.type]||'gray'}" style="margin-right:8px;">${l.type}</span>${l.action}</div>
+        <div class="log-meta">${l.user} · ${l.timestamp}</div>
+      </div>
+    </div>`).join('') : '<div class="empty-state">No log entries.</div>';
+}
+
+function filterLogs(val) { renderLogs(val); }
+
+function clearLogs() {
+  showConfirm('Clear all activity logs? This cannot be undone.', () => {
+    saveLogs([]); renderLogs('all'); toast('Logs cleared.');
+  });
+}
+
+function confirmClearLogs() { clearLogs(); }
+
+// ══════════════════════════════════════════
+//  PROGRESS TRACKER
+// ══════════════════════════════════════════
+function getAllPracticeData() {
+  const all = {};
+  const users = getUsers();
+  users.forEach(u => {
+    try {
+      const k = localStorage.getItem('guitarify_practice_' + u.email);
+      if (k) all[u.email] = JSON.parse(k);
+    } catch(e) {}
+  });
+  try {
+    const generic = localStorage.getItem('guitarify_practice');
+    if (generic) {
+      const gd = JSON.parse(generic);
+      const session = localStorage.getItem('guitarify_session') || localStorage.getItem('guitarify_current');
+      if (session) { const sess = JSON.parse(session); all[sess.email] = gd; }
+    }
+  } catch(e) {}
+  return all;
+}
+
+function renderProgress() {
+  const users = getUsers();
+  const pd = getAllPracticeData();
+  const allXP = Object.values(pd).map(d=>d.xp||0);
+  const totalXP = allXP.reduce((a,b)=>a+b,0);
+  const totalQuizzes = Object.values(pd).reduce((a,d)=>a+(d.quizzesPlayed||0),0);
+  const avgAcc = Object.values(pd).length ? Math.round(Object.values(pd).reduce((a,d)=>{
+    const t=d.totalAnswered||0,c=d.totalCorrect||0; return a+(t>0?c/t*100:0);
+  },0)/Math.max(Object.values(pd).length,1)) : 0;
+
+  document.getElementById('progressStats').innerHTML = `
+    <div class="stat-card orange"><div class="stat-label">Total XP Earned</div><div class="stat-val">${totalXP}</div><div class="stat-sub">Across all users</div></div>
+    <div class="stat-card blue"><div class="stat-label">Total Quizzes</div><div class="stat-val">${totalQuizzes}</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card green"><div class="stat-label">Avg Accuracy</div><div class="stat-val">${avgAcc}%</div><div class="stat-sub">All users combined</div></div>
+    <div class="stat-card red"><div class="stat-label">Active Users</div><div class="stat-val">${Object.keys(pd).length}</div><div class="stat-sub">With practice data</div></div>`;
+
+  const quizTypes = ['mcq','truefalse','fill','fret'];
+  const quizLabels = ['Theory','True/False','Fill Blank','Fretboard'];
+  const quizCounts = quizTypes.map(t=>Object.values(pd).reduce((a,d)=>a+((d.quizCounts||{})[t]||0),0));
+  const maxQ = Math.max(...quizCounts, 1);
+  document.getElementById('quizCompChart').innerHTML = `<div class="chart-bar-wrap">
+    ${quizTypes.map((t,i)=>`
+      <div class="chart-bar-row">
+        <div class="chart-bar-label">${quizLabels[i]}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round(quizCounts[i]/maxQ*100)}%;background:var(--orange);"></div></div>
+        <div class="chart-bar-val">${quizCounts[i]}</div>
+      </div>`).join('')}
+  </div>`;
+
+  const ranked = users.map(u=>({name:u.name||u.email,email:u.email,xp:(pd[u.email]||{}).xp||0}))
+    .sort((a,b)=>b.xp-a.xp).slice(0,5);
+  const icons = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+  document.getElementById('topXPList').innerHTML = ranked.length ? ranked.map((u,i)=>`
+    <div class="log-item">
+      <div style="font-size:16px;flex-shrink:0;">${icons[i]||''}</div>
+      <div class="log-content">
+        <div class="log-action">${u.name}</div>
+        <div class="log-meta">${u.xp} XP · ${u.email}</div>
+      </div>
+    </div>`).join('') : '<div class="empty-state">No practice data yet.</div>';
+
+  document.getElementById('progressTable').innerHTML = users.length ? users.map(u=>{
+    const d = pd[u.email]||{};
+    const xp = d.xp||0, level = Math.floor(xp/200)+1;
+    const acc = d.totalAnswered>0 ? Math.round(d.totalCorrect/d.totalAnswered*100)+'%' : '—';
+    return `<tr>
+      <td>${u.name||u.email}</td><td>${xp}</td><td>Lv.${level}</td>
+      <td>${d.quizzesPlayed||0}</td><td>${acc}</td><td>${d.streak||0} 🔥</td>
+      <td>${(d.achievements||[]).length} badges</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" class="empty-state">No users.</td></tr>';
+}
+
+// ══════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════
+function loadSettings() {
+  const creds = getAdminCreds();
+  document.getElementById('settAdminUser').value = creds.user;
+}
+
+function saveAdminCreds() {
+  const newUser = document.getElementById('settAdminUser').value.trim();
+  const newPass = document.getElementById('settAdminPass').value;
+  if (!newUser) { toast('Username required.','error'); return; }
+  const creds = getAdminCreds();
+  setKey(ADMIN_KEY, {user:newUser, pass:newPass||creds.pass});
+  addLog('admin','Admin credentials updated','admin');
+  toast('Credentials saved!','success');
+}
+
+function saveSiteSettings() {
+  toast('Settings saved!','success');
+  addLog('admin','Site settings updated','admin');
+}
+
+function exportData() {
+  const data = {
+    users: getUsers(),
+    logs: getLogs(),
+    enrollments: getEnrollments(),
+    enrollmentStatuses: getEnrollmentStatuses(),
+    enrollmentNotes: getEnrollmentNotes(),
+    chords: getData('chords', DEFAULT_CHORDS),
+    lessons: getData('lessons', DEFAULT_LESSONS),
+    videos: getData('videos', DEFAULT_VIDEOS),
+    songs: getData('songs', DEFAULT_SONGS),
+    exported: new Date().toISOString(),
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'guitarify_data_' + Date.now() + '.json';
+  a.click();
+  toast('Data exported!','success');
+  addLog('admin','Data exported','admin');
+}
+
+function confirmClearUsers() {
+  showConfirm('Delete ALL registered users? This permanently removes all accounts.', () => {
+    localStorage.removeItem('guitarify_users');
+    localStorage.removeItem('guitarify_session');
+    localStorage.removeItem('guitarify_current');
+    renderUsersTable(); updateUserBadge();
+    toast('All users cleared.','success');
+    addLog('admin','All users deleted','admin');
+  });
+}
+
+// ══════════════════════════════════════════
+//  MODALS & UTILS
+// ══════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let confirmCallback = null;
+function showConfirm(text, cb) {
+  confirmCallback = cb;
+  document.getElementById('confirmText').textContent = text;
+  document.getElementById('confirmOkBtn').onclick = () => { closeModal('confirmModal'); if (confirmCallback) confirmCallback(); };
+  openModal('confirmModal');
+}
+
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hidden')) doAdminLogin();
+});
+</script>
+</body>
+</html>

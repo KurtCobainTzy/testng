@@ -1,0 +1,426 @@
+/* ══════════════════════════════════════════
+   GUITARIFY — LESSONS PAGE STYLES
+   ══════════════════════════════════════════ */
+
+/* ── HERO ── */
+.lessons-hero {
+  position: relative;
+  min-height: 340px;
+  background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(246,110,6,0.12) 0%, transparent 70%), #111;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 60px 40px;
+}
+.lessons-hero-bg {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 130px;
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.04);
+  pointer-events: none;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── LAYOUT ── */
+.lessons-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 340px);
+  align-items: start;
+}
+
+/* ── SIDEBAR ── */
+.lessons-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: #161616;
+  border-right: 0.5px solid #2a2a2a;
+  padding: 28px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a transparent;
+}
+.sidebar-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #444;
+  text-transform: uppercase;
+  padding: 0 20px 16px;
+  border-bottom: 0.5px solid #2a2a2a;
+  margin-bottom: 8px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+.sidebar-item:hover {
+  background: rgba(246,110,6,0.06);
+  border-left-color: rgba(246,110,6,0.4);
+}
+.sidebar-item.active {
+  background: rgba(246,110,6,0.1);
+  border-left-color: #f66e06;
+}
+.sidebar-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f66e06;
+  width: 20px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.sidebar-item.active .sidebar-num { opacity: 1; }
+.sidebar-label {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.sidebar-item.active .sidebar-label { color: #f0ede0; }
+.sidebar-item:hover .sidebar-label { color: #ccc; }
+
+/* ── CONTENT ── */
+.lessons-content {
+  padding: 48px 52px;
+  background: #111;
+}
+
+/* ── MODULE ── */
+.module {
+  display: none;
+  animation: fadeUp 0.3s ease forwards;
+}
+.module.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.module-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #f66e06;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.module-eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: #f66e06;
+  display: block;
+}
+.module-title {
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  color: #f0ede0;
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin-bottom: 28px;
+}
+.module-title span { color: #f66e06; }
+
+.module-divider {
+  height: 0.5px;
+  background: #2a2a2a;
+  margin: 36px 0;
+}
+
+/* ── LESSON TEXT ── */
+.lesson-intro {
+  font-size: 16px;
+  color: #aaa;
+  line-height: 1.9;
+  margin-bottom: 32px;
+  border-left: 2px solid #f66e06;
+  padding-left: 20px;
+}
+.lesson-body {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.9;
+}
+.lesson-body h3 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #f0ede0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 32px 0 12px;
+}
+.lesson-body p { margin-bottom: 16px; }
+.lesson-body strong { color: #ccc; font-weight: 700; }
+.lesson-body ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+.lesson-body ul li {
+  padding: 8px 0 8px 22px;
+  position: relative;
+  border-bottom: 0.5px solid #1e1e1e;
+  color: #888;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.lesson-body ul li::before {
+  content: '▸';
+  color: #f66e06;
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+  top: 10px;
+}
+
+/* ── IMAGE BLOCKS ── */
+.lesson-image {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 28px 0;
+  border: 0.5px solid #2a2a2a;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lesson-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.lesson-image.dark { background: #1a1a1a; }
+.lesson-image-caption {
+  font-size: 11px;
+  color: #444;
+  text-align: center;
+  margin-top: -20px;
+  margin-bottom: 28px;
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
+
+.lesson-img-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 28px 0;
+}
+.lesson-img-grid .lesson-image { margin: 0; }
+
+/* ── INFO BOXES ── */
+.tip-box {
+  background: rgba(246,110,6,0.07);
+  border: 0.5px solid rgba(246,110,6,0.25);
+  border-left: 3px solid #f66e06;
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin: 24px 0;
+}
+.tip-box .tip-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #f66e06;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.tip-box p {
+  font-size: 13px;
+  color: #aaa;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.warning-box {
+  background: rgba(255,80,80,0.06);
+  border: 0.5px solid rgba(255,80,80,0.2);
+  border-left: 3px solid #e05050;
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin: 24px 0;
+}
+.warning-box .tip-label { color: #e05050; }
+
+/* ── CHORD DIAGRAM ── */
+.chord-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 28px 0;
+}
+.chord-block {
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 20px 16px 14px;
+  text-align: center;
+  flex: 1;
+  min-width: 140px;
+  max-width: 180px;
+}
+.chord-block-name {
+  font-size: 18px;
+  font-weight: 900;
+  color: #f66e06;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.chord-block-fingers {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.8;
+  margin-top: 10px;
+  text-align: left;
+}
+.chord-block-fingers strong {
+  color: #ccc;
+  font-weight: 700;
+}
+
+/* ── STRING DIAGRAM ── */
+.string-diagram {
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 28px 0;
+  overflow-x: auto;
+}
+
+/* ── STEP BOXES ── */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 28px 0;
+}
+.step {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.step-num {
+  font-size: 22px;
+  font-weight: 900;
+  color: #f66e06;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 32px;
+  letter-spacing: -1px;
+}
+.step-body {}
+.step-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #f0ede0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.step-text {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.7;
+}
+
+/* ── NAVIGATION BUTTONS ── */
+.module-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 52px;
+  padding-top: 28px;
+  border-top: 0.5px solid #2a2a2a;
+}
+.module-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px solid #2a2a2a;
+  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.module-nav-btn:hover {
+  border-color: #f66e06;
+  color: #f66e06;
+}
+.module-nav-btn.primary {
+  background: #f66e06;
+  border-color: #f66e06;
+  color: #fff;
+}
+.module-nav-btn.primary:hover { opacity: 0.88; }
+.module-nav-btn:disabled,
+.module-nav-btn.hidden { visibility: hidden; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap {
+  height: 3px;
+  background: #1e1e1e;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: #f66e06;
+  transition: width 0.3s ease;
+}
+
+/* ── MNEMONIC CARD ── */
+.mnemonic-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 100%);
+  border: 0.5px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 24px;
+  margin: 28px 0;
+  text-align: center;
+}
+.mnemonic-letters {
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: #f66e06;
+  margin-bottom: 10px;
+}
+.mnemonic-phrase {
+  font-size: 14px;
+  color: #888;
+  font-style: italic;
+}
+.mnemonic-phrase strong { color: #f66e06; }

@@ -4,8 +4,1191 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lessons — Guitarify</title>
-  <link rel="stylesheet" href="shared.css" />
-  <link rel="stylesheet" href="lessons.css" />
+  <style>
+    /* ── PAGE HERO ── */
+    .page-hero {
+      padding: 52px 40px 0;
+      background: #111;
+      border-bottom: 0.5px solid #2a2a2a;
+    }
+
+    .page-hero-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #f66e06;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-hero-tag::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: #f66e06;
+    }
+
+    .page-hero-title {
+      font-size: clamp(36px, 5vw, 58px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #f0ede0;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .page-hero-title span { color: #f66e06; }
+
+    .page-hero-sub {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 28px;
+    }
+
+    /* ── SUB TABS ── */
+    .sub-tabs {
+      display: flex;
+      gap: 0;
+      border-top: 0.5px solid #2a2a2a;
+      margin-top: 10px;
+    }
+
+    .sub-tab {
+      padding: 14px 24px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .sub-tab:hover { color: #aaa; }
+    .sub-tab.active { color: #f66e06; border-bottom-color: #f66e06; }
+
+    /* ── LESSONS WRAP ── */
+    .lessons-wrap { padding: 36px 40px 52px; }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding: 16px 20px;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 8px;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f66e06;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #f66e06;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .progress-count { font-size: 11px; color: #555; white-space: nowrap; }
+
+    /* ── MODULE FILTER ── */
+    .module-filter { display: flex; gap: 8px; margin-bottom: 24px; }
+
+    .mf-btn {
+      padding: 6px 18px;
+      border-radius: 20px;
+      border: 0.5px solid #333;
+      background: transparent;
+      color: #666;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mf-btn:hover { color: #ccc; border-color: #555; }
+    .mf-btn.active { background: #f66e06; color: #fff; border-color: #f66e06; }
+
+    /* ── MODULES GRID ── */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* ── MODULE CARD ── */
+    .module-card {
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      position: relative;
+    }
+
+    .module-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(246,110,6,0.4);
+    }
+
+    .module-card.done { border-color: rgba(246,110,6,0.5); }
+
+    .module-card.done::after {
+      content: '✓';
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #f66e06;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .module-card-top {
+      padding: 22px 20px 16px;
+      border-bottom: 0.5px solid #2a2a2a;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .module-icon { font-size: 26px; flex-shrink: 0; }
+    .module-number { font-size: 10px; font-weight: 700; color: #f66e06; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .module-title { font-size: 14px; font-weight: 700; color: #f0ede0; line-height: 1.3; }
+
+    .module-card-bottom {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .module-level {
+      font-size: 10px; font-weight: 600; padding: 3px 10px;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .module-level.beginner     { background: rgba(76,175,80,0.15);  color: #4caf50; }
+    .module-level.intermediate { background: rgba(246,110,6,0.15);  color: #f66e06; }
+    .module-level.advanced     { background: rgba(244,67,54,0.15);   color: #f44336; }
+
+    .module-duration { font-size: 11px; color: #555; }
+
+    /* ══════════════════════════════════════
+       LESSON MODAL — WIDE & TALL
+    ══════════════════════════════════════ */
+    .lesson-modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 200;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 16px 20px;
+      overflow-y: auto;
+    }
+
+    .lesson-modal-bg.open { display: flex; }
+
+    .lesson-modal {
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 1000px;
+      min-height: calc(100vh - 32px);
+      display: flex;
+      flex-direction: column;
+      margin: auto;
+    }
+
+    /* ── MODAL HEADER ── */
+    .lesson-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 28px 32px 20px;
+      border-bottom: 0.5px solid #2a2a2a;
+      background: #1a1a1a;
+      border-radius: 14px 14px 0 0;
+      gap: 16px;
+    }
+
+    .lesson-modal-header-left { flex: 1; }
+
+    .lesson-modal-tag {
+      font-size: 10px; font-weight: 700; color: #f66e06;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    .lesson-modal-title {
+      font-size: 26px; font-weight: 900; color: #f0ede0;
+      letter-spacing: -0.5px; line-height: 1.1;
+    }
+
+    .lesson-modal-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lesson-modal-meta-item {
+      font-size: 11px;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lesson-modal-close {
+      background: #252525;
+      border: 0.5px solid #333;
+      color: #aaa;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 13px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .lesson-modal-close:hover { background: #383838; color: #fff; }
+
+    /* ── MODAL LAYOUT: 2-column ── */
+    .lesson-modal-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR: table of contents */
+    .lesson-modal-toc {
+      border-right: 0.5px solid #2a2a2a;
+      padding: 24px 0;
+      background: #161616;
+      border-radius: 0 0 0 14px;
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: calc(100vh - 180px);
+    }
+
+    .toc-label {
+      font-size: 10px; font-weight: 700; color: #f66e06;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 0 20px 12px;
+      border-bottom: 0.5px solid #2a2a2a;
+      margin-bottom: 8px;
+    }
+
+    .toc-item {
+      padding: 10px 20px;
+      font-size: 12px;
+      color: #555;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      border-left: 2px solid transparent;
+      line-height: 1.4;
+    }
+
+    .toc-item:hover { color: #aaa; background: #1e1e1e; }
+    .toc-item.active { color: #f66e06; border-left-color: #f66e06; background: #1e1e1e; }
+    .toc-item.done-toc { color: #4caf50; }
+    .toc-item.done-toc::after { content: ' ✓'; font-size: 10px; }
+
+    /* RIGHT: main content */
+    .lesson-modal-body {
+      padding: 36px 40px 60px;
+      font-size: 14px;
+      color: #888;
+      line-height: 1.9;
+      overflow-y: auto;
+    }
+
+    /* ── SECTION HEADING ── */
+    .lesson-section { margin-bottom: 8px; }
+
+    .lesson-section-heading {
+      font-size: 18px;
+      font-weight: 900;
+      color: #f0ede0;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 0.5px solid #2a2a2a;
+    }
+
+    .section-separator {
+      height: 1px;
+      background: linear-gradient(to right, #f66e06, transparent);
+      margin: 36px 0;
+      opacity: 0.3;
+    }
+
+    .lesson-modal-body h2 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #f0ede0;
+      letter-spacing: -0.5px;
+      margin: 0 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 0.5px solid #2a2a2a;
+    }
+
+    .lesson-modal-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f0ede0;
+      margin: 24px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lesson-modal-body h3::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 14px;
+      background: #f66e06;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .lesson-modal-body h3:first-child { margin-top: 0; }
+
+    .lesson-modal-body p { margin-bottom: 14px; }
+    .lesson-modal-body p:last-child { margin-bottom: 0; }
+
+    /* Lists */
+    .lesson-modal-body ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: 10px 0 18px;
+    }
+
+    .lesson-modal-body ul li {
+      padding: 10px 14px;
+      background: #1e1e1e;
+      border-radius: 6px;
+      border-left: 2px solid #f66e06;
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* Tip box */
+    .lesson-modal-body .tip {
+      background: rgba(246,110,6,0.07);
+      border: 0.5px solid rgba(246,110,6,0.2);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.65;
+    }
+
+    .lesson-modal-body .tip strong { color: #f66e06; }
+
+    /* Warning box */
+    .lesson-modal-body .warning {
+      background: rgba(244,67,54,0.07);
+      border: 0.5px solid rgba(244,67,54,0.2);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .lesson-modal-body .warning strong { color: #f44336; }
+
+    /* Note box */
+    .lesson-modal-body .note {
+      background: rgba(33,150,243,0.07);
+      border: 0.5px solid rgba(33,150,243,0.2);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .lesson-modal-body .note strong { color: #2196f3; }
+
+    /* Image placeholder / illustration */
+    .lesson-modal-body .illustration {
+      width: 100%;
+      background: #1e1e1e;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 40px 20px;
+      text-align: center;
+      margin: 18px 0;
+      color: #444;
+      font-size: 12px;
+    }
+
+    .lesson-modal-body .illustration img {
+      max-width: 100%;
+      border-radius: 6px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .lesson-modal-body .illustration .img-caption {
+      font-size: 11px;
+      color: #444;
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    /* Code / tab block */
+    .lesson-modal-body .tab-block {
+      background: #111;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #aaa;
+      line-height: 2;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .lesson-modal-body .tab-block .hl { color: #f66e06; font-weight: 700; }
+
+    /* Chord boxes row */
+    .chord-diagram-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+    }
+
+    .chord-mini {
+      background: #1e1e1e;
+      border: 0.5px solid #333;
+      border-radius: 8px;
+      padding: 12px 18px;
+      text-align: center;
+      min-width: 70px;
+      transition: border-color 0.2s;
+    }
+
+    .chord-mini:hover { border-color: rgba(246,110,6,0.4); }
+
+    .chord-mini-name {
+      font-size: 20px;
+      font-weight: 900;
+      color: #f66e06;
+      margin-bottom: 5px;
+    }
+
+    .chord-mini-fingers {
+      font-size: 11px;
+      color: #555;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Steps / numbered list */
+    .lesson-modal-body ol {
+      list-style: none;
+      counter-reset: steps;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 10px 0 18px;
+    }
+
+    .lesson-modal-body ol li {
+      counter-increment: steps;
+      padding: 12px 16px 12px 44px;
+      background: #1e1e1e;
+      border-radius: 6px;
+      border: 0.5px solid #2a2a2a;
+      color: #aaa;
+      font-size: 13px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .lesson-modal-body ol li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px; height: 20px;
+      background: #f66e06;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Divider */
+    .lesson-modal-body .divider {
+      height: 0.5px;
+      background: #2a2a2a;
+      margin: 24px 0;
+    }
+
+    /* ── MODAL FOOTER ── */
+    .lesson-modal-footer {
+      padding: 18px 32px;
+      border-top: 0.5px solid #2a2a2a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #161616;
+      border-radius: 0 0 14px 14px;
+    }
+
+    .lesson-footer-left {
+      display: flex;
+      gap: 10px;
+    }
+
+    .lesson-btn-prev {
+      padding: 9px 18px;
+      background: transparent;
+      border: 0.5px solid #333;
+      color: #666;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lesson-btn-prev:hover { border-color: #555; color: #aaa; }
+
+    .lesson-btn-done {
+      padding: 9px 20px;
+      background: transparent;
+      border: 1px solid #f66e06;
+      color: #f66e06;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .lesson-btn-done:hover { background: rgba(246,110,6,0.1); }
+    .lesson-btn-done.done  { background: #f66e06; color: #fff; }
+
+    .lesson-btn-next {
+      padding: 9px 22px;
+      background: #f66e06;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .lesson-btn-next:hover { opacity: 0.85; }
+
+    /* ── GLOBAL BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #f0ede0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 56px;
+      background: #111;
+      border-bottom: 0.5px solid #2a2a2a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 24px; }
+    .nav-logo { font-size: 15px; font-weight: 900; letter-spacing: 2px; color: #f0ede0; }
+    .nav-city { font-size: 11px; color: #444; }
+
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-links a:hover { color: #aaa; background: #1a1a1a; }
+    .nav-links a.active { color: #f66e06; }
+
+    .nav-icons { display: flex; align-items: center; gap: 8px; }
+
+    .nav-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 12px;
+      transition: border-color 0.15s;
+    }
+    .nav-user-btn:hover { border-color: #444; }
+
+    /* ── LESSONS LAYOUT ── */
+    .lessons-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 56px - 80px);
+    }
+
+    /* SIDEBAR */
+    .lessons-sidebar {
+      background: #161616;
+      border-right: 0.5px solid #2a2a2a;
+      padding: 28px 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #f66e06;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0 24px 16px;
+      border-bottom: 0.5px solid #2a2a2a;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      font-size: 12px;
+      color: #555;
+      text-decoration: none;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+
+    .sidebar-item:hover { color: #aaa; background: #1e1e1e; }
+    .sidebar-item.active { color: #f66e06; border-left-color: #f66e06; background: #1e1e1e; }
+
+    .sidebar-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: #f66e06;
+      font-family: monospace;
+      flex-shrink: 0;
+    }
+
+    .sidebar-label { line-height: 1.4; }
+
+    /* CONTENT */
+    .lessons-content { padding: 40px 52px 80px; }
+
+    .module { display: none; }
+    .module.active { display: block; }
+
+    .module-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: #f66e06;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .module-eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: #f66e06;
+    }
+
+    .module-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      color: #f0ede0;
+      text-transform: uppercase;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .module-title span { color: #f66e06; }
+
+    .lesson-intro {
+      font-size: 14px;
+      color: #777;
+      line-height: 1.8;
+      max-width: 680px;
+      margin-bottom: 28px;
+      border-left: 2px solid #f66e06;
+      padding-left: 18px;
+    }
+
+    .lesson-image {
+      width: 100%;
+      max-width: 820px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      border: 0.5px solid #2a2a2a;
+    }
+
+    .lesson-image img {
+      width: 100%;
+      height: 340px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .lesson-image.dark { background: #1a1a1a; }
+
+    .lesson-image-caption {
+      font-size: 11px;
+      color: #444;
+      font-style: italic;
+      margin-bottom: 28px;
+    }
+
+    .lesson-body { max-width: 720px; }
+    .lesson-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f0ede0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 28px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lesson-body h3::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 14px;
+      background: #f66e06;
+      border-radius: 2px;
+    }
+
+    .lesson-body p {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    .lesson-body ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: 10px 0 20px;
+    }
+
+    .lesson-body ul li {
+      padding: 10px 14px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      border-left: 2px solid #f66e06;
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* Tip / Warning boxes */
+    .tip-box, .warning-box {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.65;
+    }
+
+    .tip-box {
+      background: rgba(246,110,6,0.07);
+      border: 0.5px solid rgba(246,110,6,0.2);
+    }
+
+    .warning-box {
+      background: rgba(244,67,54,0.06);
+      border: 0.5px solid rgba(244,67,54,0.2);
+    }
+
+    .tip-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f66e06;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .warning-box .tip-label { color: #f44336; }
+
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 20px; }
+
+    .step {
+      display: flex;
+      gap: 14px;
+      padding: 14px 18px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      border: 0.5px solid #2a2a2a;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 28px; height: 28px;
+      background: #f66e06;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f0ede0;
+      margin-bottom: 4px;
+    }
+
+    .step-text { font-size: 13px; color: #777; line-height: 1.55; }
+
+    /* Chord row */
+    .chord-row { margin: 14px 0 24px; }
+
+    .chord-block {
+      display: inline-block;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 18px 20px;
+      min-width: 180px;
+    }
+
+    .chord-block-name {
+      font-size: 22px;
+      font-weight: 900;
+      color: #f66e06;
+      margin-bottom: 10px;
+    }
+
+    .chord-block-fingers {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+
+    /* Mnemonic card */
+    .mnemonic-card {
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .mnemonic-letters {
+      font-size: 32px;
+      font-weight: 900;
+      color: #f66e06;
+      letter-spacing: 14px;
+      margin-bottom: 10px;
+      font-family: monospace;
+    }
+
+    .mnemonic-phrase { font-size: 13px; color: #666; }
+
+    /* String diagram */
+    .string-diagram { margin: 16px 0 24px; }
+
+    /* Module nav */
+    .module-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 44px;
+      padding-top: 24px;
+      border-top: 0.5px solid #2a2a2a;
+    }
+
+    .module-nav-btn {
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .module-nav-btn:not(.primary) {
+      background: transparent;
+      border: 0.5px solid #333;
+      color: #666;
+    }
+
+    .module-nav-btn:not(.primary):hover { border-color: #555; color: #aaa; }
+
+    .module-nav-btn.primary {
+      background: #f66e06;
+      border: none;
+      color: #fff;
+    }
+
+    .module-nav-btn.primary:hover { opacity: 0.85; }
+    .module-nav-btn.hidden { visibility: hidden; }
+
+    /* FOOTER */
+    .footer {
+      background: #0d0d0d;
+      border-top: 0.5px solid #2a2a2a;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo { font-size: 13px; font-weight: 900; letter-spacing: 2px; color: #333; }
+    .footer-copy { font-size: 11px; color: #333; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e1e1e;
+      border: 0.5px solid #333;
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: 13px;
+      color: #f0ede0;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* AUTH */
+    .auth-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-bg.open { display: flex; }
+
+    .auth-modal {
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      padding: 32px;
+      position: relative;
+    }
+
+    .auth-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: #252525;
+      border: 0.5px solid #333;
+      color: #aaa;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 0.5px solid #2a2a2a; }
+
+    .auth-tab {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .auth-tab.active { color: #f66e06; border-bottom-color: #f66e06; }
+
+    .auth-greeting { font-size: 20px; font-weight: 900; color: #f0ede0; margin-bottom: 6px; }
+    .auth-sub { font-size: 12px; color: #555; margin-bottom: 20px; }
+
+    .auth-field { margin-bottom: 14px; }
+    .auth-field label { display: block; font-size: 11px; font-weight: 700; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .auth-field input {
+      width: 100%;
+      background: #141414;
+      border: 0.5px solid #333;
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-size: 13px;
+      color: #f0ede0;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .auth-field input:focus { border-color: #f66e06; }
+
+    .auth-error { font-size: 12px; color: #f44336; min-height: 16px; margin-bottom: 8px; }
+
+    .auth-submit {
+      width: 100%;
+      background: #f66e06;
+      border: none;
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .auth-submit:hover { opacity: 0.85; }
+
+    .auth-divider { font-size: 12px; color: #444; text-align: center; margin-top: 16px; }
+    .auth-divider span { color: #f66e06; cursor: pointer; }
+
+    /* USER DROPDOWN */
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: 52px;
+      right: 40px;
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 8px;
+      min-width: 200px;
+      z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .user-dropdown.open { display: block; }
+
+    .user-dropdown-header {
+      padding: 14px 16px;
+      border-bottom: 0.5px solid #2a2a2a;
+    }
+
+    .user-dropdown-name { font-size: 13px; font-weight: 700; color: #f0ede0; }
+    .user-dropdown-email { font-size: 11px; color: #555; margin-top: 2px; }
+
+    .user-dropdown-item {
+      padding: 11px 16px;
+      font-size: 12px;
+      color: #888;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .user-dropdown-item:hover { background: #222; color: #f0ede0; }
+    .user-dropdown-item.danger { color: #f44336; }
+    .user-dropdown-item.danger:hover { background: rgba(244,67,54,0.08); }
+
+    .nav-user-name { font-size: 12px; color: #888; }
+
+    /* Progress bar in sidebar/header */
+    #progressBar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      height: 2px;
+      background: #f66e06;
+      transition: width 0.4s ease;
+      z-index: 99;
+    }
+  </style>
 </head>
 <body>
 <div class="site">
@@ -14,12 +1197,16 @@
   <nav class="nav">
     <div class="nav-left">
       <div class="nav-logo">GUITARIFY</div>
+      <div class="nav-city"><span></span></div>
     </div>
     <div class="nav-links">
-      <a href="index.html">Home</a>
+      <a href="Home.html">Home</a>
       <a href="About.html">About</a>
       <a href="Chord_Library.html">Chord Library</a>
       <a href="lessons.html" class="active">Lesson</a>
+      <a href="Recommendations.html">Recommendations</a>
+      <a href="practice.html">Quizzes</a>
+      <a href="Enroll.html" class="enroll-link">✦ Enroll</a>
     </div>
     <div class="nav-icons">
       <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
@@ -41,11 +1228,14 @@
     </div>
   </nav>
 
-  <!-- PAGE HEADER -->
+  <!-- PROGRESS BAR -->
+  <div id="progressBar" style="width:9.09%"></div>
+
+  <!-- PAGE HERO -->
   <div class="page-hero">
     <div class="page-hero-tag">Learn Step by Step</div>
     <div class="page-hero-title">Guitar <span>Lessons</span></div>
-    <p class="page-hero-sub">Start from the basics and work your way up. Each module is designed to be clear, simple, and beginner-friendly.</p>
+    <p class="page-hero-sub">11 modules covering everything you need to <strong>start playing real songs</strong>. Follow along in order or jump to any lesson.</p>
     <!-- SUB TABS -->
     <div class="sub-tabs">
       <a href="lessons.html" class="sub-tab active">📖 Lessons</a>
@@ -54,90 +1244,1465 @@
     </div>
   </div>
 
-  <!-- LESSONS CONTENT -->
-  <div class="lessons-wrap">
+  <!-- MAIN LAYOUT -->
+  <div class="lessons-layout">
 
-    <!-- PROGRESS BAR -->
-    <div class="progress-wrap">
-      <div class="progress-label">Your Progress</div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill" style="width:0%"></div>
-      </div>
-      <div class="progress-count" id="progressCount">0 / 0 completed</div>
-    </div>
+    <!-- SIDEBAR -->
+    <aside class="lessons-sidebar">
+      <div class="sidebar-title">Modules</div>
+      <a class="sidebar-item active" onclick="showModule(0)" href="#">
+        <span class="sidebar-num">01</span>
+        <span class="sidebar-label">Learn How To Play Guitar</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(1)" href="#">
+        <span class="sidebar-num">02</span>
+        <span class="sidebar-label">How To Hold The Guitar</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(2)" href="#">
+        <span class="sidebar-num">03</span>
+        <span class="sidebar-label">The Parts Of The Guitar</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(3)" href="#">
+        <span class="sidebar-num">04</span>
+        <span class="sidebar-label">The Guitar String Names</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(4)" href="#">
+        <span class="sidebar-num">05</span>
+        <span class="sidebar-label">How To Tune Your Guitar</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(5)" href="#">
+        <span class="sidebar-num">06</span>
+        <span class="sidebar-label">How To Strum The Guitar</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(6)" href="#">
+        <span class="sidebar-num">07</span>
+        <span class="sidebar-label">Your First Guitar Chords</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(7)" href="#">
+        <span class="sidebar-num">08</span>
+        <span class="sidebar-label">Two More Guitar Chords</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(8)" href="#">
+        <span class="sidebar-num">09</span>
+        <span class="sidebar-label">Playing Your First Song</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(9)" href="#">
+        <span class="sidebar-num">10</span>
+        <span class="sidebar-label">Musical Strumming Tips</span>
+      </a>
+      <a class="sidebar-item" onclick="showModule(10)" href="#">
+        <span class="sidebar-num">11</span>
+        <span class="sidebar-label">Where To Go From Here</span>
+      </a>
+    </aside>
 
-    <!-- MODULE FILTER -->
-    <div class="module-filter" id="moduleFilter">
-      <button class="mf-btn active" onclick="filterModules('all', this)">All</button>
-      <button class="mf-btn" onclick="filterModules('beginner', this)">Beginner</button>
-      <button class="mf-btn" onclick="filterModules('intermediate', this)">Intermediate</button>
-      <button class="mf-btn" onclick="filterModules('advanced', this)">Advanced</button>
-    </div>
+    <!-- CONTENT -->
+    <main class="lessons-content">
 
-    <!-- MODULES GRID -->
-    <div class="modules-grid" id="modulesGrid"></div>
+      <!-- ══ MODULE 1 ══ -->
+      <div class="module active" id="module-0">
+        <div class="module-eyebrow">Module 01</div>
+        <h2 class="module-title">Learn How To <span>Play Guitar</span></h2>
 
-  </div>
+        <p class="lesson-intro">
+          Welcome to Guitarify's Beginner Guitar Series! If you've just picked up a guitar for the first time — or if you've been meaning to learn for years — you're in exactly the right place. This module gives you the big picture of what learning guitar actually looks like, and how to set yourself up for success from day one.
+        </p>
 
-  <!-- LESSON MODAL -->
-  <div class="lesson-modal-bg" id="lessonModalBg" onclick="handleLessonBgClick(event)">
-    <div class="lesson-modal" id="lessonModal">
-      <div class="lesson-modal-header">
-        <div>
-          <div class="lesson-modal-tag" id="modalTag"></div>
-          <div class="lesson-modal-title" id="modalTitle"></div>
+        <div class="lesson-image">
+          <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=900&q=80" alt="Person playing acoustic guitar" />
         </div>
-        <button class="lesson-modal-close" onclick="closeLessonModal()">✕</button>
+        <div class="lesson-image-caption">Learning guitar is a journey — start at your own pace.</div>
+
+        <div class="lesson-body">
+          <h3>What Kind of Guitar Should You Start With?</h3>
+          <p>
+            Before anything else, you need a guitar to play. There are three main types beginners encounter: <strong>acoustic (steel string)</strong>, <strong>classical (nylon string)</strong>, and <strong>electric</strong>.
+          </p>
+          <ul>
+            <li><strong>Acoustic (Steel String)</strong> — The most popular beginner choice. Loud, versatile, and no amp needed. Best for pop, folk, rock, and OPM songs.</li>
+            <li><strong>Classical (Nylon String)</strong> — Easier on your fingers because the strings are softer. Wider neck though, which can be tricky. Great for school settings.</li>
+            <li><strong>Electric</strong> — Requires an amplifier. Strings are thinner and easier to press, but you need extra equipment. Best for rock and pop styles.</li>
+          </ul>
+
+          <div class="tip-box">
+            <div class="tip-label">💡 Beginner Tip</div>
+            <p>If you're unsure, start with a <strong>steel-string acoustic</strong> or a <strong>classical guitar</strong>. Both are affordable, require no extra equipment, and will teach you everything you need to know. Check the Recommendations page for specific guitar picks!</p>
+          </div>
+
+          <h3>What Does the Learning Journey Look Like?</h3>
+          <p>
+            Learning guitar isn't about memorizing every note on the fretboard in week one. It's about building small, consistent habits. Here's a realistic roadmap:
+          </p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Weeks 1–2: The Basics</div>
+                <div class="step-text">Learn how to hold the guitar, tune it, and press your first chord shapes. Your fingers will hurt a little at first — that's completely normal. Calluses will form within 2–3 weeks.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Weeks 3–4: First Chords & Strumming</div>
+                <div class="step-text">Learn 3–4 basic chords (Em, Am, G, D) and practice simple strumming patterns. By this point, you can play basic songs.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Month 2–3: Playing Real Songs</div>
+                <div class="step-text">Combine chords and strumming to play full songs. Focus on smooth chord changes. This is where it gets really fun.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Month 4+: Building Your Skills</div>
+                <div class="step-text">Expand your chord library, learn different strumming patterns, explore basic music theory, and start learning your favorite songs by ear.</div>
+              </div>
+            </div>
+          </div>
+
+          <h3>How Long Should You Practice?</h3>
+          <p>
+            Short, consistent practice sessions are far more effective than occasional long ones. Aim for <strong>15–30 minutes per day</strong>. That's it. Your fingers, brain, and muscle memory will thank you. Three 20-minute sessions per week will get you further than one 3-hour marathon on Sunday.
+          </p>
+
+          <div class="tip-box">
+            <div class="tip-label">🎯 The Golden Rule</div>
+            <p>Practice slowly and correctly. It's better to play a chord <em>perfectly at half speed</em> than sloppily at full speed. Bad habits are very hard to unlearn once they're locked in. Take your time.</p>
+          </div>
+
+          <h3>What Else Will You Need?</h3>
+          <ul>
+            <li><strong>A clip-on tuner</strong> — Always tune before you play. An out-of-tune guitar sounds terrible no matter how well you play.</li>
+            <li><strong>A guitar pick (plectrum)</strong> — Start with medium thickness. They're versatile and easy to control.</li>
+            <li><strong>Patience</strong> — The first few weeks feel awkward. Your fingers will hurt. Chords will buzz. This is totally normal. Push through it.</li>
+          </ul>
+
+          <h3>This Is It — Let's Begin</h3>
+          <p>
+            Everything you need is right here on Guitarify. Go through the modules in order — each one builds on the last. By the end of this series, you'll be playing real songs. Let's go.
+          </p>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn hidden">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(1)">Next: Hold The Guitar →</button>
+        </div>
       </div>
-      <div class="lesson-modal-body" id="modalBody"></div>
-      <div class="lesson-modal-footer">
-        <button class="lesson-btn-done" id="btnDone" onclick="markDone()">✓ Mark as Done</button>
-        <button class="lesson-btn-next" id="btnNext" onclick="nextLesson()">Next Lesson →</button>
+
+      <!-- ══ MODULE 2 ══ -->
+      <div class="module" id="module-1">
+        <div class="module-eyebrow">Module 02</div>
+        <h2 class="module-title">How To Hold <span>The Guitar</span></h2>
+
+        <p class="lesson-intro">
+          The way you hold your guitar affects everything — your comfort, how long you can play without pain, and how cleanly your chords ring out. Getting this right from day one will save you from developing bad habits that are hard to break later.
+        </p>
+
+        <div class="lesson-image">
+          <img src="https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=900&q=80" alt="Person sitting holding acoustic guitar correctly" />
+        </div>
+
+        <div class="lesson-body">
+          <h3>Sitting Position — The Casual Method</h3>
+          <p>
+            This is how most beginners start, and it works perfectly well. Sit in a chair without armrests so your arms can move freely.
+          </p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Place the guitar on your right leg</div>
+                <div class="step-text">If you're right-handed, rest the guitar's waist (the curved middle section) on your right thigh. Keep both feet flat on the floor.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Press the back of the guitar to your body</div>
+                <div class="step-text">The back of the guitar body should lean against your stomach and chest. This keeps the guitar stable so you don't need to use your left hand to hold it up.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Keep the neck angled slightly upward</div>
+                <div class="step-text">The neck of the guitar should point slightly upward, not down toward the floor. A downward neck forces your wrist into an awkward angle. Aim for about 30–45 degrees above horizontal.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Rest your strumming arm over the body</div>
+                <div class="step-text">Let your right forearm rest naturally over the top of the guitar body. This anchors the guitar and keeps it from sliding. Your strumming hand should fall naturally near the sound hole.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-title">Sit up straight</div>
+                <div class="step-text">Keep your back straight but relaxed. Avoid slouching or hunching over the guitar to look at your fingers. Good posture prevents neck and back pain during long sessions.</div>
+              </div>
+            </div>
+          </div>
+
+          <h3>Your Fretting Hand (Left Hand)</h3>
+          <ul>
+            <li><strong>Thumb placement</strong> — Your thumb should rest on the <em>back</em> of the neck, roughly behind your middle finger.</li>
+            <li><strong>Curved fingers</strong> — Curl your fingers so the tips press the strings, not the pads.</li>
+            <li><strong>Press close to the fret</strong> — Place your fingertip just <em>behind</em> the metal fret for cleaner sound with less effort.</li>
+            <li><strong>Fingers upright</strong> — Keep your fingertips as vertical as possible so they don't accidentally mute neighboring strings.</li>
+          </ul>
+
+          <div class="tip-box">
+            <div class="tip-label">🚫 Common Mistake</div>
+            <p>Many beginners tilt the guitar body toward them so they can see the fretboard. This puts the neck in a bad angle and makes playing harder. Keep the guitar upright and face forward.</p>
+          </div>
+
+          <h3>Your Fingers Will Hurt — That's Normal</h3>
+          <p>
+            The tips of your fretting fingers will feel sore after the first few practice sessions. Within 2–3 weeks of regular practice, your fingertips will toughen up and the pain disappears completely.
+          </p>
+
+          <div class="warning-box">
+            <div class="tip-label">⚠️ Sharp Pain vs. Soreness</div>
+            <p>Fingertip soreness from strings is normal. However, sharp pain in your wrist, elbow, or shoulder is a sign of bad posture or technique. Never play through sharp pain.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(0)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(2)">Next: Parts of the Guitar →</button>
+        </div>
       </div>
-    </div>
+
+      <!-- ══ MODULE 3 ══ -->
+      <div class="module" id="module-2">
+        <div class="module-eyebrow">Module 03</div>
+        <h2 class="module-title">The Parts Of <span>The Guitar</span></h2>
+
+        <p class="lesson-intro">
+          Before you can follow along with lessons, read chord diagrams, or communicate with other musicians, you need to know the names of the parts of your guitar. Don't worry — it's simpler than it looks!
+        </p>
+
+        <div class="lesson-image">
+          <img src="https://images.unsplash.com/photo-1541689592655-f5f52825a3b8?w=900&q=80" alt="Full view of acoustic guitar" />
+        </div>
+
+        <div class="lesson-body">
+          <h3>The Three Main Sections</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">A</div>
+              <div class="step-body">
+                <div class="step-title">The Headstock (Top)</div>
+                <div class="step-text">The flat piece at the very top of the neck. This is where the tuning pegs are located.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">B</div>
+              <div class="step-body">
+                <div class="step-title">The Neck (Middle)</div>
+                <div class="step-text">The long, thin section you hold with your fretting hand. Contains the fretboard where you press the strings.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">C</div>
+              <div class="step-body">
+                <div class="step-title">The Body (Bottom)</div>
+                <div class="step-text">The large, round part of the guitar. On an acoustic, this is where sound is produced through the hollow cavity and sound hole.</div>
+              </div>
+            </div>
+          </div>
+
+          <h3>Key Parts — Neck Area</h3>
+          <ul>
+            <li><strong>Fretboard (Fingerboard)</strong> — The flat front surface of the neck where you press strings.</li>
+            <li><strong>Frets</strong> — Thin metal bars embedded across the fretboard. Each fret = one semitone interval.</li>
+            <li><strong>Position Markers (Dots)</strong> — Visual landmarks at frets 3, 5, 7, 9, and 12.</li>
+          </ul>
+
+          <div class="lesson-image dark">
+            <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:auto;padding:20px;">
+              <rect x="60" y="40" width="580" height="120" rx="4" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="1"/>
+              <line x1="60" y1="40" x2="60" y2="160" stroke="#555" stroke-width="3"/>
+              <line x1="155" y1="40" x2="155" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="245" y1="40" x2="245" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="330" y1="40" x2="330" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="410" y1="40" x2="410" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="486" y1="40" x2="486" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="558" y1="40" x2="558" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="626" y1="40" x2="626" y2="160" stroke="#555" stroke-width="2"/>
+              <line x1="60" y1="60" x2="640" y2="60" stroke="#aaa" stroke-width="2.5"/>
+              <line x1="60" y1="80" x2="640" y2="80" stroke="#aaa" stroke-width="2"/>
+              <line x1="60" y1="100" x2="640" y2="100" stroke="#aaa" stroke-width="1.8"/>
+              <line x1="60" y1="118" x2="640" y2="118" stroke="#aaa" stroke-width="1.4"/>
+              <line x1="60" y1="135" x2="640" y2="135" stroke="#aaa" stroke-width="1.1"/>
+              <line x1="60" y1="150" x2="640" y2="150" stroke="#aaa" stroke-width="0.8"/>
+              <circle cx="197" cy="100" r="7" fill="#f66e06" opacity="0.8"/>
+              <circle cx="287" cy="100" r="7" fill="#f66e06" opacity="0.8"/>
+              <circle cx="370" cy="100" r="7" fill="#f66e06" opacity="0.8"/>
+              <circle cx="449" cy="100" r="7" fill="#f66e06" opacity="0.8"/>
+              <text x="107" y="185" font-size="11" fill="#666" text-anchor="middle" font-family="monospace">1</text>
+              <text x="200" y="185" font-size="11" fill="#666" text-anchor="middle" font-family="monospace">3</text>
+              <text x="287" y="185" font-size="11" fill="#666" text-anchor="middle" font-family="monospace">5</text>
+              <text x="370" y="185" font-size="11" fill="#666" text-anchor="middle" font-family="monospace">7</text>
+              <text x="449" y="185" font-size="11" fill="#666" text-anchor="middle" font-family="monospace">9</text>
+              <text x="592" y="185" font-size="11" fill="#f66e06" text-anchor="middle" font-family="monospace">12</text>
+              <circle cx="592" cy="88" r="6" fill="#f66e06" opacity="0.8"/>
+              <circle cx="592" cy="112" r="6" fill="#f66e06" opacity="0.8"/>
+              <text x="30" y="100" font-size="10" fill="#555" text-anchor="middle" font-family="sans-serif">NUT</text>
+              <text x="350" y="25" font-size="11" fill="#888" text-anchor="middle" font-family="sans-serif">← FRETBOARD →</text>
+            </svg>
+          </div>
+
+          <h3>Key Parts — Body Area</h3>
+          <ul>
+            <li><strong>Sound Hole</strong> — Projects the guitar's sound on acoustic guitars.</li>
+            <li><strong>Bridge</strong> — Where strings are anchored to the body.</li>
+            <li><strong>Strap Buttons</strong> — Two metal pins where you attach your guitar strap.</li>
+          </ul>
+
+          <div class="tip-box">
+            <div class="tip-label">💡 Quick Memory Trick</div>
+            <p>Remember it from top to bottom: <strong>Head → Neck → Body</strong>. Like a person!</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(1)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(3)">Next: String Names →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 4 ══ -->
+      <div class="module" id="module-3">
+        <div class="module-eyebrow">Module 04</div>
+        <h2 class="module-title">The Guitar <span>String Names</span></h2>
+
+        <p class="lesson-intro">
+          Knowing the names of your six strings is one of the very first things you need to memorize as a guitarist. String names are used in chord diagrams, tuning, tabs, and when talking to other guitarists.
+        </p>
+
+        <div class="lesson-body">
+          <h3>Standard Tuning — EADGBE</h3>
+          <p>Going from the <em>thickest</em> string to the <em>thinnest</em>, the notes are:</p>
+
+          <div class="string-diagram">
+            <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px;display:block;margin:auto;">
+              <line x1="100" y1="30"  x2="620" y2="30"  stroke="#888" stroke-width="3.5"/>
+              <line x1="100" y1="65"  x2="620" y2="65"  stroke="#999" stroke-width="2.8"/>
+              <line x1="100" y1="100" x2="620" y2="100" stroke="#aaa" stroke-width="2.2"/>
+              <line x1="100" y1="135" x2="620" y2="135" stroke="#bbb" stroke-width="1.7"/>
+              <line x1="100" y1="167" x2="620" y2="167" stroke="#ccc" stroke-width="1.2"/>
+              <line x1="100" y1="197" x2="620" y2="197" stroke="#ddd" stroke-width="0.8"/>
+              <text x="20" y="35"  font-size="22" font-weight="900" fill="#f66e06" font-family="monospace">E</text>
+              <text x="20" y="70"  font-size="22" font-weight="900" fill="#f66e06" font-family="monospace">A</text>
+              <text x="20" y="105" font-size="22" font-weight="900" fill="#f66e06" font-family="monospace">D</text>
+              <text x="20" y="140" font-size="22" font-weight="900" fill="#f66e06" font-family="monospace">G</text>
+              <text x="20" y="172" font-size="22" font-weight="900" fill="#f66e06" font-family="monospace">B</text>
+              <text x="20" y="201" font-size="22" font-weight="900" fill="#f66e06" font-family="monospace">e</text>
+              <text x="630" y="35"  font-size="13" fill="#555" font-family="sans-serif">6th — Low E (Thickest)</text>
+              <text x="630" y="70"  font-size="13" fill="#555" font-family="sans-serif">5th — A string</text>
+              <text x="630" y="105" font-size="13" fill="#555" font-family="sans-serif">4th — D string</text>
+              <text x="630" y="140" font-size="13" fill="#555" font-family="sans-serif">3rd — G string</text>
+              <text x="630" y="172" font-size="13" fill="#555" font-family="sans-serif">2nd — B string</text>
+              <text x="630" y="201" font-size="13" fill="#555" font-family="sans-serif">1st — High e (Thinnest)</text>
+            </svg>
+          </div>
+
+          <div class="mnemonic-card">
+            <div class="mnemonic-letters">E A D G B E</div>
+            <div class="mnemonic-phrase"><strong>"Eddie Ate Dynamite, Good Bye Eddie"</strong></div>
+            <div class="mnemonic-phrase" style="margin-top:8px;font-size:12px;">The most popular way to remember the string order — from thickest to thinnest.</div>
+          </div>
+
+          <div class="tip-box">
+            <div class="tip-label">📝 Practice Exercise</div>
+            <p>Every time you pick up your guitar today, point to each string one by one and say its name out loud. Start at the thickest: "E... A... D... G... B... e." Do this before every session for a week and you'll have it memorized permanently.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(2)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(4)">Next: Tune Your Guitar →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 5 ══ -->
+      <div class="module" id="module-4">
+        <div class="module-eyebrow">Module 05</div>
+        <h2 class="module-title">How To Tune <span>Your Guitar</span></h2>
+
+        <p class="lesson-intro">
+          Always tune your guitar before you play. Always. An out-of-tune guitar sounds terrible no matter how well you play, and it also trains your ear to hear the wrong notes.
+        </p>
+
+        <div class="lesson-image">
+          <img src="https://m.media-amazon.com/images/I/61nDDHiKTML._AC_SL1000_.jpg" alt="Clip-on guitar tuner" style="max-height:280px;object-fit:contain;background:#f5f5f5;padding:20px;" />
+        </div>
+
+        <div class="lesson-body">
+          <h3>The Easiest Way: Clip-On Tuner</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Clip the tuner onto the headstock</div>
+                <div class="step-text">Clip it snugly with the screen facing you.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Turn it on and pluck one string</div>
+                <div class="step-text">Pluck the 6th string (Low E) cleanly. The tuner will display what note it's detecting.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Read the needle</div>
+                <div class="step-text">Needle LEFT = flat (tighten). Needle RIGHT = sharp (loosen). Center = in tune.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Repeat for all 6 strings</div>
+                <div class="step-text">Go E → A → D → G → B → e. After tuning all six, go back and check them again.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="tip-label">💡 Pro Tip: Tune Up, Not Down</div>
+            <p>Always approach the target note from below (from flat). If you overshoot, loosen past the note, then tighten up to it again. The string stays in tune longer this way.</p>
+          </div>
+
+          <div class="warning-box">
+            <div class="tip-label">⚠️ App vs. Clip-On</div>
+            <p>Tuner apps work well in a quiet room but can struggle with background noise. A clip-on tuner reads vibrations directly from the guitar wood and works anywhere.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(3)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(5)">Next: How To Strum →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 6 ══ -->
+      <div class="module" id="module-5">
+        <div class="module-eyebrow">Module 06</div>
+        <h2 class="module-title">How To Strum <span>The Guitar</span></h2>
+
+        <p class="lesson-intro">
+          Strumming is how you bring chords to life and give music its rhythm. Good strumming technique creates a smooth, consistent sound — bad technique makes everything sound choppy and uneven.
+        </p>
+
+        <div class="lesson-image">
+          <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=900&q=80" alt="Close up of guitar strumming hand" />
+        </div>
+
+        <div class="lesson-body">
+          <h3>Using a Pick (Plectrum)</h3>
+          <ul>
+            <li>Hold the pick between the tip of your index finger and thumb</li>
+            <li>The pick should stick out about 1cm from your fingers</li>
+            <li>Hold it firmly but not too tight — it needs to flex against the strings</li>
+            <li>Angle the pick slightly toward the headstock for smoother strumming</li>
+          </ul>
+
+          <h3>The Basic Down Strum</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Position your strumming arm</div>
+                <div class="step-text">Rest your forearm on the top edge of the guitar body. Your hand should hover just above the strings near the sound hole.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Strum in one smooth downward motion</div>
+                <div class="step-text">Move the pick downward, brushing across all strings from thickest to thinnest. The motion comes from your wrist and forearm together.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Keep the motion loose and relaxed</div>
+                <div class="step-text">Tension is the enemy of good tone. Relax your grip and let the pick glide across the strings.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mnemonic-card">
+            <div class="mnemonic-letters" style="letter-spacing:16px;font-size:32px;">↓ ↑ ↓ ↑</div>
+            <div class="mnemonic-phrase">Down → Up → Down → Up</div>
+            <div class="mnemonic-phrase" style="margin-top:8px;font-size:12px;">Count out loud: "1 and 2 and 3 and 4 and"</div>
+          </div>
+
+          <div class="string-diagram">
+            <svg viewBox="0 0 580 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;display:block;margin:auto;">
+              <text x="10" y="25" font-size="13" fill="#f66e06" font-family="sans-serif" font-weight="700">Pattern 1 (All Down Strums)</text>
+              <text x="80"  y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="180" y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="280" y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="380" y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="80"  y="90" font-size="12" fill="#555" font-family="sans-serif" text-anchor="middle">1</text>
+              <text x="185" y="90" font-size="12" fill="#555" font-family="sans-serif" text-anchor="middle">2</text>
+              <text x="290" y="90" font-size="12" fill="#555" font-family="sans-serif" text-anchor="middle">3</text>
+              <text x="395" y="90" font-size="12" fill="#555" font-family="sans-serif" text-anchor="middle">4</text>
+              <text x="510" y="72" font-size="12" fill="#444" font-family="sans-serif">4/4 time</text>
+            </svg>
+          </div>
+
+          <div class="tip-box">
+            <div class="tip-label">🎵 Practice Without Chords First</div>
+            <p>Before adding chord shapes, practice strumming patterns on an open guitar (no fretting). This lets you focus 100% on rhythm and pick technique.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(4)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(6)">Next: First Chords →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 7 ══ -->
+      <div class="module" id="module-6">
+        <div class="module-eyebrow">Module 07</div>
+        <h2 class="module-title">Your First <span>Guitar Chords</span></h2>
+
+        <p class="lesson-intro">
+          This is the moment you've been building toward! You'll learn your first two guitar chords: <strong>Em (E minor)</strong> and <strong>Am (A minor)</strong>. Both only require two to three fingers.
+        </p>
+
+        <div class="lesson-body">
+          <h3>How to Read a Chord Diagram</h3>
+          <ul>
+            <li><strong>Vertical lines</strong> = the 6 strings (left = Low E, right = High e)</li>
+            <li><strong>Horizontal lines</strong> = the frets</li>
+            <li><strong>Dots</strong> = where to place your fingers</li>
+            <li><strong>O above a string</strong> = play that string open</li>
+            <li><strong>X above a string</strong> = don't play that string (mute it)</li>
+          </ul>
+
+          <h3>Chord 1 — E Minor (Em)</h3>
+          <div class="chord-row">
+            <div class="chord-block">
+              <div class="chord-block-name">Em</div>
+              <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:120px;display:block;margin:auto;">
+                <line x1="10" y1="10" x2="90" y2="10" stroke="#555" stroke-width="3"/>
+                <line x1="10" y1="10" x2="10" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="26" y1="10" x2="26" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="42" y1="10" x2="42" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="58" y1="10" x2="58" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="74" y1="10" x2="74" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="90" y1="10" x2="90" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="10" y1="35" x2="90" y2="35" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="85" x2="90" y2="85" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="110" x2="90" y2="110" stroke="#555" stroke-width="1"/>
+                <text x="10" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <text x="26" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <circle cx="42" cy="22" r="9" fill="#f66e06"/>
+                <text x="42" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+                <circle cx="58" cy="22" r="9" fill="#f66e06"/>
+                <text x="58" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+                <text x="74" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <text x="90" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+              </svg>
+              <div class="chord-block-fingers">
+                <strong>Finger 2</strong> (middle) → 2nd fret, A string<br/>
+                <strong>Finger 3</strong> (ring) → 2nd fret, D string<br/>
+                Strum all 6 strings ✓
+              </div>
+            </div>
+          </div>
+
+          <h3>Chord 2 — A Minor (Am)</h3>
+          <div class="chord-row">
+            <div class="chord-block">
+              <div class="chord-block-name">Am</div>
+              <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:120px;display:block;margin:auto;">
+                <line x1="10" y1="10" x2="90" y2="10" stroke="#555" stroke-width="3"/>
+                <line x1="10" y1="10" x2="10" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="26" y1="10" x2="26" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="42" y1="10" x2="42" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="58" y1="10" x2="58" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="74" y1="10" x2="74" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="90" y1="10" x2="90" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="10" y1="35" x2="90" y2="35" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="85" x2="90" y2="85" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="110" x2="90" y2="110" stroke="#555" stroke-width="1"/>
+                <text x="10" y="6" font-size="8" fill="#e05050" text-anchor="middle">✕</text>
+                <text x="26" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <text x="90" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <circle cx="42" cy="22" r="9" fill="#f66e06"/>
+                <text x="42" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+                <circle cx="58" cy="22" r="9" fill="#f66e06"/>
+                <text x="58" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+                <circle cx="74" cy="22" r="9" fill="#f66e06"/>
+                <text x="74" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+              </svg>
+              <div class="chord-block-fingers">
+                <strong>Finger 1</strong> (index) → 1st fret, B string<br/>
+                <strong>Finger 2</strong> (middle) → 2nd fret, D string<br/>
+                <strong>Finger 3</strong> (ring) → 2nd fret, G string<br/>
+                Strum strings 5–1 only ✓
+              </div>
+            </div>
+          </div>
+
+          <div class="mnemonic-card">
+            <div class="mnemonic-letters" style="font-size:28px;letter-spacing:12px;">Em → Am → Em → Am</div>
+            <div class="mnemonic-phrase">Strum 4x each chord. Count: 1-2-3-4 | 1-2-3-4</div>
+          </div>
+
+          <div class="warning-box">
+            <div class="tip-label">⚠️ Common Beginner Mistakes</div>
+            <p><strong>Buzzing strings</strong> — Finger isn't pressing firmly enough or touching adjacent string. <strong>Muted strings</strong> — Finger laying flat and muting neighbors. Keep fingertips upright and press just behind the fret.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(5)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(7)">Next: More Chords →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 8 ══ -->
+      <div class="module" id="module-7">
+        <div class="module-eyebrow">Module 08</div>
+        <h2 class="module-title">Two More <span>Guitar Chords</span></h2>
+
+        <p class="lesson-intro">
+          You've got Em and Am down! Now adding <strong>D major</strong> and <strong>G major</strong>. With these four chords together, you can play hundreds of real songs.
+        </p>
+
+        <div class="lesson-body">
+          <h3>Chord 3 — D Major</h3>
+          <div class="chord-row">
+            <div class="chord-block">
+              <div class="chord-block-name">D</div>
+              <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:120px;display:block;margin:auto;">
+                <line x1="10" y1="10" x2="90" y2="10" stroke="#555" stroke-width="3"/>
+                <line x1="10" y1="10" x2="10" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="26" y1="10" x2="26" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="42" y1="10" x2="42" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="58" y1="10" x2="58" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="74" y1="10" x2="74" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="90" y1="10" x2="90" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="10" y1="35" x2="90" y2="35" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="85" x2="90" y2="85" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="110" x2="90" y2="110" stroke="#555" stroke-width="1"/>
+                <text x="10" y="6" font-size="8" fill="#e05050" text-anchor="middle">✕</text>
+                <text x="26" y="6" font-size="8" fill="#e05050" text-anchor="middle">✕</text>
+                <text x="42" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <circle cx="58" cy="22" r="9" fill="#f66e06"/>
+                <text x="58" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+                <circle cx="74" cy="47" r="9" fill="#f66e06"/>
+                <text x="74" y="51" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+                <circle cx="90" cy="22" r="9" fill="#f66e06"/>
+                <text x="90" y="26" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+              </svg>
+              <div class="chord-block-fingers">
+                <strong>Finger 1</strong> (index) → 2nd fret, G string<br/>
+                <strong>Finger 2</strong> (middle) → 2nd fret, High e string<br/>
+                <strong>Finger 3</strong> (ring) → 3rd fret, B string<br/>
+                Strum strings 4–1 only ✓
+              </div>
+            </div>
+          </div>
+
+          <h3>Chord 4 — G Major</h3>
+          <div class="chord-row">
+            <div class="chord-block">
+              <div class="chord-block-name">G</div>
+              <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:120px;display:block;margin:auto;">
+                <line x1="10" y1="10" x2="90" y2="10" stroke="#555" stroke-width="3"/>
+                <line x1="10" y1="10" x2="10" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="26" y1="10" x2="26" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="42" y1="10" x2="42" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="58" y1="10" x2="58" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="74" y1="10" x2="74" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="90" y1="10" x2="90" y2="110" stroke="#888" stroke-width="1.5"/>
+                <line x1="10" y1="35" x2="90" y2="35" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="85" x2="90" y2="85" stroke="#555" stroke-width="1"/>
+                <line x1="10" y1="110" x2="90" y2="110" stroke="#555" stroke-width="1"/>
+                <text x="26" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <text x="42" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <text x="58" y="6" font-size="7" fill="#aaa" text-anchor="middle">O</text>
+                <circle cx="10" cy="60" r="9" fill="#f66e06"/>
+                <text x="10" y="64" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+                <circle cx="26" cy="47" r="9" fill="#f66e06"/>
+                <text x="26" y="51" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+                <circle cx="90" cy="60" r="9" fill="#f66e06"/>
+                <text x="90" y="64" font-size="9" fill="#fff" text-anchor="middle" font-weight="700">4</text>
+              </svg>
+              <div class="chord-block-fingers">
+                <strong>Finger 1</strong> (index) → 2nd fret, A string<br/>
+                <strong>Finger 2</strong> (middle) → 3rd fret, Low E string<br/>
+                <strong>Finger 4</strong> (pinky) → 3rd fret, High e string<br/>
+                Strum all 6 strings ✓
+              </div>
+            </div>
+          </div>
+
+          <div class="mnemonic-card">
+            <div class="mnemonic-letters" style="font-size:26px;letter-spacing:10px;">G → D → Em → C</div>
+            <div class="mnemonic-phrase">One of the most popular chord progressions in all of pop music</div>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(6)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(8)">Next: Your First Song →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 9 ══ -->
+      <div class="module" id="module-8">
+        <div class="module-eyebrow">Module 09</div>
+        <h2 class="module-title">Playing Your <span>First Song</span></h2>
+
+        <p class="lesson-intro">
+          This is what it all leads to — playing an actual song! Using just the four chords you've learned (Em, Am, G, D), you can already play real music.
+        </p>
+
+        <div class="lesson-body">
+          <h3>Choosing Your First Song</h3>
+          <ul>
+            <li><strong>"Wonderwall" — Oasis</strong> — one of the most famous beginner songs ever</li>
+            <li><strong>"Knocking on Heaven's Door" — Bob Dylan</strong> — just 3 chords, very slow and easy</li>
+            <li><strong>"Leaving on a Jet Plane" — John Denver</strong> — slow and singable</li>
+            <li><strong>Any OPM ballad you love</strong> — search "[song name] guitar chords" on Google</li>
+          </ul>
+
+          <div class="lesson-image">
+            <img src="https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=900&q=80" alt="Guitarist playing at home" />
+          </div>
+
+          <h3>Step-by-Step: How to Learn a Song</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Find the chord chart</div>
+                <div class="step-text">Search "[song name] chords" on Google. Look for a "beginner" or "simplified" version that uses only basic open chords.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Learn each chord shape first</div>
+                <div class="step-text">Make sure you can cleanly play each individual chord. For unfamiliar chords, check the Chord Library page.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Practice the chord changes</div>
+                <div class="step-text">Practice only those specific transitions over and over until they feel automatic.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-title">Add a simple strum pattern</div>
+                <div class="step-text">Start with just one down strum per chord. Once that's smooth, add a basic down-down-up strum.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-title">Play along with the recording</div>
+                <div class="step-text">Put on the song and play along. Even if you miss some chord changes, keep strumming. Your timing will improve dramatically.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="tip-label">🎵 The 80% Rule</div>
+            <p>Don't wait until a song is perfect before moving to the next one. When you can play through it at about 80% accuracy without stopping, move on. Return to it later and you'll find it suddenly feels easy.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(7)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(9)">Next: Strumming Tips →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 10 ══ -->
+      <div class="module" id="module-9">
+        <div class="module-eyebrow">Module 10</div>
+        <h2 class="module-title">Musical <span>Strumming Tips</span></h2>
+
+        <p class="lesson-intro">
+          You've learned basic strumming — now let's make it sound musical. Great strumming isn't just about hitting the right pattern; it's about feel, dynamics, and rhythm.
+        </p>
+
+        <div class="lesson-body">
+          <h3>Tip 1: Dynamics — Play Soft and Loud</h3>
+          <ul>
+            <li>Strum lightly and close to the sound hole for a soft, warm tone</li>
+            <li>Strum harder and toward the bridge for a brighter, louder tone</li>
+            <li>In verses, play softer. In choruses, play louder and more energetically</li>
+          </ul>
+
+          <h3>Tip 2: Muting for Rhythm Effects</h3>
+          <div class="tip-box">
+            <div class="tip-label">✋ How to Palm Mute</div>
+            <p>Gently lay the edge of your palm on the strings right where they meet the bridge saddle. Strum while maintaining that light contact. Experiment with how much pressure for the right sound.</p>
+          </div>
+
+          <h3>Tip 3: Rhythm — Feel the Beat</h3>
+          <ul>
+            <li><strong>Count out loud</strong> — Say "1, 2, 3, 4" while you strum.</li>
+            <li><strong>Use a metronome</strong> — Set it to 60 BPM and strum one chord per beat.</li>
+            <li><strong>Tap your foot</strong> — Your foot becomes an internal metronome.</li>
+          </ul>
+
+          <div class="string-diagram">
+            <svg viewBox="0 0 580 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;display:block;margin:auto;">
+              <text x="10" y="22" font-size="12" fill="#f66e06" font-family="sans-serif" font-weight="700">Common Strumming Pattern (DDUUDU)</text>
+              <text x="55"  y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="120" y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="185" y="60" font-size="26" fill="#f66e06" font-family="monospace">↑</text>
+              <text x="250" y="60" font-size="26" fill="#f66e06" font-family="monospace">↑</text>
+              <text x="315" y="60" font-size="28" fill="#f0ede0" font-family="monospace">↓</text>
+              <text x="380" y="60" font-size="26" fill="#f66e06" font-family="monospace">↑</text>
+              <text x="62"  y="90" font-size="11" fill="#555" font-family="sans-serif" text-anchor="middle">1</text>
+              <text x="127" y="90" font-size="11" fill="#555" font-family="sans-serif" text-anchor="middle">2</text>
+              <text x="192" y="90" font-size="11" fill="#555" font-family="sans-serif" text-anchor="middle">&amp;</text>
+              <text x="257" y="90" font-size="11" fill="#555" font-family="sans-serif" text-anchor="middle">3</text>
+              <text x="322" y="90" font-size="11" fill="#555" font-family="sans-serif" text-anchor="middle">&amp;</text>
+              <text x="387" y="90" font-size="11" fill="#555" font-family="sans-serif" text-anchor="middle">4</text>
+              <text x="500" y="72" font-size="11" fill="#555" font-family="sans-serif">DDUUDU</text>
+            </svg>
+          </div>
+
+          <h3>Tip 4: Don't Stop the Strumming Arm</h3>
+          <p>
+            Your strumming arm should keep moving <strong>even on beats where you're not hitting the strings</strong>. Think of it like a pendulum. Ghost strums keep your timing locked even during chord changes.
+          </p>
+
+          <div class="tip-box">
+            <div class="tip-label">🎵 Practice Routine for Strumming</div>
+            <p>Day 1–2: Simple all-down strums. Day 3–4: Add up strums on the "and" of beats. Day 5–7: Try the full DDUUDU pattern slowly. Only speed up when it feels natural.</p>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(8)">← Previous</button>
+          <button class="module-nav-btn primary" onclick="showModule(10)">Next: Where To Go From Here →</button>
+        </div>
+      </div>
+
+      <!-- ══ MODULE 11 ══ -->
+      <div class="module" id="module-10">
+        <div class="module-eyebrow">Module 11</div>
+        <h2 class="module-title">Where To Go <span>From Here</span></h2>
+
+        <p class="lesson-intro">
+          Congratulations! You've completed the Guitarify Beginner Series. You've learned how to hold the guitar, tune it, read chord diagrams, play four core chords, strum with rhythm, and even play your first song.
+        </p>
+
+        <div class="lesson-image">
+          <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=900&q=80" alt="Guitar player looking at the future" />
+        </div>
+
+        <div class="lesson-body">
+          <h3>What You've Accomplished</h3>
+          <ul>
+            <li>✅ How to hold the guitar properly and avoid injury</li>
+            <li>✅ All the parts of the guitar and what they do</li>
+            <li>✅ The six string names (EADGBE)</li>
+            <li>✅ How to tune your guitar</li>
+            <li>✅ How to strum with down and up strokes</li>
+            <li>✅ Four core chords: Em, Am, G, D</li>
+            <li>✅ How to learn songs from chord charts</li>
+            <li>✅ Basic strumming patterns and dynamics</li>
+          </ul>
+
+          <h3>Your Next Goals</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">A</div>
+              <div class="step-body">
+                <div class="step-title">Learn C Major</div>
+                <div class="step-text">C is the fifth essential beginner chord. Combined with G, D, and Em, it unlocks countless more songs. Look it up in the Chord Library.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">B</div>
+              <div class="step-body">
+                <div class="step-title">Play 5 full songs</div>
+                <div class="step-text">Set a goal: play 5 complete songs from start to finish without stopping. Each one will teach you something different.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">C</div>
+              <div class="step-body">
+                <div class="step-title">Learn barre chords & fingerpicking</div>
+                <div class="step-text">Barre chords unlock every key on the neck. Fingerpicking opens up a whole new expressive style.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <div class="tip-label">🔥 The Plateau Is Normal</div>
+            <p>At some point, progress will feel like it's slowing down. <strong>Don't stop.</strong> Keep showing up for your daily sessions. The breakthrough always comes.</p>
+          </div>
+
+          <div class="mnemonic-card">
+            <div class="mnemonic-letters" style="font-size:22px;letter-spacing:6px;">PLAY EVERY DAY</div>
+            <div class="mnemonic-phrase">Even just 10 minutes. Even when it's frustrating. Especially when it's frustrating.</div>
+            <div class="mnemonic-phrase" style="margin-top:8px;font-size:12px;">Consistency beats intensity every single time.</div>
+          </div>
+        </div>
+
+        <div class="module-nav">
+          <button class="module-nav-btn" onclick="showModule(9)">← Previous</button>
+          <a href="Chord_Library.html" class="module-nav-btn primary">Explore Chord Library →</a>
+        </div>
+      </div>
+
+    </main>
   </div>
 
   <!-- FOOTER -->
   <div class="footer">
-    <div class="footer-logo">GUITARIFY</div>
+    <div class="footer-logo">Guitarify</div>
     <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
   </div>
 
+  <!-- AUTH MODAL -->
+  <div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+    <div class="auth-modal">
+      <button class="auth-close" onclick="closeAuth()">✕</button>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+        <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+      </div>
+      <div class="auth-body" id="loginForm">
+        <div class="auth-greeting">Welcome Back</div>
+        <div class="auth-sub">Log in to continue your guitar journey.</div>
+        <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-submit" onclick="doLogin()">Log In</button>
+        <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+      </div>
+      <div class="auth-body" id="signupForm" style="display:none;">
+        <div class="auth-greeting">Join Guitarify</div>
+        <div class="auth-sub">Create a free account and start learning.</div>
+        <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+        <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+        <div class="auth-error" id="signupError"></div>
+        <button class="auth-submit" onclick="doSignup()">Create Account</button>
+        <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- AUTH MODAL -->
-<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
-  <div class="auth-modal">
-    <button class="auth-close" onclick="closeAuth()">✕</button>
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
-      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── AUTH STUBS (replace with your auth.js logic) ──
+  function handleUserIconClick() {
+    const dd = document.getElementById('userDropdown');
+    dd.classList.toggle('open');
+  }
+
+  function handleAuthBgClick(e) {
+    if (e.target === document.getElementById('authBg')) closeAuth();
+  }
+
+  function closeAuth() {
+    document.getElementById('authBg').classList.remove('open');
+  }
+
+  function switchAuthTab(tab) {
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+  }
+
+  async function checkSession() {
+    try {
+        const res = await fetch('auth.php?action=check');
+        const data = await res.json();
+        if (data.loggedIn && data.user) {
+            currentUser = data.user;
+            updateNavUser();
+        }
+    } catch(e) {}
+}
+
+async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+    try {
+        const res = await fetch('auth.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    const err = document.getElementById('signupError');
+    if (!name || !email || !password || !confirm) { err.textContent = 'Please fill in all fields.'; return; }
+    if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    try {
+        const res = await fetch('auth.php?action=signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function logout() {
+    try { await fetch('auth.php?action=logout'); } catch(e) {}
+    currentUser = null;
+    updateNavUser();
+    document.getElementById('userDropdown').classList.remove('open');
+    showToast('Logged out.');
+}
+  // ── MODULE NAVIGATION ──
+  const TOTAL_MODULES = 11;
+  let currentModule = 0;
+
+  function showModule(index) {
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+
+    document.getElementById('module-' + index).classList.add('active');
+    document.querySelectorAll('.sidebar-item')[index].classList.add('active');
+
+    currentModule = index;
+
+    const progress = ((index + 1) / TOTAL_MODULES) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return false;
+  }
+
+  document.querySelectorAll('.sidebar-item').forEach((item, i) => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      showModule(i);
+    });
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const dd = document.getElementById('userDropdown');
+    const btn = document.getElementById('navUserBtn');
+    if (!dd.contains(e.target) && !btn.contains(e.target)) {
+      dd.classList.remove('open');
+    }
+  });
+
+  // ── LESSON MODAL DATA & LOGIC ──
+  const LESSONS = [
+    {
+      id: 1, icon: '🎸', number: 'Module 01',
+      title: 'Getting Started with Guitar',
+      level: 'beginner', duration: '10 min',
+      content: `
+        <h3>What You Need</h3>
+        <ul>
+          <li>An acoustic or electric guitar</li>
+          <li>A guitar pick (optional for beginners)</li>
+          <li>A quiet space to practice</li>
+          <li>Patience and consistency</li>
+        </ul>
+        <h3>Parts of the Guitar</h3>
+        <ul>
+          <li><strong style="color:#f0ede0">Headstock</strong> — holds the tuning pegs</li>
+          <li><strong style="color:#f0ede0">Neck</strong> — where you press the frets</li>
+          <li><strong style="color:#f0ede0">Body</strong> — the main resonating part</li>
+          <li><strong style="color:#f0ede0">Strings</strong> — 6 strings, E A D G B E (low to high)</li>
+          <li><strong style="color:#f0ede0">Frets</strong> — metal strips that divide the neck</li>
+          <li><strong style="color:#f0ede0">Soundhole</strong> — projects the sound (acoustic)</li>
+        </ul>
+        <div class="tip"><strong>Tip:</strong> Before playing, always make sure your guitar is in tune. Use a free tuner app on your phone.</div>
+        <h3>How to Hold the Guitar</h3>
+        <p>Sit up straight and rest the guitar on your dominant thigh. Keep your fretting hand relaxed with curved fingers. Your thumb should rest behind the neck, not over it.</p>
+      `
+    },
+    {
+      id: 2, icon: '🎵', number: 'Module 02',
+      title: 'Reading Guitar Tabs',
+      level: 'beginner', duration: '8 min',
+      content: `
+        <h3>What is a Tab?</h3>
+        <p>Guitar tabs (tablature) are a simple way to read music without knowing how to read sheet music. Each line represents a string, and numbers tell you which fret to press.</p>
+        <h3>Tab Layout</h3>
+        <ul>
+          <li>e — 1st string (thinnest, highest)</li>
+          <li>B — 2nd string</li>
+          <li>G — 3rd string</li>
+          <li>D — 4th string</li>
+          <li>A — 5th string</li>
+          <li>E — 6th string (thickest, lowest)</li>
+        </ul>
+        <div class="tip"><strong>Example:</strong> If you see "2" on the A string, press the 2nd fret of the A string and pluck it.</div>
+        <h3>Common Symbols</h3>
+        <ul>
+          <li>0 — Open string (no fret pressed)</li>
+          <li>h — Hammer-on</li>
+          <li>p — Pull-off</li>
+          <li>/ — Slide up</li>
+          <li>b — Bend the string</li>
+        </ul>
+      `
+    },
+    {
+      id: 3, icon: '🤚', number: 'Module 03',
+      title: 'Your First Chords: C and G',
+      level: 'beginner', duration: '15 min',
+      content: `
+        <h3>The C Major Chord</h3>
+        <p>Place your fingers like this:</p>
+        <ul>
+          <li>Ring finger — 3rd fret, A string</li>
+          <li>Middle finger — 2nd fret, D string</li>
+          <li>Index finger — 1st fret, B string</li>
+        </ul>
+        <div class="chord-diagram-row">
+          <div class="chord-mini"><div class="chord-mini-name">C</div><div class="chord-mini-fingers">x32010</div></div>
+          <div class="chord-mini"><div class="chord-mini-name">G</div><div class="chord-mini-fingers">320003</div></div>
+        </div>
+        <h3>The G Major Chord</h3>
+        <ul>
+          <li>Middle finger — 3rd fret, low E string</li>
+          <li>Index finger — 2nd fret, A string</li>
+          <li>Ring finger — 3rd fret, high E string</li>
+        </ul>
+        <div class="tip"><strong>Practice tip:</strong> Switch between C and G slowly. Focus on clean notes before speeding up.</div>
+      `
+    },
+    {
+      id: 4, icon: '🎼', number: 'Module 04',
+      title: 'More Chords: D, Em, Am',
+      level: 'beginner', duration: '15 min',
+      content: `
+        <h3>D Major</h3>
+        <ul>
+          <li>Index finger — 2nd fret, G string</li>
+          <li>Middle finger — 2nd fret, high E string</li>
+          <li>Ring finger — 3rd fret, B string</li>
+        </ul>
+        <div class="chord-diagram-row">
+          <div class="chord-mini"><div class="chord-mini-name">D</div><div class="chord-mini-fingers">xx0232</div></div>
+          <div class="chord-mini"><div class="chord-mini-name">Em</div><div class="chord-mini-fingers">022000</div></div>
+          <div class="chord-mini"><div class="chord-mini-name">Am</div><div class="chord-mini-fingers">x02210</div></div>
+        </div>
+        <h3>E Minor</h3>
+        <ul>
+          <li>Middle finger — 2nd fret, A string</li>
+          <li>Ring finger — 2nd fret, D string</li>
+        </ul>
+        <h3>A Minor</h3>
+        <ul>
+          <li>Index finger — 1st fret, B string</li>
+          <li>Middle finger — 2nd fret, D string</li>
+          <li>Ring finger — 2nd fret, G string</li>
+        </ul>
+        <div class="tip"><strong>Goal:</strong> Practice all 5 chords (C, G, D, Em, Am) in a circle. These cover hundreds of songs!</div>
+      `
+    },
+    {
+      id: 5, icon: '🥁', number: 'Module 05',
+      title: 'Basic Strumming Patterns',
+      level: 'beginner', duration: '12 min',
+      content: `
+        <h3>Down Strumming</h3>
+        <p>Start with simple down strums. Keep your wrist loose and strum from your elbow, not your shoulder.</p>
+        <ul>
+          <li>Pattern 1: D D D D (4/4 time, one strum per beat)</li>
+          <li>Pattern 2: D _ D _ (strum on beats 1 and 3)</li>
+        </ul>
+        <h3>Down-Up Strumming</h3>
+        <ul>
+          <li>Pattern 3: D DU DU (common beginner pattern)</li>
+          <li>Pattern 4: DDUUDU (the classic pop pattern)</li>
+        </ul>
+        <div class="tip"><strong>Tip:</strong> D = down strum, U = up strum, _ = skip. Practice slowly with a metronome first.</div>
+        <h3>Practice Exercise</h3>
+        <p>Hold a G chord and strum Pattern 4 (DDUUDU) for 1 minute without stopping. Then switch to C chord and repeat.</p>
+      `
+    },
+    {
+      id: 6, icon: '🎶', number: 'Module 06',
+      title: 'Chord Transitions',
+      level: 'intermediate', duration: '20 min',
+      content: `
+        <h3>Why Transitions Matter</h3>
+        <p>Smooth chord transitions are what separate beginners from intermediate players. The goal is to change chords without pausing or losing the rhythm.</p>
+        <h3>Tips for Faster Transitions</h3>
+        <ul>
+          <li>Look ahead — think about the next chord before you need it</li>
+          <li>Find common fingers — keep fingers that don't move in place</li>
+          <li>Practice just the transition, not the whole song</li>
+          <li>Use a metronome and start slow</li>
+        </ul>
+        <div class="tip"><strong>Exercise:</strong> Set a timer for 1 minute. Count how many times you can switch from G to C cleanly. Try to beat your record daily.</div>
+        <h3>Common Transitions to Practice</h3>
+        <ul>
+          <li>G → C → D → Em (pop progression)</li>
+          <li>Am → F → C → G (emotional ballad)</li>
+          <li>E → A → D (blues rock)</li>
+        </ul>
+      `
+    },
+    {
+      id: 7, icon: '🎤', number: 'Module 07',
+      title: 'Playing Your First Song',
+      level: 'intermediate', duration: '25 min',
+      content: `
+        <h3>Choosing Your First Song</h3>
+        <p>Pick a song that uses chords you already know. Great beginner songs include:</p>
+        <ul>
+          <li>Knockin' on Heaven's Door — G, D, Am, C</li>
+          <li>Leaving on a Jet Plane — G, C, D</li>
+          <li>Horse With No Name — Em, D6/9</li>
+          <li>Love Me Do — G, C, D</li>
+        </ul>
+        <h3>Breaking It Down</h3>
+        <ul>
+          <li>Step 1 — Learn the chord sequence without strumming</li>
+          <li>Step 2 — Add strumming slowly</li>
+          <li>Step 3 — Play along with the original song at half speed</li>
+          <li>Step 4 — Try at full speed</li>
+        </ul>
+        <div class="tip"><strong>Tip:</strong> Use YouTube's playback speed feature to slow down songs while learning.</div>
+      `
+    },
+    {
+      id: 8, icon: '🔥', number: 'Module 08',
+      title: 'Barre Chords',
+      level: 'advanced', duration: '30 min',
+      content: `
+        <h3>What is a Barre Chord?</h3>
+        <p>A barre chord uses your index finger to press all 6 strings across one fret, acting like a moveable nut. This unlocks every key on the guitar.</p>
+        <h3>F Major (the hardest beginner chord)</h3>
+        <ul>
+          <li>Index — barre all strings at fret 1</li>
+          <li>Ring — 3rd fret, A string</li>
+          <li>Pinky — 3rd fret, D string</li>
+          <li>Middle — 2nd fret, G string</li>
+        </ul>
+        <div class="tip"><strong>Warning:</strong> Barre chords require finger strength. Your fingers will hurt at first — that's normal. Build up gradually with short practice sessions.</div>
+        <h3>Building Finger Strength</h3>
+        <ul>
+          <li>Practice the barre press alone first (no other fingers)</li>
+          <li>Check each string rings clearly one by one</li>
+          <li>5-10 minutes a day is enough — rest is important</li>
+        </ul>
+      `
+    },
+    {
+      id: 9, icon: '🎯', number: 'Module 09',
+      title: 'Fingerpicking Basics',
+      level: 'advanced', duration: '25 min',
+      content: `
+        <h3>Introduction to Fingerpicking</h3>
+        <p>Instead of using a pick, you use your thumb and fingers to pluck individual strings. This creates a softer, more melodic sound.</p>
+        <h3>Finger Assignment</h3>
+        <ul>
+          <li>Thumb (p) — plays E, A, D strings (bass strings)</li>
+          <li>Index (i) — plays G string</li>
+          <li>Middle (m) — plays B string</li>
+          <li>Ring (a) — plays high E string</li>
+        </ul>
+        <h3>Basic Pattern: p-i-m-a</h3>
+        <p>Hold a C chord. Pluck: thumb (E string), index (G), middle (B), ring (high E). Repeat slowly.</p>
+        <div class="tip"><strong>Tip:</strong> Keep your wrist slightly arched and fingers curved. Avoid resting your palm on the body while fingerpicking.</div>
+      `
+    }
+  ];
+
+  let currentLessonIndex = 0;
+  let completedLessons = JSON.parse(localStorage.getItem('completedLessons') || '[]');
+  let currentFilter = 'all';
+
+  function renderModules(filter) {
+    const grid = document.getElementById('modulesGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const filtered = filter === 'all' ? LESSONS : LESSONS.filter(l => l.level === filter);
+    filtered.forEach((lesson) => {
+      const done = completedLessons.includes(lesson.id);
+      const card = document.createElement('div');
+      card.className = 'module-card' + (done ? ' done' : '');
+      card.onclick = () => openLessonModal(lesson);
+      card.innerHTML = `
+        <div class="module-card-top">
+          <div class="module-icon">${lesson.icon}</div>
+          <div class="module-meta">
+            <div class="module-number">${lesson.number}</div>
+            <div class="module-title">${lesson.title}</div>
+          </div>
+        </div>
+        <div class="module-card-bottom">
+          <span class="module-level ${lesson.level}">${lesson.level}</span>
+          <span class="module-duration">⏱ ${lesson.duration}</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+    updateProgress();
+  }
+
+  function filterModules(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderModules(filter);
+  }
+
+  function updateProgress() {
+    const total = LESSONS.length;
+    const done = completedLessons.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const fill = document.getElementById('progressFill');
+    const count = document.getElementById('progressCount');
+    if (fill) fill.style.width = pct + '%';
+    if (count) count.textContent = `${done} / ${total} completed`;
+  }
+
+  function openLessonModal(lesson) {
+    currentLessonIndex = LESSONS.findIndex(l => l.id === lesson.id);
+    const done = completedLessons.includes(lesson.id);
+    document.getElementById('modalTag').textContent = lesson.number + ' · ' + lesson.level.toUpperCase();
+    document.getElementById('modalTitle').textContent = lesson.title;
+    document.getElementById('modalBody').innerHTML = lesson.content;
+    const btnDone = document.getElementById('btnDone');
+    btnDone.textContent = done ? '✓ Completed' : '✓ Mark as Done';
+    btnDone.className = 'lesson-btn-done' + (done ? ' done' : '');
+    document.getElementById('lessonModalBg').classList.add('open');
+  }
+
+  function closeLessonModal() {
+    document.getElementById('lessonModalBg').classList.remove('open');
+  }
+
+  function handleLessonBgClick(e) {
+    if (e.target === document.getElementById('lessonModalBg')) closeLessonModal();
+  }
+
+  function markDone() {
+    const lesson = LESSONS[currentLessonIndex];
+    if (!completedLessons.includes(lesson.id)) {
+      completedLessons.push(lesson.id);
+      localStorage.setItem('completedLessons', JSON.stringify(completedLessons));
+      showToast('✓ Lesson marked as done!');
+    }
+    document.getElementById('btnDone').textContent = '✓ Completed';
+    document.getElementById('btnDone').className = 'lesson-btn-done done';
+    renderModules(currentFilter);
+  }
+
+  function nextLesson() {
+    if (currentLessonIndex < LESSONS.length - 1) {
+      openLessonModal(LESSONS[currentLessonIndex + 1]);
+    } else {
+      showToast('🎉 You finished all lessons!');
+      closeLessonModal();
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // Init on load
+  renderModules('all');
+  checkSession(); //  DAGDAG MO ITO
+</script>
+
+<!-- LESSON MODAL (from JS file) -->
+<div class="lesson-modal-bg" id="lessonModalBg" onclick="handleLessonBgClick(event)">
+  <div class="lesson-modal">
+    <div class="lesson-modal-header">
+      <div class="lesson-modal-header-left">
+        <div class="lesson-modal-tag" id="modalTag"></div>
+        <div class="lesson-modal-title" id="modalTitle"></div>
+      </div>
+      <button class="lesson-modal-close" onclick="closeLessonModal()">✕</button>
     </div>
-    <div class="auth-body" id="loginForm">
-      <div class="auth-greeting">Welcome Back</div>
-      <div class="auth-sub">Log in to continue your guitar journey.</div>
-      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
-      <div class="auth-error" id="loginError"></div>
-      <button class="auth-submit" onclick="doLogin()">Log In</button>
-      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    <div class="lesson-modal-layout">
+      <div class="lesson-modal-toc">
+        <div class="toc-label">Contents</div>
+      </div>
+      <div class="lesson-modal-body" id="modalBody"></div>
     </div>
-    <div class="auth-body" id="signupForm" style="display:none;">
-      <div class="auth-greeting">Join Guitarify</div>
-      <div class="auth-sub">Create a free account and start learning.</div>
-      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
-      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
-      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
-      <div class="auth-error" id="signupError"></div>
-      <button class="auth-submit" onclick="doSignup()">Create Account</button>
-      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    <div class="lesson-modal-footer">
+      <div class="lesson-footer-left">
+        <button class="lesson-btn-prev" onclick="closeLessonModal()">← Back</button>
+        <button class="lesson-btn-done" id="btnDone" onclick="markDone()">✓ Mark as Done</button>
+      </div>
+      <button class="lesson-btn-next" onclick="nextLesson()">Next Lesson →</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-<script src="auth.js"></script>
-<script src="lessons.js"></script>
 </body>
 </html>

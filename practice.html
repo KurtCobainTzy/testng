@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Practice – Guitarify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #f66e06;
+      --orange-dim: rgba(246,110,6,0.12);
+      --orange-border: rgba(246,110,6,0.25);
+      --bg: #0e0e0e;
+      --bg-card: #1a1a1a;
+      --bg-elevated: #222;
+      --border: #2a2a2a;
+      --border-mid: #333;
+      --text-primary: #f0ede0;
+      --text-secondary: #aaa;
+      --text-muted: #555;
+      --green: #4caf50;
+      --green-dim: rgba(76,175,80,0.1);
+      --red: #e05050;
+      --red-dim: rgba(224,80,80,0.08);
+      --blue: #4a9eff;
+      --blue-dim: rgba(74,158,255,0.1);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.1);
+      --yellow: #fbbf24;
+      --yellow-dim: rgba(251,191,36,0.1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .practice-hero {
+      position: relative;
+      padding: 52px 40px 0;
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      overflow: hidden;
+    }
+    .practice-hero-bg {
+      position: absolute; top: -30px; right: -10px;
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(80px, 14vw, 180px);
+      font-weight: 700; letter-spacing: -8px;
+      color: rgba(246,110,6,0.04);
+      user-select: none; pointer-events: none;
+      white-space: nowrap;
+    }
+    .hero-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      color: var(--orange); text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--orange); }
+    .hero-title { font-size: clamp(32px, 5vw, 54px); font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 10px; color: var(--text-primary); text-transform: uppercase; }
+    .hero-title .accent { color: var(--orange); }
+    .hero-sub { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: 0; }
+
+    /* ── STATS ROW ── */
+    .stats-strip {
+      display: flex; gap: 0;
+      border-top: 0.5px solid var(--border);
+      margin-top: 28px;
+    }
+    .stat-item {
+      flex: 1; padding: 18px 24px;
+      border-right: 0.5px solid var(--border);
+      position: relative;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 4px; }
+    .stat-val span { color: var(--orange); }
+    .stat-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+
+    /* ── MAIN LAYOUT ── */
+    .practice-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 200px);
+    }
+
+    /* ── SIDEBAR ── */
+    .practice-sidebar {
+      border-right: 0.5px solid var(--border);
+      padding: 28px 0;
+      position: sticky; top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 8px; }
+    .sidebar-section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 3px;
+      color: var(--text-muted); text-transform: uppercase;
+      padding: 0 24px 8px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 24px; cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .sidebar-item:hover { background: rgba(255,255,255,0.02); }
+    .sidebar-item.active { background: var(--orange-dim); border-left-color: var(--orange); }
+    .sidebar-icon {
+      width: 30px; height: 30px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; background: var(--bg-card);
+      border: 0.5px solid var(--border); flex-shrink: 0;
+    }
+    .sidebar-item.active .sidebar-icon { background: var(--orange-dim); border-color: var(--orange-border); }
+    .sidebar-text { flex: 1; }
+    .sidebar-name { font-size: 12px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.3px; }
+    .sidebar-item.active .sidebar-name { color: var(--orange); }
+    .sidebar-desc { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+    .sidebar-badge {
+      font-size: 9px; font-weight: 700; padding: 2px 7px;
+      border-radius: 10px; letter-spacing: 0.5px;
+      background: var(--orange-dim); color: var(--orange);
+      border: 0.5px solid var(--orange-border);
+    }
+    .sidebar-divider { height: 0.5px; background: var(--border); margin: 12px 24px; }
+
+    /* ── CONTENT AREA ── */
+    .practice-content { padding: 36px 40px 60px; min-width: 0; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── PANEL HEADER ── */
+    .panel-header { margin-bottom: 28px; }
+    .panel-eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 6px; }
+    .panel-title { font-size: 26px; font-weight: 900; letter-spacing: -1px; color: var(--text-primary); text-transform: uppercase; }
+    .panel-title span { color: var(--orange); }
+    .panel-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.6; }
+
+    /* ── CARDS & GRIDS ── */
+    .card {
+      background: var(--bg-card); border: 0.5px solid var(--border);
+      border-radius: 10px; padding: 22px;
+    }
+    .card-sm { padding: 16px 18px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+    /* ── PROGRESS OVERVIEW (Dashboard) ── */
+    .progress-ring-wrap {
+      display: flex; align-items: center; gap: 28px; margin-bottom: 24px;
+    }
+    .ring-svg { flex-shrink: 0; }
+    .ring-info {}
+    .ring-pct { font-family: 'Space Mono', monospace; font-size: 40px; font-weight: 700; color: var(--orange); line-height: 1; }
+    .ring-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+    .ring-sub { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; max-width: 200px; }
+
+    .xp-bar-row { margin-bottom: 18px; }
+    .xp-bar-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .xp-bar-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+    .xp-bar-val { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--orange); }
+    .xp-track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .xp-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #ff9a3c); border-radius: 99px; transition: width 0.6s ease; }
+
+    /* ── ACHIEVEMENTS ── */
+    .achievement-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .achievement {
+      background: var(--bg-card); border: 0.5px solid var(--border);
+      border-radius: 8px; padding: 14px 12px; text-align: center;
+      transition: border-color 0.15s;
+    }
+    .achievement.unlocked { border-color: rgba(246,110,6,0.3); background: var(--orange-dim); }
+    .achievement-icon { font-size: 24px; margin-bottom: 6px; filter: grayscale(1) opacity(0.3); }
+    .achievement.unlocked .achievement-icon { filter: none; }
+    .achievement-name { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .achievement.unlocked .achievement-name { color: var(--orange); }
+
+    /* ── STREAK CALENDAR ── */
+    .streak-cal { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 14px; }
+    .streak-day {
+      width: 24px; height: 24px; border-radius: 4px;
+      background: var(--border); border: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .streak-day.done { background: var(--orange-dim); border-color: var(--orange-border); }
+    .streak-day.today { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 700; }
+
+    /* ── QUIZ TYPE CARDS ── */
+    .quiz-type-card {
+      background: var(--bg-card); border: 0.5px solid var(--border);
+      border-radius: 10px; overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .quiz-type-card:hover { transform: translateY(-2px); border-color: var(--orange-border); }
+    .qtc-top { padding: 22px 20px 16px; border-bottom: 0.5px solid var(--border); }
+    .qtc-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .qtc-title { font-size: 15px; font-weight: 900; color: var(--text-primary); letter-spacing: -0.3px; margin-bottom: 4px; }
+    .qtc-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+    .qtc-bottom { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .qtc-tag {
+      font-size: 9px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .tag-orange { background: var(--orange-dim); color: var(--orange); border: 0.5px solid var(--orange-border); }
+    .tag-blue { background: var(--blue-dim); color: var(--blue); border: 0.5px solid rgba(74,158,255,0.2); }
+    .tag-purple { background: var(--purple-dim); color: var(--purple); border: 0.5px solid rgba(167,139,250,0.2); }
+    .tag-green { background: var(--green-dim); color: var(--green); border: 0.5px solid rgba(76,175,80,0.2); }
+    .tag-yellow { background: var(--yellow-dim); color: var(--yellow); border: 0.5px solid rgba(251,191,36,0.2); }
+    .qtc-qs { font-size: 11px; color: var(--text-muted); }
+
+    /* ── ACTIVE QUIZ ── */
+    .quiz-arena { display: none; }
+    .quiz-arena.open { display: block; }
+    .quiz-hub { display: block; }
+    .quiz-hub.hidden { display: none; }
+
+    .quiz-header-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .quiz-back {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; color: var(--text-muted);
+      cursor: pointer; background: none; border: 0.5px solid var(--border-mid);
+      padding: 7px 14px; border-radius: 4px; transition: all 0.15s;
+    }
+    .quiz-back:hover { color: var(--text-secondary); border-color: #555; }
+    .quiz-type-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--orange);
+      background: var(--orange-dim); border: 0.5px solid var(--orange-border);
+      padding: 5px 14px; border-radius: 20px;
+    }
+
+    .q-progress-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .q-prog-track { flex: 1; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .q-prog-fill { height: 100%; background: var(--orange); border-radius: 99px; transition: width 0.3s; }
+    .q-prog-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+    .question-card {
+      background: var(--bg-card); border: 0.5px solid var(--border);
+      border-radius: 10px; padding: 28px; margin-bottom: 16px;
+      animation: fadeUp 0.25s ease;
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .q-type-tag {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--orange); background: var(--orange-dim);
+      border: 0.5px solid var(--orange-border);
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .q-text { font-size: 17px; font-weight: 700; color: var(--text-primary); line-height: 1.4; margin-bottom: 22px; letter-spacing: -0.3px; }
+
+    /* Multiple choice options */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .opt-btn {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 18px; background: #111;
+      border: 0.5px solid var(--border); border-radius: 8px;
+      cursor: pointer; text-align: left; width: 100%;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .opt-btn:hover:not(:disabled) { border-color: var(--orange-border); background: var(--bg-card); }
+    .opt-letter {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--bg-elevated); border: 0.5px solid var(--border-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .opt-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; flex: 1; }
+    .opt-btn.selected { border-color: var(--orange); background: var(--orange-dim); }
+    .opt-btn.selected .opt-letter { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .opt-btn.selected .opt-text { color: var(--text-primary); }
+    .opt-btn.correct { border-color: var(--green); background: var(--green-dim); }
+    .opt-btn.correct .opt-letter { background: var(--green); color: #fff; border-color: var(--green); }
+    .opt-btn.correct .opt-text { color: var(--text-primary); }
+    .opt-btn.wrong { border-color: var(--red); background: var(--red-dim); }
+    .opt-btn.wrong .opt-letter { background: var(--red); color: #fff; border-color: var(--red); }
+    .opt-btn.wrong .opt-text { color: var(--red); }
+    .opt-btn:disabled { cursor: default; }
+
+    /* True / False */
+    .tf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tf-btn {
+      padding: 20px; border-radius: 8px; border: 0.5px solid var(--border);
+      background: #111; cursor: pointer; font-size: 22px; font-weight: 900;
+      color: var(--text-muted); text-align: center; transition: all 0.15s;
+      letter-spacing: -0.5px;
+    }
+    .tf-btn:hover:not(:disabled) { border-color: var(--orange-border); background: var(--orange-dim); color: var(--orange); }
+    .tf-btn.selected { border-color: var(--orange); background: var(--orange-dim); color: var(--orange); }
+    .tf-btn.correct { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+    .tf-btn.wrong { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+    .tf-btn:disabled { cursor: default; }
+    .tf-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 400; display: block; }
+
+    /* Fill in the blank */
+    .blank-input {
+      width: 100%; padding: 14px 18px; background: #111;
+      border: 0.5px solid var(--border); border-radius: 8px;
+      color: var(--text-primary); font-size: 15px; font-family: 'Space Mono', monospace;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      transition: border-color 0.15s; outline: none;
+    }
+    .blank-input:focus { border-color: var(--orange); }
+    .blank-input.correct { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+    .blank-input.wrong { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+    .blank-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+    /* Identify the fret / image-based */
+    .fret-display {
+      background: #111; border: 0.5px solid var(--border);
+      border-radius: 8px; padding: 24px; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Ordering drag question */
+    .order-list { display: flex; flex-direction: column; gap: 8px; }
+    .order-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; background: #111; border: 0.5px solid var(--border);
+      border-radius: 8px; cursor: grab; user-select: none;
+      transition: border-color 0.15s;
+    }
+    .order-item:hover { border-color: var(--orange-border); }
+    .order-item.dragging { opacity: 0.5; border-color: var(--orange); }
+    .order-handle { color: var(--text-muted); font-size: 16px; flex-shrink: 0; cursor: grab; }
+    .order-label { font-size: 14px; font-weight: 700; color: var(--text-secondary); width: 22px; flex-shrink: 0; font-family: 'Space Mono', monospace; }
+    .order-text { font-size: 13px; color: var(--text-secondary); flex: 1; }
+    .order-item.correct { border-color: var(--green); background: var(--green-dim); }
+    .order-item.wrong { border-color: var(--red); background: var(--red-dim); }
+
+    /* Explanation box */
+    .explain-box {
+      display: none; margin-top: 14px; padding: 14px 18px;
+      background: var(--orange-dim); border: 0.5px solid var(--orange-border);
+      border-radius: 8px; font-size: 12px; color: var(--text-secondary); line-height: 1.65;
+    }
+    .explain-box.show { display: block; }
+    .explain-box strong { color: var(--orange); }
+    .explain-box .correct-answer { color: var(--green); font-weight: 700; }
+
+    /* Actions */
+    .q-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
+    .btn-submit {
+      padding: 11px 26px; background: var(--orange); border: none;
+      color: #fff; border-radius: 6px; font-size: 12px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.15s;
+    }
+    .btn-submit:hover { opacity: 0.85; }
+    .btn-submit:disabled { opacity: 0.3; cursor: default; }
+    .btn-next-q {
+      display: none; padding: 11px 24px; background: transparent;
+      border: 1px solid var(--orange); color: var(--orange); border-radius: 6px;
+      font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s;
+    }
+    .btn-next-q:hover { background: var(--orange-dim); }
+    .btn-next-q.show { display: block; }
+    .btn-prev-q {
+      padding: 11px 18px; background: transparent; border: 0.5px solid var(--border-mid);
+      color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-prev-q:hover { border-color: #555; color: var(--text-secondary); }
+    .btn-prev-q:disabled { opacity: 0.3; cursor: default; }
+
+    /* Results */
+    .results-panel { text-align: center; padding: 40px; animation: fadeUp 0.3s ease; }
+    .results-score { font-family: 'Space Mono', monospace; font-size: 72px; font-weight: 700; color: var(--orange); letter-spacing: -4px; line-height: 1; margin-bottom: 4px; }
+    .results-pct { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; }
+    .xp-earned { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; background: var(--orange-dim); border: 0.5px solid var(--orange-border); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--orange); margin-bottom: 24px; }
+    .results-breakdown { display: flex; gap: 20px; justify-content: center; margin-bottom: 28px; }
+    .rb-item { text-align: center; }
+    .rb-val { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; line-height: 1; }
+    .rb-val.green { color: var(--green); }
+    .rb-val.red { color: var(--red); }
+    .rb-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+    .results-msg { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 380px; margin: 0 auto 28px; }
+    .results-msg strong { color: var(--text-primary); }
+    .results-actions { display: flex; gap: 10px; justify-content: center; }
+    .btn-retry { padding: 12px 28px; background: var(--orange); border: none; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+    .btn-retry:hover { opacity: 0.85; }
+    .btn-review-all { padding: 12px 24px; background: transparent; border: 1px solid var(--orange); color: var(--orange); border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+    .btn-review-all:hover { background: var(--orange-dim); }
+    .btn-back-hub { padding: 12px 24px; background: transparent; border: 0.5px solid var(--border-mid); color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .btn-back-hub:hover { border-color: #555; color: var(--text-secondary); }
+
+    /* ── DAILY CHALLENGE ── */
+    .challenge-card {
+      background: var(--bg-card); border: 0.5px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 24px;
+    }
+    .challenge-top {
+      padding: 20px 24px; display: flex; align-items: center; gap: 16px;
+      border-bottom: 0.5px solid var(--border);
+      background: linear-gradient(135deg, rgba(246,110,6,0.06), transparent);
+    }
+    .challenge-icon { font-size: 32px; }
+    .challenge-info {}
+    .challenge-label { font-size: 9px; font-weight: 700; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 4px; }
+    .challenge-title { font-size: 16px; font-weight: 900; color: var(--text-primary); letter-spacing: -0.3px; }
+    .challenge-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .challenge-bottom { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .challenge-reward { font-size: 12px; color: var(--yellow); font-weight: 700; }
+    .challenge-reward span { opacity: 0.7; font-weight: 400; color: var(--text-muted); }
+    .btn-challenge {
+      padding: 10px 22px; background: var(--orange); border: none;
+      color: #fff; border-radius: 6px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-challenge:hover { opacity: 0.85; }
+
+    /* ── LEADERBOARD ── */
+    .lb-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 18px; border-bottom: 0.5px solid var(--border);
+      transition: background 0.15s;
+    }
+    .lb-row:hover { background: rgba(255,255,255,0.02); }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-rank { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text-muted); width: 28px; text-align: center; flex-shrink: 0; }
+    .lb-rank.gold { color: var(--yellow); }
+    .lb-rank.silver { color: #ccc; }
+    .lb-rank.bronze { color: #cd7f32; }
+    .lb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-elevated); border: 0.5px solid var(--border-mid); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--orange); flex-shrink: 0; }
+    .lb-name { flex: 1; font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+    .lb-name.you { color: var(--orange); }
+    .lb-name.you::after { content: ' (You)'; font-size: 10px; color: var(--orange); opacity: 0.7; font-weight: 400; }
+    .lb-xp { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text-muted); }
+    .lb-xp span { color: var(--orange); font-weight: 700; }
+
+    /* ── EAR TRAINING ── */
+    .string-viz { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+    .string-row { display: flex; align-items: center; gap: 14px; }
+    .string-note { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--orange); width: 30px; text-align: center; }
+    .string-line {
+      flex: 1; height: 2px; background: var(--border-mid); border-radius: 99px;
+      position: relative; cursor: pointer; transition: background 0.15s;
+    }
+    .string-line:hover { background: var(--orange); }
+    .string-line.played { background: var(--orange); }
+    .string-num { font-size: 10px; color: var(--text-muted); width: 20px; text-align: right; font-family: 'Space Mono', monospace; }
+
+    /* ── FOOTER ── */
+    .footer { border-top: 0.5px solid var(--border); padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-logo { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text-muted); letter-spacing: 2px; }
+    .footer-copy { font-size: 11px; color: var(--text-muted); }
+
+    /* ── CHORD MATCH GAME ── */
+    .chord-match-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0; }
+    .chord-card-flip { height: 80px; perspective: 600px; cursor: pointer; }
+    .chord-card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.4s; transform-style: preserve-3d; }
+    .chord-card-flip.flipped .chord-card-inner { transform: rotateY(180deg); }
+    .chord-card-flip.matched .chord-card-inner { transform: rotateY(180deg); }
+    .chord-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 0.5px solid var(--border); backface-visibility: hidden; font-weight: 700; }
+    .chord-face-back { background: var(--bg-card); }
+    .chord-face-back .q-mark { font-size: 22px; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+    .chord-face-front { background: var(--bg-elevated); transform: rotateY(180deg); font-family: 'Space Mono', monospace; font-size: 20px; color: var(--orange); }
+    .chord-card-flip.matched .chord-face-front { background: var(--orange-dim); border-color: var(--orange-border); color: var(--orange); }
+    .chord-card-flip.wrong-flash { animation: wrongFlash 0.4s ease; }
+    @keyframes wrongFlash { 0%,100%{ border-color:var(--border); } 50%{ border-color:var(--red); background:var(--red-dim); } }
+
+    /* ── SCROLL FIX ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV (matching Home.html) -->
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo">GUITARIFY</div>
+    <div class="nav-city">
+      <span></span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="Home.html">Home</a>
+    <a href="About.html">About</a>
+    <a href="Chord_Library.html">Chord Library</a>
+    <a href="lessons.html">Lesson</a>
+    <a href="Recommendations.html">Recommendations</a>
+    <a href="practice.html" class="active">Quizzes</a>
+    <a href="Enroll.html" class="enroll-link">✦ Enroll</a>
+  </div>
+
+  <div class="nav-icons">
+    <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-user-name" id="navUserName"></span>
+    </button>
+  </div>
+
+  <div class="user-dropdown" id="userDropdown">
+    <div class="user-dropdown-header">
+      <div class="user-dropdown-name" id="dropdownName">–</div>
+      <div class="user-dropdown-email" id="dropdownEmail">–</div>
+    </div>
+    <div class="user-dropdown-item">My Profile</div>
+    <div class="user-dropdown-item">My Lessons</div>
+    <div class="user-dropdown-item danger" onclick="logout()">Log Out</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="practice-hero">
+  <div class="practice-hero-bg">PRACTICE</div>
+  <div class="hero-eyebrow">Guitarify</div>
+  <h1 class="hero-title">Practice &amp; <span class="accent">Level Up</span></h1>
+  <p class="hero-sub">Quizzes, ear training, chord matching, and daily challenges — track your progress and earn XP as you go.</p>
+  <div class="stats-strip" id="statsStrip">
+    <div class="stat-item"><div class="stat-val" id="statXP">0<span>xp</span></div><div class="stat-label">Total XP</div></div>
+    <div class="stat-item"><div class="stat-val" id="statStreak">0<span>🔥</span></div><div class="stat-label">Day Streak</div></div>
+    <div class="stat-item"><div class="stat-val" id="statQuizzes">0</div><div class="stat-label">Quizzes Done</div></div>
+    <div class="stat-item"><div class="stat-val" id="statAccuracy">—%</div><div class="stat-label">Avg Accuracy</div></div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="practice-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="practice-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Play</div>
+      <div class="sidebar-item active" onclick="switchPanel('hub')" id="nav-hub">
+        <div class="sidebar-icon">🎯</div>
+        <div class="sidebar-text">
+          <div class="sidebar-name">Quiz Hub</div>
+          <div class="sidebar-desc">All quiz types</div>
+        </div>
+      </div>
+      <div class="sidebar-item" onclick="switchPanel('daily')" id="nav-daily">
+        <div class="sidebar-icon">⚡</div>
+        <div class="sidebar-text">
+          <div class="sidebar-name">Daily Challenge</div>
+          <div class="sidebar-desc">New every day</div>
+        </div>
+        <div class="sidebar-badge">NEW</div>
+      </div>
+      <div class="sidebar-item" onclick="switchPanel('ear')" id="nav-ear">
+        <div class="sidebar-icon">👂</div>
+        <div class="sidebar-text">
+          <div class="sidebar-name">Ear Training</div>
+          <div class="sidebar-desc">Identify strings</div>
+        </div>
+      </div>
+      <div class="sidebar-item" onclick="switchPanel('match')" id="nav-match">
+        <div class="sidebar-icon">🃏</div>
+        <div class="sidebar-text">
+          <div class="sidebar-name">Chord Match</div>
+          <div class="sidebar-desc">Memory game</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Your Progress</div>
+      <div class="sidebar-item" onclick="switchPanel('progress')" id="nav-progress">
+        <div class="sidebar-icon">📈</div>
+        <div class="sidebar-text">
+          <div class="sidebar-name">Progress</div>
+          <div class="sidebar-desc">XP, streaks, badges</div>
+        </div>
+      </div>
+      <div class="sidebar-item" onclick="switchPanel('leaderboard')" id="nav-leaderboard">
+        <div class="sidebar-icon">🏆</div>
+        <div class="sidebar-text">
+          <div class="sidebar-name">Leaderboard</div>
+          <div class="sidebar-desc">Top players</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="practice-content">
+
+    <!-- ══ QUIZ HUB ══ -->
+    <div class="panel active" id="panel-hub">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Choose Your Challenge</div>
+        <h2 class="panel-title">Quiz <span>Hub</span></h2>
+        <p class="panel-sub">Pick a quiz type below. Each mode tests your knowledge differently — earn XP for every correct answer.</p>
+      </div>
+      <div class="grid-3" style="margin-bottom:32px;">
+        <div class="quiz-type-card" onclick="startQuiz('mcq')">
+          <div class="qtc-top">
+            <span class="qtc-icon">🧠</span>
+            <div class="qtc-title">Theory Quiz</div>
+            <div class="qtc-desc">Multiple choice questions covering chords, anatomy, technique, and music theory.</div>
+          </div>
+          <div class="qtc-bottom">
+            <span class="qtc-tag tag-orange">Multiple Choice</span>
+            <span class="qtc-qs">10 questions</span>
+          </div>
+        </div>
+        <div class="quiz-type-card" onclick="startQuiz('truefalse')">
+          <div class="qtc-top">
+            <span class="qtc-icon">⚖️</span>
+            <div class="qtc-title">True or False</div>
+            <div class="qtc-desc">Fast-fire true/false statements. Test your instincts. Great for quick practice.</div>
+          </div>
+          <div class="qtc-bottom">
+            <span class="qtc-tag tag-blue">True / False</span>
+            <span class="qtc-qs">8 questions</span>
+          </div>
+        </div>
+        <div class="quiz-type-card" onclick="startQuiz('fill')">
+          <div class="qtc-top">
+            <span class="qtc-icon">✏️</span>
+            <div class="qtc-title">Fill in the Blank</div>
+            <div class="qtc-desc">Type the missing word or note. Tests recall — harder than multiple choice!</div>
+          </div>
+          <div class="qtc-bottom">
+            <span class="qtc-tag tag-purple">Type Answer</span>
+            <span class="qtc-qs">8 questions</span>
+          </div>
+        </div>
+        <div class="quiz-type-card" onclick="startQuiz('order')">
+          <div class="qtc-top">
+            <span class="qtc-icon">🔢</span>
+            <div class="qtc-title">Put in Order</div>
+            <div class="qtc-desc">Drag and arrange items in the correct sequence — strings, steps, frets.</div>
+          </div>
+          <div class="qtc-bottom">
+            <span class="qtc-tag tag-green">Drag &amp; Drop</span>
+            <span class="qtc-qs">5 rounds</span>
+          </div>
+        </div>
+        <div class="quiz-type-card" onclick="startQuiz('fret')">
+          <div class="qtc-top">
+            <span class="qtc-icon">🎸</span>
+            <div class="qtc-title">Fretboard Quiz</div>
+            <div class="qtc-desc">Identify string names and fret positions on a visual fretboard diagram.</div>
+          </div>
+          <div class="qtc-bottom">
+            <span class="qtc-tag tag-yellow">Visual ID</span>
+            <span class="qtc-qs">8 questions</span>
+          </div>
+        </div>
+        <div class="quiz-type-card" onclick="switchPanel('match')">
+          <div class="qtc-top">
+            <span class="qtc-icon">🃏</span>
+            <div class="qtc-title">Chord Match</div>
+            <div class="qtc-desc">Flip cards and match chord names to their finger positions. Memory game!</div>
+          </div>
+          <div class="qtc-bottom">
+            <span class="qtc-tag tag-blue">Memory Game</span>
+            <span class="qtc-qs">8 pairs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ACTIVE QUIZ PANEL ══ -->
+    <div class="panel" id="panel-quiz">
+      <div class="quiz-header-bar">
+        <button class="quiz-back" onclick="exitQuiz()">← Back to Hub</button>
+        <div class="quiz-type-badge" id="quizTypeBadge">Theory Quiz</div>
+      </div>
+      <div class="q-progress-bar">
+        <div class="q-prog-track"><div class="q-prog-fill" id="qProgFill" style="width:0%"></div></div>
+        <div class="q-prog-label" id="qProgLabel">0 / 0</div>
+      </div>
+      <div id="quizBody"></div>
+    </div>
+
+    <!-- ══ DAILY CHALLENGE ══ -->
+    <div class="panel" id="panel-daily">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Resets Every Day</div>
+        <h2 class="panel-title">Daily <span>Challenge</span></h2>
+        <p class="panel-sub">Three challenges refresh each day. Complete all three to maintain your streak and earn bonus XP.</p>
+      </div>
+      <div id="dailyChallengeList"></div>
+      <div class="card" style="margin-top:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">This Week's Streak</div>
+        <div class="streak-cal" id="streakCal"></div>
+      </div>
+    </div>
+
+    <!-- ══ EAR TRAINING ══ -->
+    <div class="panel" id="panel-ear">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Ear Training</div>
+        <h2 class="panel-title">Know Your <span>Strings</span></h2>
+        <p class="panel-sub">Can you name each guitar string from thickest to thinnest? Click a string to "hear" it and identify the note.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Click any string to play it. Then select the correct note name from the options below. +10 XP per correct answer.</div>
+        <div class="string-viz" id="earStringViz"></div>
+        <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;" id="earOptions"></div>
+        <div class="explain-box" id="earExplain" style="margin-top:14px;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+          <div style="font-size:12px;color:var(--text-muted);">Score: <span style="color:var(--orange);font-family:'Space Mono',monospace;font-weight:700;" id="earScore">0</span></div>
+          <button class="btn-submit" onclick="resetEar()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CHORD MATCH GAME ══ -->
+    <div class="panel" id="panel-match">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Memory Game</div>
+        <h2 class="panel-title">Chord <span>Match</span></h2>
+        <p class="panel-sub">Flip cards to match chord names with their descriptions. Clear all pairs to win. Earn XP for each match.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--text-muted);">Pairs found: <span style="color:var(--orange);font-family:'Space Mono',monospace;font-weight:700;" id="matchPairs">0</span> / 8</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="font-size:12px;color:var(--text-muted);">Flips: <span style="color:var(--orange);font-family:'Space Mono',monospace;" id="matchFlips">0</span></div>
+            <button class="btn-submit" onclick="initMatch()">New Game</button>
+          </div>
+        </div>
+        <div class="chord-match-grid" id="matchGrid"></div>
+        <div style="margin-top:14px;font-size:12px;color:var(--text-muted);text-align:center;" id="matchMsg"></div>
+      </div>
+    </div>
+
+    <!-- ══ PROGRESS ══ -->
+    <div class="panel" id="panel-progress">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Your Journey</div>
+        <h2 class="panel-title">My <span>Progress</span></h2>
+        <p class="panel-sub">Track your XP, quiz history, streaks, and unlocked achievements.</p>
+      </div>
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">XP &amp; Level</div>
+          <div class="progress-ring-wrap">
+            <svg class="ring-svg" width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="36" fill="none" stroke="#2a2a2a" stroke-width="7"/>
+              <circle id="xpRingCircle" cx="45" cy="45" r="36" fill="none" stroke="#f66e06" stroke-width="7"
+                stroke-dasharray="226" stroke-dashoffset="226" stroke-linecap="round"
+                transform="rotate(-90 45 45)" style="transition:stroke-dashoffset 0.6s ease;"/>
+              <text x="45" y="49" text-anchor="middle" font-family="'Space Mono',monospace" font-size="14" font-weight="700" fill="#f66e06" id="xpRingText">0</text>
+            </svg>
+            <div class="ring-info">
+              <div class="ring-pct" id="levelLabel">Lv.1</div>
+              <div class="ring-label">Current Level</div>
+              <div class="ring-sub" id="levelSubLabel">0 / 200 XP to next level</div>
+            </div>
+          </div>
+          <div class="xp-bar-row" id="xpBarRow">
+            <div class="xp-bar-header">
+              <div class="xp-bar-label">Level Progress</div>
+              <div class="xp-bar-val" id="xpBarVal">0 / 200</div>
+            </div>
+            <div class="xp-track"><div class="xp-fill" id="xpBarFill" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Quiz Stats</div>
+          <div style="display:flex;flex-direction:column;gap:12px;" id="quizStatsList">
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#111;border-radius:6px;border:0.5px solid var(--border);">
+              <span style="font-size:12px;color:var(--text-muted);">Theory Quiz</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--orange);" id="stat-mcq">0 played</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#111;border-radius:6px;border:0.5px solid var(--border);">
+              <span style="font-size:12px;color:var(--text-muted);">True or False</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--orange);" id="stat-truefalse">0 played</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#111;border-radius:6px;border:0.5px solid var(--border);">
+              <span style="font-size:12px;color:var(--text-muted);">Fill in the Blank</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--orange);" id="stat-fill">0 played</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#111;border-radius:6px;border:0.5px solid var(--border);">
+              <span style="font-size:12px;color:var(--text-muted);">Fretboard Quiz</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--orange);" id="stat-fret">0 played</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Achievements</div>
+        <div class="achievement-grid" id="achievementsGrid"></div>
+      </div>
+    </div>
+
+    <!-- ══ LEADERBOARD ══ -->
+    <div class="panel" id="panel-leaderboard">
+      <div class="panel-header">
+        <div class="panel-eyebrow">Top Players</div>
+        <h2 class="panel-title">Leader<span>board</span></h2>
+        <p class="panel-sub">Weekly XP rankings. Play quizzes and challenges to climb the board.</p>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:0.5px solid var(--border);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;">This Week</div>
+        <div id="lbList"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">GUITARIFY</div>
+  <div class="footer-copy">© 2025 Guitarify. All rights reserved.</div>
+</div>
+
+<!-- AUTH MODAL (matching Home.html) -->
+<div class="auth-bg" id="authBg" onclick="handleAuthBgClick(event)">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-body" id="loginForm">
+      <div class="auth-greeting">Welcome Back</div>
+      <div class="auth-sub">Log in to continue your guitar journey.</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@email.com"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"/></div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-submit" onclick="doLogin()">Log In</button>
+      <div class="auth-divider">No account yet? <span onclick="switchAuthTab('signup')">Sign Up</span></div>
+    </div>
+    <div class="auth-body" id="signupForm" style="display:none;">
+      <div class="auth-greeting">Join Guitarify</div>
+      <div class="auth-sub">Create a free account and start learning.</div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signupName" placeholder="Username"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signupEmail" placeholder="Email"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signupPassword" placeholder="Password"/></div>
+      <div class="auth-field"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Confirm Password"/></div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      <div class="auth-divider">Already have an account? <span onclick="switchAuthTab('login')">Log In</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let state = {
+  xp: 0, streak: 0, quizzesPlayed: 0,
+  totalCorrect: 0, totalAnswered: 0,
+  quizCounts: { mcq:0, truefalse:0, fill:0, fret:0, order:0 },
+  achievements: [],
+  dailyDone: [],
+  streakDays: []
+};
+
+const ACHIEVEMENTS = [
+  { id:'first_quiz', icon:'🎸', name:'First Strum', desc:'Complete your first quiz', xp:50 },
+  { id:'streak_3', icon:'🔥', name:'On Fire', desc:'3 day streak', xp:100 },
+  { id:'perfect', icon:'⭐', name:'Perfect Score', desc:'100% on any quiz', xp:150 },
+  { id:'xp_100', icon:'💪', name:'Getting Serious', desc:'Earn 100 XP', xp:75 },
+  { id:'xp_500', icon:'🏅', name:'Dedicated', desc:'Earn 500 XP', xp:200 },
+  { id:'all_types', icon:'🎓', name:'Well Rounded', desc:'Try all quiz types', xp:125 },
+  { id:'match_win', icon:'🃏', name:'Memory Master', desc:'Win Chord Match', xp:80 },
+  { id:'daily_3', icon:'📅', name:'Daily Grinder', desc:'Complete 3 daily challenges', xp:100 },
+];
+
+const XP_PER_LEVEL = 200;
+
+// ─────────────────────────────────────────
+// QUIZ DATA
+// ─────────────────────────────────────────
+const quizzes = {
+  mcq: {
+    name: 'Theory Quiz',
+    questions: [
+      { type:'mcq', q:'Which guitar type is best for beginners who want no extra equipment?', opts:['Electric','Bass','Steel-string Acoustic','12-String'], a:2, explain:'<strong>Steel-string acoustic</strong> needs no amp — just pick it up and play.' },
+      { type:'mcq', q:'Standard guitar tuning from thickest to thinnest string is:', opts:['EBGDAE','BEADGB','EADGBE','GDAEBE'], a:2, explain:'<strong>EADGBE</strong> — "Eddie Ate Dynamite, Good Bye Eddie."' },
+      { type:'mcq', q:'Which finger number is used for the INDEX finger?', opts:['Finger 2','Finger 1','Finger 3','Finger 4'], a:1, explain:'<strong>Finger 1</strong> = index, 2 = middle, 3 = ring, 4 = pinky.' },
+      { type:'mcq', q:'Where should you press your finger relative to a fret for the cleanest sound?', opts:['On top of the fret','Far behind the fret','Just behind the fret (headstock side)','Doesn\'t matter'], a:2, explain:'Press <strong>just behind the fret</strong> (toward the headstock). Cleanest tone, least effort.' },
+      { type:'mcq', q:'What does a tuner needle pointing LEFT indicate?', opts:['In tune','Sharp — loosen','Flat — tighten','Broken string'], a:2, explain:'Left = <strong>flat</strong>. Tighten the peg to raise pitch toward the target note.' },
+      { type:'mcq', q:'What is the 1st string on a guitar?', opts:['Low E (thickest)','A string','G string','High e (thinnest)'], a:3, explain:'The <strong>1st string is the thinnest</strong> (high e). Numbering runs from thinnest to thickest.' },
+      { type:'mcq', q:'Em chord requires how many fingers?', opts:['One','Two','Three','Four'], a:1, explain:'<strong>Two fingers</strong> — middle on 2nd fret A string, ring on 2nd fret D string.' },
+      { type:'mcq', q:'What does a CAPO do?', opts:['Mutes all strings','Raises pitch of all strings equally','Lowers the action','Tunes the guitar automatically'], a:1, explain:'A <strong>capo clamps across the neck</strong>, raising all string pitches so you can use the same chord shapes in different keys.' },
+      { type:'mcq', q:'Which strumming technique keeps your arm moving even when not hitting strings?', opts:['Palm muting','Fingerpicking','Ghost strumming','Hammer-on'], a:2, explain:'<strong>Ghost strumming</strong> — your arm keeps the rhythm pendulum going; you simply lift off the strings on certain beats.' },
+      { type:'mcq', q:'The recommended daily practice time for a beginner is:', opts:['2-3 hours','10 minutes max','15-30 minutes','Only weekends'], a:2, explain:'<strong>15-30 minutes daily</strong> beats marathon sessions. Consistency builds muscle memory faster than intensity.' },
+    ]
+  },
+  truefalse: {
+    name: 'True or False',
+    questions: [
+      { type:'tf', q:'The thinnest guitar string produces the highest pitch.', a:true, explain:'<strong>True.</strong> Thinner strings vibrate faster = higher pitch. High e is the thinnest and highest.' },
+      { type:'tf', q:'An out-of-tune guitar can still sound great if you play the right chords.', a:false, explain:'<strong>False.</strong> An out-of-tune guitar sounds bad no matter how well you play. Always tune before playing.' },
+      { type:'tf', q:'Fingertip soreness in the first few weeks is a sign of serious injury.', a:false, explain:'<strong>False.</strong> It\'s completely normal. Calluses form in 2-3 weeks and the pain disappears.' },
+      { type:'tf', q:'The 6th string is the Low E (thickest) string.', a:true, explain:'<strong>True.</strong> String numbering goes 1st (thinnest/high e) to 6th (thickest/Low E).' },
+      { type:'tf', q:'Position marker dots appear at frets 3, 5, 7, 9, and 12.', a:true, explain:'<strong>True.</strong> These dots are visual landmarks to help you navigate the neck quickly.' },
+      { type:'tf', q:'You should stop strumming when changing chords so both hands can focus.', a:false, explain:'<strong>False.</strong> Keep strumming even through a chord change. Rhythm matters more than perfect chords.' },
+      { type:'tf', q:'The NUT is located where the neck meets the headstock.', a:true, explain:'<strong>True.</strong> The nut is the small grooved strip that spaces and guides the strings at the top of the neck.' },
+      { type:'tf', q:'Tuning apps are more accurate than clip-on tuners in a loud environment.', a:false, explain:'<strong>False.</strong> Clip-on tuners read vibrations from the wood, so they work in any noise level. Apps struggle with background noise.' },
+    ]
+  },
+  fill: {
+    name: 'Fill in the Blank',
+    questions: [
+      { type:'fill', q:'The six strings in standard tuning, from thickest to thinnest, are: E _ D G B e', a:'A', hint:'Second string from thickest.', explain:'The correct answer is <span class="correct-answer">A</span>. Standard tuning: E <strong>A</strong> D G B e.' },
+      { type:'fill', q:'A guitar\'s fretboard is also called the _____board.', a:'FINGER', hint:'Your fingers press on it.', explain:'The correct answer is <span class="correct-answer">FINGER</span>board. Also called the fretboard.' },
+      { type:'fill', q:'A small device that clips to the headstock and detects pitch is called a clip-on _____.', a:'TUNER', hint:'It tells you if a string is in tune.', explain:'The correct answer is <span class="correct-answer">TUNER</span>. Clip-on tuners read vibrations from the wood.' },
+      { type:'fill', q:'The technique of resting your palm on strings near the bridge for a muffled sound is called palm _____.', a:'MUTING', hint:'You\'re silencing the strings partially.', explain:'The correct answer is <span class="correct-answer">MUTING</span>. Palm muting creates a "chunky" rhythmic sound.' },
+      { type:'fill', q:'Em, Am, G, and D are all examples of guitar _____.', a:'CHORDS', hint:'Groups of notes played together.', explain:'The correct answer is <span class="correct-answer">CHORDS</span>. These four chords can play hundreds of songs.' },
+      { type:'fill', q:'The memory phrase "Eddie Ate Dynamite Good Bye Eddie" helps remember the guitar _____ names.', a:'STRING', hint:'There are six of them.', explain:'The correct answer is <span class="correct-answer">STRING</span> names — EADGBE.' },
+      { type:'fill', q:'A pick is also called a _____ (7-letter word starting with P).', a:'PLECTRUM', hint:'7 letters, starts with P.', explain:'The correct answer is <span class="correct-answer">PLECTRUM</span>. A small flat piece of plastic for strumming.' },
+      { type:'fill', q:'The round hole in the center of an acoustic guitar body is called the _____ hole.', a:'SOUND', hint:'It\'s how acoustic guitars project volume.', explain:'The correct answer is <span class="correct-answer">SOUND</span> hole. Sound waves project out through it.' },
+    ]
+  },
+  fret: {
+    name: 'Fretboard Quiz',
+    questions: [
+      { type:'fret', q:'Which string is highlighted in orange on the fretboard? (Thinnest = 1, Thickest = 6)', stringNum:1, a:'1', label:'High e', opts:['1','2','3','4','5','6'], explain:'String <strong>1</strong> is the thinnest, highest-pitched string — the high e.' },
+      { type:'fret', q:'Which string is highlighted? (Thinnest = 1, Thickest = 6)', stringNum:6, a:'6', label:'Low E', opts:['1','2','3','4','5','6'], explain:'String <strong>6</strong> is the thickest, lowest-pitched string — the Low E.' },
+      { type:'fret', q:'What note name is on the 3rd string (G)?', stringNum:3, a:'G', label:'G', opts:['E','A','D','G','B','e'], explain:'The 3rd string from thinnest is <strong>G</strong>. Order thinnest to thickest: e B G D A E.' },
+      { type:'fret', q:'What note name is on the 5th string?', stringNum:5, a:'A', label:'A', opts:['E','A','D','G','B','e'], explain:'The 5th string is the <strong>A</strong> string — second thickest.' },
+      { type:'fret', q:'At which fret does the double-dot position marker appear?', stringNum:null, a:'12', label:null, opts:['7','9','10','12','15','14'], explain:'The double dot is at fret <strong>12</strong> — exactly one octave up from the open string.' },
+      { type:'fret', q:'Which string is highlighted?', stringNum:4, a:'4', label:'D', opts:['1','2','3','4','5','6'], explain:'String <strong>4</strong> is the D string — fourth thinnest.' },
+      { type:'fret', q:'What note is on the 2nd string?', stringNum:2, a:'B', label:'B', opts:['E','A','D','G','B','e'], explain:'The 2nd string is <strong>B</strong>. The only non-perfect-fourth interval in standard tuning.' },
+      { type:'fret', q:'Which frets have position marker dots? (Select all that apply — pick one)', stringNum:null, a:'5', label:null, opts:['2','3','4','5','6','11'], explain:'Frets <strong>3, 5, 7, 9</strong> all have single position dots. Fret 5 is one of them.' },
+    ]
+  },
+  order: {
+    name: 'Put in Order',
+    questions: [
+      { type:'order', q:'Arrange the guitar strings in order from THINNEST to THICKEST:', items:['Low E (6th)','A (5th)','D (4th)','G (3rd)','B (2nd)','High e (1st)'], correct:[5,4,3,2,1,0], explain:'Thinnest to thickest: <strong>e → B → G → D → A → E</strong>.' },
+      { type:'order', q:'Arrange these guitar parts from top to bottom of the guitar:', items:['Body','Neck','Headstock'], correct:[2,1,0], explain:'Top to bottom: <strong>Headstock → Neck → Body</strong>.' },
+      { type:'order', q:'Put the beginner learning stages in the correct order:', items:['Playing Real Songs','First Chords & Strumming','Building Your Skills','The Basics'], correct:[3,1,0,2], explain:'Order: <strong>The Basics → First Chords → Real Songs → Building Skills</strong>.' },
+      { type:'order', q:'Arrange the steps for tuning a guitar in the correct order:', items:['Check all strings again','Turn pegs to match pitch','Clip tuner to headstock','Pluck each string one by one'], correct:[2,3,1,0], explain:'<strong>Clip → Pluck → Adjust → Re-check</strong> all strings.' },
+      { type:'order', q:'Arrange these chord difficulty levels from EASIEST to HARDEST:', items:['Barre chords','Am (A minor)','Em (E minor)','G major'], correct:[2,1,3,0], explain:'Easiest to hardest: <strong>Em → Am → G → Barre chords</strong>.' },
+    ]
+  }
+};
+
+// ─────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.getElementById('nav-' + id) && document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'progress') renderProgress();
+  if (id === 'daily') renderDaily();
+  if (id === 'ear') initEar();
+  if (id === 'match') initMatch();
+  if (id === 'leaderboard') renderLeaderboard();
+}
+
+// ─────────────────────────────────────────
+// QUIZ ENGINE
+// ─────────────────────────────────────────
+let activeQuiz = null;
+let qIndex = 0;
+let qAnswers = {};
+let qSubmitted = {};
+let reviewMode = false;
+
+function startQuiz(type) {
+  activeQuiz = type;
+  qIndex = 0;
+  qAnswers = {};
+  qSubmitted = {};
+  reviewMode = false;
+  document.getElementById('quizTypeBadge').textContent = quizzes[type].name;
+  switchPanel('quiz');
+  renderQ();
+}
+
+function exitQuiz() {
+  switchPanel('hub');
+  document.getElementById('nav-hub').classList.add('active');
+}
+
+function renderQ() {
+  const qs = quizzes[activeQuiz].questions;
+  const total = qs.length;
+  const pct = Math.round((qIndex / total) * 100);
+  document.getElementById('qProgFill').style.width = pct + '%';
+  document.getElementById('qProgLabel').textContent = qIndex + ' / ' + total;
+
+  if (reviewMode && qIndex >= total) { renderResults(); return; }
+  if (!reviewMode) {
+    const answered = Object.keys(qAnswers).length;
+    if (answered === total && Object.keys(qSubmitted).length === total) {
+      renderResults(); return;
+    }
+  }
+
+  const q = qs[qIndex];
+  const isSubmitted = qSubmitted[qIndex] !== undefined;
+  const sel = qAnswers[qIndex];
+  const body = document.getElementById('quizBody');
+
+  let html = `<div class="question-card">
+    <div class="q-type-tag">${q.type === 'mcq' ? 'Multiple Choice' : q.type === 'tf' ? 'True / False' : q.type === 'fill' ? 'Fill in Blank' : q.type === 'fret' ? 'Fretboard ID' : 'Put in Order'}</div>
+    <div class="q-text">${q.q}</div>`;
+
+  if (q.type === 'mcq') {
+    html += '<div class="options">';
+    const letters = ['A','B','C','D'];
+    q.opts.forEach((opt, i) => {
+      let cls = 'opt-btn';
+      if (isSubmitted) { if (i === q.a) cls += ' correct'; else if (sel === i && i !== q.a) cls += ' wrong'; }
+      else if (sel === i) cls += ' selected';
+      html += `<button class="${cls}" onclick="selectAnswer(${i})" ${isSubmitted?'disabled':''}>
+        <div class="opt-letter">${letters[i]}</div>
+        <div class="opt-text">${opt}</div>
+      </button>`;
+    });
+    html += '</div>';
+  } else if (q.type === 'tf') {
+    let tcls = 'tf-btn', fcls = 'tf-btn';
+    if (isSubmitted) {
+      tcls += q.a === true ? ' correct' : (sel === true && q.a !== true ? ' wrong' : '');
+      fcls += q.a === false ? ' correct' : (sel === false && q.a !== false ? ' wrong' : '');
+    } else {
+      if (sel === true) tcls += ' selected';
+      if (sel === false) fcls += ' selected';
+    }
+    html += `<div class="tf-row">
+      <button class="${tcls}" onclick="selectAnswer(true)" ${isSubmitted?'disabled':''}><span>TRUE</span><span class="tf-sub">Correct statement</span></button>
+      <button class="${fcls}" onclick="selectAnswer(false)" ${isSubmitted?'disabled':''}><span>FALSE</span><span class="tf-sub">Incorrect statement</span></button>
+    </div>`;
+  } else if (q.type === 'fill') {
+    const inputCls = isSubmitted ? (normalizeAnswer(sel||'') === q.a ? 'blank-input correct' : 'blank-input wrong') : 'blank-input';
+    html += `<input class="${inputCls}" id="fillInput" type="text" placeholder="Type your answer…" value="${isSubmitted ? (sel||'') : ''}"
+      ${isSubmitted?'disabled':''} oninput="selectAnswer(this.value)" onkeydown="if(event.key==='Enter')document.getElementById('qSubmitBtn')&&document.getElementById('qSubmitBtn').click()" />
+      <div class="blank-hint">Hint: ${q.hint}</div>`;
+  } else if (q.type === 'fret') {
+    html += renderFretDiagram(q) + '<div class="options">';
+    const letters = ['A','B','C','D','E','F'];
+    q.opts.forEach((opt, i) => {
+      let cls = 'opt-btn';
+      if (isSubmitted) { if (opt === q.a) cls += ' correct'; else if (sel === opt && opt !== q.a) cls += ' wrong'; }
+      else if (sel === opt) cls += ' selected';
+      html += `<button class="${cls}" onclick="selectAnswer('${opt}')" ${isSubmitted?'disabled':''}>
+        <div class="opt-letter">${letters[i]}</div>
+        <div class="opt-text">${opt}</div>
+      </button>`;
+    });
+    html += '</div>';
+  } else if (q.type === 'order') {
+    html += renderOrderQ(q, isSubmitted);
+  }
+
+  const explainShow = isSubmitted ? 'show' : '';
+  html += `<div class="explain-box ${explainShow}">${q.explain}</div>`;
+  html += '</div>';
+
+  const submitDisabled = (sel === undefined || sel === null || sel === '') ? 'disabled' : '';
+  html += `<div class="q-actions">
+    <button class="btn-prev-q" onclick="prevQ()" ${qIndex === 0 ? 'disabled' : ''}>← Prev</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-submit" id="qSubmitBtn" onclick="submitQ()" ${submitDisabled || isSubmitted ? 'disabled' : ''}>${isSubmitted ? 'Answered ✓' : 'Submit'}</button>
+      <button class="btn-next-q ${isSubmitted ? 'show' : ''}" onclick="nextQ()">${qIndex < total-1 ? 'Next →' : 'See Results →'}</button>
+    </div>
+  </div>`;
+
+  body.innerHTML = html;
+}
+
+function renderFretDiagram(q) {
+  const strings = [
+    {note:'E', thickness:4},
+    {note:'A', thickness:3.2},
+    {note:'D', thickness:2.6},
+    {note:'G', thickness:2},
+    {note:'B', thickness:1.5},
+    {note:'e', thickness:1},
+  ];
+  const numToIndex = {6:0,5:1,4:2,3:3,2:4,1:5};
+  const highlighted = q.stringNum ? numToIndex[q.stringNum] : -1;
+
+  let svgLines = '';
+  strings.forEach((s, i) => {
+    const y = 30 + i * 28;
+    const isHL = i === highlighted;
+    svgLines += `<line x1="30" y1="${y}" x2="560" y2="${y}" stroke="${isHL ? '#f66e06' : '#3a3a3a'}" stroke-width="${s.thickness}"/>`;
+    svgLines += `<text x="14" y="${y+5}" font-size="11" fill="${isHL ? '#f66e06' : '#555'}" text-anchor="middle" font-family="Space Mono,monospace" font-weight="${isHL?'700':'400'}">${s.note}</text>`;
+  });
+
+  const frets = [0,1,2,3,4,5];
+  let fretLines = '';
+  frets.forEach((f, i) => {
+    const x = 30 + i * 106;
+    fretLines += `<line x1="${x}" y1="18" x2="${x}" y2="${18 + 5*28 + 14}" stroke="#555" stroke-width="${f===0?3:1.5}"/>`;
+    if (f > 0) fretLines += `<text x="${x - 53}" y="${18 + 5*28 + 26}" font-size="10" fill="#444" text-anchor="middle" font-family="Space Mono,monospace">${f}</text>`;
+  });
+
+  let dotsSvg = '';
+  [2,3,4].forEach(f => {
+    const x = 30 + (f-0.5)*106;
+    const y = 30 + 2*28;
+    dotsSvg += `<circle cx="${x}" cy="${y}" r="5" fill="rgba(246,110,6,0.5)"/>`;
+  });
+
+  if (q.stringNum === null) {
+    const x12 = 30 + 4.5 * 106;
+    dotsSvg = `<circle cx="${x12}" cy="${30+1*28}" r="5" fill="rgba(246,110,6,0.8)"/>
+               <circle cx="${x12}" cy="${30+3*28}" r="5" fill="rgba(246,110,6,0.8)"/>`;
+  }
+
+  return `<div class="fret-display">
+    <svg viewBox="0 0 590 200" width="100%" style="max-width:520px;display:block;margin:0 auto;">
+      ${fretLines}${svgLines}${dotsSvg}
+    </svg>
+  </div>`;
+}
+
+function renderOrderQ(q, submitted) {
+  const items = submitted ? [...q.items] : shuffle([...q.items]);
+  if (!qAnswers[qIndex] || submitted) qAnswers[qIndex] = [...items];
+
+  let html = '<div class="order-list" id="orderList">';
+  (submitted ? q.items.map((_,i) => q.items[q.correct[i]]) : qAnswers[qIndex]).forEach((item, i) => {
+    let cls = 'order-item';
+    if (submitted) {
+      const actualAtPos = q.items[q.correct[i]];
+      cls += (item === actualAtPos) ? ' correct' : ' wrong';
+    }
+    html += `<div class="${cls}" draggable="true" data-idx="${i}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+      <div class="order-handle">⠿</div>
+      <div class="order-label">${i+1}</div>
+      <div class="order-text">${item}</div>
+    </div>`;
+  });
+  html += '</div>';
+  qAnswers[qIndex] = qAnswers[qIndex] || items;
+  return html;
+}
+
+let dragSrcIdx = null;
+function dragStart(e) { dragSrcIdx = parseInt(e.currentTarget.dataset.idx); }
+function dragOver(e) { e.preventDefault(); }
+function dropItem(e) {
+  e.preventDefault();
+  const destIdx = parseInt(e.currentTarget.dataset.idx);
+  if (dragSrcIdx === null || dragSrcIdx === destIdx) return;
+  const arr = qAnswers[qIndex];
+  const tmp = arr[dragSrcIdx]; arr[dragSrcIdx] = arr[destIdx]; arr[destIdx] = tmp;
+  renderQ();
+}
+
+function selectAnswer(val) {
+  if (qSubmitted[qIndex] !== undefined) return;
+  qAnswers[qIndex] = val;
+  renderQ();
+}
+
+function normalizeAnswer(s) { return s.toString().trim().toUpperCase().replace(/ING$/,'ING'); }
+
+function submitQ() {
+  const q = quizzes[activeQuiz].questions[qIndex];
+  let correct = false;
+
+  if (q.type === 'mcq' || q.type === 'tf') correct = qAnswers[qIndex] === q.a;
+  else if (q.type === 'fill') correct = normalizeAnswer(qAnswers[qIndex]||'') === q.a;
+  else if (q.type === 'fret') correct = qAnswers[qIndex] === q.a;
+  else if (q.type === 'order') {
+    const userOrder = qAnswers[qIndex];
+    const correctOrder = q.correct.map(i => q.items[i]);
+    correct = userOrder && userOrder.every((v,i) => v === correctOrder[i]);
+  }
+
+  qSubmitted[qIndex] = correct;
+  if (correct) { gainXP(15); state.totalCorrect++; }
+  state.totalAnswered++;
+  checkAchievements();
+  saveState();
+  updateStatsStrip();
+  renderQ();
+}
+
+function nextQ() {
+  const qs = quizzes[activeQuiz].questions;
+  if (qIndex < qs.length - 1) { qIndex++; renderQ(); }
+  else renderResults();
+}
+
+function prevQ() { if (qIndex > 0) { qIndex--; renderQ(); } }
+
+function renderResults() {
+  const qs = quizzes[activeQuiz].questions;
+  const total = qs.length;
+  let correct = Object.values(qSubmitted).filter(Boolean).length;
+  const pct = Math.round(correct/total*100);
+  const xpEarned = correct * 15;
+
+  state.quizzesPlayed++;
+  state.quizCounts[activeQuiz]++;
+  if (pct === 100) checkUnlock('perfect');
+  if (Object.keys(state.quizCounts).filter(k => state.quizCounts[k] > 0).length >= 4) checkUnlock('all_types');
+  if (state.quizzesPlayed === 1) checkUnlock('first_quiz');
+  saveState();
+
+  let msg = '';
+  if (pct === 100) msg = '<strong>Perfect score!</strong> You absolutely nailed it. Pick up your guitar right now — you\'re ready.';
+  else if (pct >= 80) msg = '<strong>Strong result!</strong> You clearly know your stuff. Review the ones you missed and try again.';
+  else if (pct >= 60) msg = '<strong>Getting there!</strong> Go back through the lesson module and focus on what tripped you up.';
+  else msg = '<strong>Keep at it!</strong> Every guitarist started here. Review the lessons and come back — you\'ll improve fast.';
+
+  document.getElementById('quizBody').innerHTML = `
+    <div class="results-panel">
+      <div class="results-score">${correct}/${total}</div>
+      <div class="results-pct">${pct}% correct</div>
+      <div class="xp-earned">+${xpEarned} XP earned</div>
+      <div class="results-breakdown">
+        <div class="rb-item"><div class="rb-val green">${correct}</div><div class="rb-lbl">Correct</div></div>
+        <div class="rb-item"><div class="rb-val" style="color:var(--text-muted)">/</div><div class="rb-lbl">&nbsp;</div></div>
+        <div class="rb-item"><div class="rb-val red">${total-correct}</div><div class="rb-lbl">Wrong</div></div>
+      </div>
+      <div class="results-msg">${msg}</div>
+      <div class="results-actions">
+        <button class="btn-retry" onclick="startQuiz('${activeQuiz}')">Retry</button>
+        <button class="btn-review-all" onclick="reviewAll()">Review All</button>
+        <button class="btn-back-hub" onclick="exitQuiz()">← Hub</button>
+      </div>
+    </div>`;
+  document.getElementById('qProgFill').style.width = '100%';
+  document.getElementById('qProgLabel').textContent = total + ' / ' + total;
+}
+
+function reviewAll() {
+  reviewMode = true;
+  qIndex = 0;
+  const qs = quizzes[activeQuiz].questions;
+  qs.forEach((_,i) => { qSubmitted[i] = qSubmitted[i] !== undefined ? qSubmitted[i] : false; });
+  renderQ();
+}
+
+// ─────────────────────────────────────────
+// DAILY CHALLENGE
+// ─────────────────────────────────────────
+const dailyChallenges = [
+  { id:'dc1', icon:'⚡', title:'Speed Round', desc:'Complete a True/False quiz in under 2 minutes', type:'truefalse', bonus:50, color:'var(--yellow)' },
+  { id:'dc2', icon:'🎯', title:'Accuracy Drive', desc:'Get 80% or higher on the Theory Quiz', type:'mcq', bonus:75, color:'var(--orange)' },
+  { id:'dc3', icon:'✏️', title:'Blank Master', desc:'Complete the Fill in the Blank quiz', type:'fill', bonus:60, color:'var(--purple)' },
+];
+
+function renderDaily() {
+  const list = document.getElementById('dailyChallengeList');
+  list.innerHTML = dailyChallenges.map(c => {
+    const done = state.dailyDone.includes(c.id);
+    return `<div class="challenge-card" style="${done ? 'opacity:0.6;' : ''}">
+      <div class="challenge-top">
+        <div class="challenge-icon">${c.icon}</div>
+        <div class="challenge-info">
+          <div class="challenge-label">Daily Challenge ${done?'— Completed ✓':''}</div>
+          <div class="challenge-title">${c.title}</div>
+          <div class="challenge-meta">${c.desc}</div>
+        </div>
+      </div>
+      <div class="challenge-bottom">
+        <div class="challenge-reward">+${c.bonus} <span>bonus XP</span></div>
+        ${done ? '<span style="font-size:12px;color:var(--green);font-weight:700;">✓ Done</span>'
+                : `<button class="btn-challenge" onclick="doDaily('${c.id}','${c.type}')">Start →</button>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  const cal = document.getElementById('streakCal');
+  const today = new Date().getDate();
+  cal.innerHTML = '';
+  for (let i = 1; i <= 28; i++) {
+    const d = document.createElement('div');
+    d.className = 'streak-day' + (state.streakDays.includes(i) ? ' done' : '') + (i === today ? ' today' : '');
+    d.textContent = i;
+    cal.appendChild(d);
+  }
+}
+
+function doDaily(id, type) {
+  if (!state.dailyDone.includes(id)) {
+    state.dailyDone.push(id);
+    gainXP(dailyChallenges.find(c=>c.id===id).bonus);
+    const today = new Date().getDate();
+    if (!state.streakDays.includes(today)) { state.streakDays.push(today); state.streak = Math.min(state.streak+1, 30); }
+    if (state.dailyDone.length >= 3) checkUnlock('daily_3');
+    if (state.streak >= 3) checkUnlock('streak_3');
+    saveState(); updateStatsStrip();
+  }
+  startQuiz(type);
+}
+
+// ─────────────────────────────────────────
+// EAR TRAINING
+// ─────────────────────────────────────────
+const STRINGS = [{note:'E',num:6,thick:true},{note:'A',num:5},{note:'D',num:4},{note:'G',num:3},{note:'B',num:2},{note:'e',num:1,thin:true}];
+let earSelected = null;
+let earScore = 0;
+let earCurrent = null;
+
+function initEar() {
+  earScore = 0;
+  earSelected = null;
+  earCurrent = null;
+  document.getElementById('earScore').textContent = '0';
+  renderEar();
+}
+
+function renderEar() {
+  const viz = document.getElementById('earStringViz');
+  viz.innerHTML = STRINGS.map((s, i) => {
+    const thickness = [4,3.2,2.6,2,1.4,0.8][i];
+    const isActive = earCurrent === i;
+    return `<div class="string-row">
+      <div class="string-note">${isActive ? '♪' : s.note}</div>
+      <div class="string-line${isActive ? ' played' : ''}" style="height:${thickness*2}px;border-radius:99px;cursor:pointer;"
+        onclick="playString(${i})"></div>
+      <div class="string-num">${s.num}</div>
+    </div>`;
+  }).join('');
+
+  const opts = document.getElementById('earOptions');
+  opts.innerHTML = STRINGS.map(s =>
+    `<button class="opt-btn" style="min-width:60px;justify-content:center;" onclick="guessString('${s.note}')">
+      <div class="opt-text" style="text-align:center;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;">${s.note}</div>
+    </button>`
+  ).join('');
+  document.getElementById('earExplain').className = 'explain-box';
+  document.getElementById('earExplain').innerHTML = '';
+}
+
+function playString(idx) {
+  earCurrent = idx;
+  renderEar();
+  document.getElementById('earExplain').className = 'explain-box';
+  document.getElementById('earExplain').innerHTML = '';
+}
+
+function guessString(note) {
+  if (earCurrent === null) {
+    document.getElementById('earExplain').className = 'explain-box show';
+    document.getElementById('earExplain').innerHTML = '<strong>Pick a string first!</strong> Click any string line above to "hear" it, then guess the note.';
+    return;
+  }
+  const actual = STRINGS[earCurrent];
+  const exp = document.getElementById('earExplain');
+  if (note === actual.note) {
+    earScore += 10;
+    gainXP(10);
+    document.getElementById('earScore').textContent = earScore;
+    exp.className = 'explain-box show';
+    exp.innerHTML = `<span class="correct-answer">Correct!</span> That was the <strong>${actual.note}</strong> string (string ${actual.num}). +10 XP`;
+  } else {
+    exp.className = 'explain-box show';
+    exp.innerHTML = `Not quite — that was <strong>${actual.note}</strong> (string ${actual.num}), not ${note}. Try again!`;
+  }
+  earCurrent = null;
+  renderEar();
+  saveState(); updateStatsStrip();
+}
+
+function resetEar() { initEar(); }
+
+// ─────────────────────────────────────────
+// CHORD MATCH
+// ─────────────────────────────────────────
+const CHORD_PAIRS = [
+  {a:'Em', b:'2 fingers\nAll 6 strings'},
+  {a:'Am', b:'3 fingers\nStrings 5-1'},
+  {a:'D', b:'3 fingers\nStrings 4-1'},
+  {a:'G', b:'3 fingers\nAll 6 strings'},
+  {a:'C', b:'3 fingers\nStrings 5-1'},
+  {a:'E', b:'3 fingers\nAll 6 strings'},
+  {a:'A', b:'3 fingers\nStrings 5-1'},
+  {a:'Dm', b:'3 fingers\nStrings 4-1'},
+];
+
+let matchCards = [];
+let matchFlipped = [];
+let matchMatched = [];
+let matchFlipCount = 0;
+let matchLocked = false;
+
+function initMatch() {
+  matchFlipCount = 0;
+  matchFlipped = [];
+  matchMatched = [];
+  matchLocked = false;
+  document.getElementById('matchPairs').textContent = '0';
+  document.getElementById('matchFlips').textContent = '0';
+  document.getElementById('matchMsg').textContent = '';
+
+  const pairs = CHORD_PAIRS.slice(0,8);
+  matchCards = shuffle([
+    ...pairs.map((p,i) => ({id:i*2, pairId:i, text:p.a, type:'name'})),
+    ...pairs.map((p,i) => ({id:i*2+1, pairId:i, text:p.b, type:'desc'})),
+  ]);
+  renderMatch();
+}
+
+function renderMatch() {
+  const grid = document.getElementById('matchGrid');
+  grid.innerHTML = matchCards.map((card, i) => {
+    const isMatched = matchMatched.includes(card.pairId);
+    const isFlipped = matchFlipped.includes(i) || isMatched;
+    return `<div class="chord-card-flip${isFlipped?' flipped':''}${isMatched?' matched':''}" onclick="flipCard(${i})">
+      <div class="chord-card-inner">
+        <div class="chord-face chord-face-back"><div class="q-mark">?</div></div>
+        <div class="chord-face chord-face-front" style="font-size:${card.type==='desc'?'10px':'20px'};color:${card.type==='desc'?'var(--text-muted)':'var(--orange)'};white-space:pre;text-align:center;padding:4px;">${card.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function flipCard(i) {
+  if (matchLocked) return;
+  if (matchFlipped.includes(i)) return;
+  if (matchMatched.includes(matchCards[i].pairId)) return;
+  if (matchFlipped.length >= 2) return;
+
+  matchFlipped.push(i);
+  matchFlipCount++;
+  document.getElementById('matchFlips').textContent = matchFlipCount;
+  renderMatch();
+
+  if (matchFlipped.length === 2) {
+    matchLocked = true;
+    const [a, b] = matchFlipped.map(idx => matchCards[idx]);
+    setTimeout(() => {
+      if (a.pairId === b.pairId && a.type !== b.type) {
+        matchMatched.push(a.pairId);
+        gainXP(20);
+        document.getElementById('matchPairs').textContent = matchMatched.length;
+        if (matchMatched.length === 8) {
+          checkUnlock('match_win');
+          document.getElementById('matchMsg').innerHTML = `<span style="color:var(--green);font-weight:700;">All matched! 🎉 +${8*20} XP earned in ${matchFlipCount} flips.</span>`;
+        }
+      }
+      matchFlipped = [];
+      matchLocked = false;
+      renderMatch();
+      saveState(); updateStatsStrip();
+    }, 800);
+  }
+}
+
+// ─────────────────────────────────────────
+// PROGRESS
+// ─────────────────────────────────────────
+function renderProgress() {
+  const xp = state.xp;
+  const level = Math.floor(xp / XP_PER_LEVEL) + 1;
+  const xpInLevel = xp % XP_PER_LEVEL;
+  const pct = Math.round(xpInLevel / XP_PER_LEVEL * 100);
+  const offset = Math.round(226 * (1 - pct/100));
+
+  document.getElementById('levelLabel').textContent = 'Lv.' + level;
+  document.getElementById('levelSubLabel').textContent = xpInLevel + ' / ' + XP_PER_LEVEL + ' XP to next level';
+  document.getElementById('xpRingText').textContent = level;
+  document.getElementById('xpRingCircle').setAttribute('stroke-dashoffset', offset);
+  document.getElementById('xpBarVal').textContent = xpInLevel + ' / ' + XP_PER_LEVEL;
+  document.getElementById('xpBarFill').style.width = pct + '%';
+
+  ['mcq','truefalse','fill','fret'].forEach(k => {
+    const el = document.getElementById('stat-'+k);
+    if (el) el.textContent = state.quizCounts[k] + ' played';
+  });
+
+  const grid = document.getElementById('achievementsGrid');
+  grid.innerHTML = ACHIEVEMENTS.map(a => {
+    const unlocked = state.achievements.includes(a.id);
+    return `<div class="achievement ${unlocked?'unlocked':''}" title="${a.desc}">
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-name">${a.name}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+// LEADERBOARD
+// ─────────────────────────────────────────
+const FAKE_LB = [
+  {name:'JuanPerez', xp:2340},
+  {name:'MariaSP', xp:1890},
+  {name:'GuitarKing', xp:1560},
+  {name:'You', xp:0, isYou:true},
+  {name:'LagimNgXmas', xp:920},
+  {name:'RiffMaster', xp:780},
+  {name:'AkoNaYan', xp:450},
+];
+
+function renderLeaderboard() {
+  const lb = [...FAKE_LB];
+  const youEntry = lb.find(e => e.isYou);
+  if (youEntry) youEntry.xp = state.xp;
+  lb.sort((a,b) => b.xp - a.xp);
+
+  const rankClass = ['gold','silver','bronze'];
+  const rankSymbol = ['🥇','🥈','🥉'];
+  const list = document.getElementById('lbList');
+  list.innerHTML = lb.map((e, i) => `
+    <div class="lb-row">
+      <div class="lb-rank ${rankClass[i]||''}">${i < 3 ? rankSymbol[i] : (i+1)}</div>
+      <div class="lb-avatar">${e.name[0].toUpperCase()}</div>
+      <div class="lb-name${e.isYou?' you':''}">${e.name}</div>
+      <div class="lb-xp"><span>${e.xp.toLocaleString()}</span> xp</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────
+// XP + ACHIEVEMENTS
+// ─────────────────────────────────────────
+function gainXP(amount) {
+  state.xp += amount;
+  if (state.xp >= 100) checkUnlock('xp_100');
+  if (state.xp >= 500) checkUnlock('xp_500');
+  updateStatsStrip();
+}
+
+function checkUnlock(id) { checkAchievements(); }
+
+function checkAchievements() {
+  ACHIEVEMENTS.forEach(a => {
+    if (state.achievements.includes(a.id)) return;
+    let unlock = false;
+    if (a.id === 'first_quiz' && state.quizzesPlayed >= 1) unlock = true;
+    if (a.id === 'streak_3' && state.streak >= 3) unlock = true;
+    if (a.id === 'xp_100' && state.xp >= 100) unlock = true;
+    if (a.id === 'xp_500' && state.xp >= 500) unlock = true;
+    if (a.id === 'match_win' && matchMatched.length === 8) unlock = true;
+    if (a.id === 'daily_3' && state.dailyDone.length >= 3) unlock = true;
+    if (a.id === 'all_types' && Object.keys(state.quizCounts).filter(k=>state.quizCounts[k]>0).length >= 4) unlock = true;
+    if (unlock) { state.achievements.push(a.id); gainXP(a.xp); }
+  });
+}
+
+function updateStatsStrip() {
+  document.getElementById('statXP').innerHTML = state.xp + '<span>xp</span>';
+  document.getElementById('statStreak').innerHTML = state.streak + '<span>🔥</span>';
+  document.getElementById('statQuizzes').textContent = state.quizzesPlayed;
+  const acc = state.totalAnswered > 0 ? Math.round(state.totalCorrect / state.totalAnswered * 100) + '%' : '—%';
+  document.getElementById('statAccuracy').textContent = acc;
+}
+
+// ─────────────────────────────────────────
+// PERSISTENCE
+// ─────────────────────────────────────────
+function saveState() {
+  try { localStorage.setItem('guitarify_practice', JSON.stringify(state)); } catch(e){}
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('guitarify_practice');
+    if (s) { state = { ...state, ...JSON.parse(s) }; }
+  } catch(e){}
+}
+
+// ─────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+loadState();
+updateStatsStrip();
+initMatch();
+</script>
+</body>
+</html>

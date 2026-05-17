@@ -1,110 +1,169 @@
 <?php
-// ══════════════════════════════════════
-//  GUITARIFY — auth.php
-//  Handles login and signup via POST
-// ══════════════════════════════════════
-
-header('Content-Type: text/plain; charset=utf-8');
+session_start();
+header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET');
+header('Access-Control-Allow-Headers: Content-Type');
 
 require_once 'db.php';
 
-// ── Sanitize helper ──
-function clean($str) {
-    return htmlspecialchars(strip_tags(trim($str)));
-}
+$raw    = file_get_contents('php://input');
+$input  = json_decode($raw, true);
+if (!is_array($input)) $input = [];
+$data   = array_merge($_POST, $input);
+$action = isset($_GET['action']) ? $_GET['action'] : (isset($data['action']) ? $data['action'] : '');
 
-// ── SIGNUP ──
-if (isset($_POST['signup_submit'])) {
-    $name    = clean($_POST['signupName']    ?? '');
-    $email   = clean($_POST['signupEmail']   ?? '');
-    $pass    = $_POST['signupPassword']      ?? '';
+switch ($action) {
 
-    if (!$name || !$email || !$pass) {
-        echo 'Please fill in all fields.';
+    case 'signup':
+    $name     = trim($data['name'] ?? '');
+    $email    = strtolower(trim($data['email'] ?? ''));
+    $password = $data['password'] ?? '';
+
+    if (!$name || !$email || !$password) {
+        echo json_encode(['success' => false, 'message' => 'Please fill in all fields.']);
         exit;
     }
-
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo 'Invalid email address.';
+        echo json_encode(['success' => false, 'message' => 'Invalid email address.']);
+        exit;
+    }
+    if (strlen($password) < 6) {
+        echo json_encode(['success' => false, 'message' => 'Password must be at least 6 characters.']);
         exit;
     }
 
-    if (strlen($pass) < 6) {
-        echo 'Password must be at least 6 characters.';
-        exit;
-    }
+    $db = getDB();
 
-    $db   = getDB();
-    $hash = password_hash($pass, PASSWORD_BCRYPT);
+    $check = $db->prepare("SELECT id FROM users WHERE email = ?");
+    $check->bind_param('s', $email);
+    $check->execute();
+    $check->store_result();
 
-    // Check if email already exists
-    $chk = $db->prepare('SELECT id FROM users WHERE email = ?');
-    $chk->bind_param('s', $email);
-    $chk->execute();
-    $chk->store_result();
-
-    if ($chk->num_rows > 0) {
-        echo 'Email already registered. Please log in.';
-        $chk->close();
+    if ($check->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'Email already registered.']);
+        $check->close();
         $db->close();
         exit;
     }
-    $chk->close();
+    $check->close();
 
-    // Insert new user
-    $stmt = $db->prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
-    $stmt->bind_param('sss', $name, $email, $hash);
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $stmt   = $db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'student')");
+    $stmt->bind_param('sss', $name, $email, $hashed);
 
     if ($stmt->execute()) {
-        echo 'success';
+        $userId = $db->insert_id;
+
+        $log = $db->prepare("INSERT INTO activity_logs (user_id, user_email, action_type, action_detail) VALUES (?, ?, 'signup', 'New account created')");
+        $log->bind_param('is', $userId, $email);
+        $log->execute();
+        $log->close();
+
+        $_SESSION['user_id']    = $userId;
+        $_SESSION['user_name']  = $name;
+        $_SESSION['user_email'] = $email;
+        $_SESSION['user_role']  = 'student';
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Account created! Welcome, ' . $name . '!',
+            'user'    => ['id' => $userId, 'name' => $name, 'email' => $email, 'role' => 'student']
+        ]);
     } else {
-        echo 'Signup failed. Please try again.';
+        echo json_encode(['success' => false, 'message' => 'Registration failed. Please try again.']);
     }
 
     $stmt->close();
     $db->close();
-    exit;
-}
+    break;
 
-// ── LOGIN ──
-if (isset($_POST['login_submit'])) {
-    $email = clean($_POST['loginEmail']    ?? '');
-    $pass  = $_POST['loginPassword']       ?? '';
+    case 'login':
+        $email    = strtolower(trim($data['email'] ?? ''));
+        $password = $data['password'] ?? '';
 
-    if (!$email || !$pass) {
-        echo 'Please fill in all fields.';
-        exit;
-    }
+        if (!$email || !$password) {
+            echo json_encode(['success' => false, 'message' => 'Please fill in all fields.']);
+            exit;
+        }
 
-    $db   = getDB();
-    $stmt = $db->prepare('SELECT id, name, password FROM users WHERE email = ?');
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 0) {
-        echo 'No account found with that email.';
+        $db   = getDB();
+        $stmt = $db->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user   = $result->fetch_assoc();
         $stmt->close();
+
+        if (!$user || !password_verify($password, $user['password'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
+            $db->close();
+            exit;
+        }
+
+        $upd = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+        $upd->bind_param('i', $user['id']);
+        $upd->execute();
+        $upd->close();
+
+        $log = $db->prepare("INSERT INTO activity_logs (user_id, user_email, action_type, action_detail) VALUES (?, ?, 'login', 'User logged in')");
+        $log->bind_param('is', $user['id'], $email);
+        $log->execute();
+        $log->close();
+
+        $_SESSION['user_id']    = $user['id'];
+        $_SESSION['user_name']  = $user['name'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_role']  = $user['role'];
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Welcome back, ' . $user['name'] . '!',
+            'user'    => [
+                'id'    => $user['id'],
+                'name'  => $user['name'],
+                'email' => $user['email'],
+                'role'  => $user['role']
+            ]
+        ]);
+
         $db->close();
-        exit;
-    }
+        break;
 
-    $stmt->bind_result($id, $name, $hash);
-    $stmt->fetch();
+    case 'logout':
+        if (isset($_SESSION['user_id'])) {
+            $db  = getDB();
+            $uid = $_SESSION['user_id'];
+            $em  = $_SESSION['user_email'];
+            $log = $db->prepare("INSERT INTO activity_logs (user_id, user_email, action_type, action_detail) VALUES (?, ?, 'logout', 'User logged out')");
+            $log->bind_param('is', $uid, $em);
+            $log->execute();
+            $log->close();
+            $db->close();
+        }
+        session_destroy();
+        echo json_encode(['success' => true, 'message' => 'Logged out successfully.']);
+        break;
 
-    if (password_verify($pass, $hash)) {
-        // Return name so JS can display it
-        echo 'success|' . $name;
-    } else {
-        echo 'Incorrect password.';
-    }
+    case 'check':
+        if (isset($_SESSION['user_id'])) {
+            echo json_encode([
+                'success'  => true,
+                'loggedIn' => true,
+                'user'     => [
+                    'id'    => $_SESSION['user_id'],
+                    'name'  => $_SESSION['user_name'],
+                    'email' => $_SESSION['user_email'],
+                    'role'  => $_SESSION['user_role']
+                ]
+            ]);
+        } else {
+            echo json_encode(['success' => true, 'loggedIn' => false]);
+        }
+        break;
 
-    $stmt->close();
-    $db->close();
-    exit;
+    default:
+        echo json_encode(['success' => false, 'message' => 'Invalid action.']);
+        break;
 }
-
-// ── Unknown request ──
-echo 'Invalid request.';
 ?>

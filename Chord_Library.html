@@ -4,8 +4,213 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chord Library — Guitarify</title>
-  <link rel="stylesheet" href="shared.css" />
-  <link rel="stylesheet" href="chord_library.css" />
+  <style>
+/* ── SHARED BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #111; color: #f0ede0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+.site { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── NAV ── */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 56px; background: #111;
+  border-bottom: 0.5px solid #2a2a2a; position: sticky; top: 0; z-index: 200;
+}
+.nav-logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: #f0ede0; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { font-size: 12px; font-weight: 600; color: #666; text-decoration: none; letter-spacing: 0.5px; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color: #f0ede0; }
+.nav-icons { position: relative; }
+.nav-user-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer; padding: 6px 10px;
+  border-radius: 6px; transition: background 0.15s;
+}
+.nav-user-btn:hover { background: #1a1a1a; }
+.nav-user-name { font-size: 12px; color: #aaa; }
+.user-dropdown {
+  display: none; position: absolute; right: 0; top: calc(100% + 8px);
+  background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 10px;
+  min-width: 200px; overflow: hidden; z-index: 300;
+}
+.user-dropdown.open { display: block; }
+.user-dropdown-header { padding: 14px 16px; border-bottom: 0.5px solid #2a2a2a; }
+.user-dropdown-name { font-size: 13px; font-weight: 700; color: #f0ede0; }
+.user-dropdown-email { font-size: 11px; color: #666; margin-top: 2px; }
+.user-dropdown-item { padding: 11px 16px; font-size: 12px; color: #aaa; cursor: pointer; transition: background 0.15s; }
+.user-dropdown-item:hover { background: #252525; color: #f0ede0; }
+.user-dropdown-item.danger { color: #e05555; }
+
+/* ── PAGE HERO ── */
+.page-hero { padding: 52px 40px 0; background: #111; border-bottom: 0.5px solid #2a2a2a; }
+.page-hero-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; color: #f66e06;
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.page-hero-tag::before { content:''; display:block; width:24px; height:1px; background:#f66e06; }
+.page-hero-title { font-size: clamp(36px,5vw,58px); font-weight:900; letter-spacing:-2px; color:#f0ede0; text-transform:uppercase; line-height:1; margin-bottom:10px; }
+.page-hero-title span { color:#f66e06; }
+.page-hero-sub { font-size:13px; color:#666; line-height:1.7; max-width:500px; margin-bottom:24px; }
+
+/* ── FILTER TABS ── */
+.cl-filter-tabs { display: flex; gap: 0; border-top: 0.5px solid #2a2a2a; margin-top: 4px; }
+.cl-tab {
+  padding: 13px 24px; font-size: 12px; font-weight: 600; color: #666;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  cursor: pointer; transition: color 0.2s, border-color 0.2s;
+}
+.cl-tab:hover { color: #aaa; }
+.cl-tab.active { color: #f66e06; border-bottom-color: #f66e06; }
+
+/* ── CHORD GRID ── */
+.cl-wrap { padding: 36px 40px 60px; }
+.cl-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+
+/* ── CHORD CARD ── */
+.cl-card {
+  background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 10px;
+  padding: 18px 14px 14px; cursor: pointer;
+  transition: transform 0.18s, border-color 0.18s;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  position: relative; overflow: hidden;
+}
+.cl-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: #f66e06; transform: scaleX(0); transition: transform 0.25s;
+}
+.cl-card:hover { transform: translateY(-4px); border-color: rgba(246,110,6,0.4); }
+.cl-card:hover::after { transform: scaleX(1); }
+.cl-card-name { font-size: 22px; font-weight: 900; color: #f0ede0; letter-spacing: -0.5px; }
+.cl-card-type { font-size: 10px; font-weight: 600; color: #f66e06; text-transform: uppercase; letter-spacing: 1px; margin-top: -6px; }
+.cl-mini-diagram { width: 100%; }
+.cl-card-learn { font-size: 11px; font-weight: 700; color: #f66e06; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+/* ── FRETBOARD TAB ── */
+.cl-tab-special { margin-left: auto; color: #f66e06 !important; border-bottom: 2px solid transparent; }
+.cl-tab-special.active { color: #f66e06 !important; border-bottom-color: #f66e06 !important; background: rgba(246,110,6,0.08); }
+
+/* ── FRETBOARD PAGE ── */
+.fretboard-page { background: #111; border: 0.5px solid #2a2a2a; border-radius: 12px; padding: 28px 28px 24px; }
+.fb-chord-title { text-align: center; font-size: 22px; font-weight: 600; color: #eee; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.fb-play-btn { background: #f66e06; border: none; color: #fff; padding: 8px 22px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+.fb-play-btn:hover { opacity: 0.85; }
+.fb-play-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.fb-status-bar { text-align: center; font-size: 12px; color: #888; margin-bottom: 12px; height: 18px; }
+.fb-fretboard-wrap { background: #222; border-radius: 8px; padding: 16px 0; overflow-x: auto; margin-bottom: 16px; }
+.fb-fret-numbers { display: flex; padding-left: 52px; margin-bottom: 6px; }
+.fb-fret-num { flex: 1; text-align: center; font-size: 11px; color: #888; min-width: 60px; }
+.fb-string-row { display: flex; align-items: center; height: 44px; }
+.fb-string-label { width: 28px; text-align: right; font-size: 12px; color: #aaa; font-weight: 600; padding-right: 6px; flex-shrink: 0; }
+.fb-string-mute  { width: 24px; text-align: center; font-size: 14px; color: #e05555; font-weight: 900; flex-shrink: 0; }
+.fb-string-line-wrap { flex: 1; position: relative; height: 44px; display: flex; align-items: center; }
+.fb-string-line { position: absolute; left: 0; right: 0; height: 2px; background: #aaa; top: 50%; transform: translateY(-50%); z-index: 1; }
+.fb-string-row:nth-child(1) .fb-string-line { height: 1px; }
+.fb-string-row:nth-child(2) .fb-string-line { height: 1.5px; }
+.fb-string-row:nth-child(3) .fb-string-line { height: 2px; }
+.fb-string-row:nth-child(4) .fb-string-line { height: 2.5px; }
+.fb-string-row:nth-child(5) .fb-string-line { height: 3px; }
+.fb-string-row:nth-child(6) .fb-string-line { height: 3.5px; }
+.fb-fret-cells { display: flex; width: 100%; position: relative; z-index: 2; }
+.fb-fret-cell { flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; min-width: 60px; position: relative; cursor: pointer; }
+.fb-fret-cell:first-child { min-width: 80px; border-right: 4px solid #888; }
+.fb-fret-cell:not(:first-child) { border-right: 1.5px solid #555; }
+.fb-fret-cell.dark-fret { background: rgba(0,0,0,0.18); }
+.fb-fret-marker { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background: #555; }
+.fb-note-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; z-index: 3; }
+.fb-note-dot.finger   { background: #f66e06; color: #fff; }
+.fb-note-dot.scale    { background: #ddd; color: #222; width: 22px; height: 22px; }
+.fb-note-dot.open-dot { background: #f66e06; border: 2px solid #fff; }
+.fb-position-btns { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; }
+.fb-pos-btn { width: 34px; height: 34px; border-radius: 4px; border: none; background: #444; color: #ccc; font-size: 13px; font-weight: 600; cursor: pointer; }
+.fb-pos-btn.active, .fb-pos-btn:hover { background: #555; color: #fff; }
+.fb-note-selector { display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 12px; border: 1px solid #333; }
+.fb-note-btn { flex: 1; padding: 10px 2px; text-align: center; font-size: 13px; font-weight: 600; background: #2a2a2a; color: #aaa; cursor: pointer; border: none; border-right: 1px solid #333; transition: background 0.15s; }
+.fb-note-btn:last-child { border-right: none; }
+.fb-note-btn.active { background: #f66e06; color: #fff; }
+.fb-note-btn:hover:not(.active) { background: #383838; color: #fff; }
+.fb-chord-type-selector { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 20px; }
+.fb-type-btn { padding: 7px 14px; border-radius: 4px; border: none; background: #2e2e2e; color: #aaa; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.fb-type-btn.active { background: #f66e06; color: #fff; }
+.fb-type-btn:hover:not(.active) { background: #3a3a3a; color: #fff; }
+.fb-bottom-row { display: flex; justify-content: space-between; align-items: center; }
+.fb-advanced-btn { padding: 8px 18px; background: #444; color: #ccc; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.fb-advanced-btn:hover { background: #555; }
+
+/* ── CHORD MODAL ── */
+.cm-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+.cm-bg.open { display: flex; }
+.cm-modal { background: #f5f0e8; border-radius: 16px; width: 100%; max-width: 640px; padding: 32px 28px 24px; position: relative; color: #1a1a1a; }
+.cm-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; font-weight: 900; color: #333; cursor: pointer; line-height: 1; }
+.cm-close:hover { color: #000; }
+.cm-title { font-size: 28px; font-weight: 900; color: #1a1a1a; text-align: center; letter-spacing: 1px; margin-bottom: 20px; }
+.cm-body { display: grid; grid-template-columns: 180px 1fr; gap: 24px; margin-bottom: 16px; }
+.cm-diagram-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.cm-diagram { background: #fff; border: 1.5px solid #ccc; border-radius: 8px; padding: 12px 10px; width: 160px; }
+.cm-fingers-label { font-size: 11px; color: #888; text-align: center; font-family: 'Courier New', monospace; }
+.cm-diagram svg { display: block; }
+.cm-info { display: flex; flex-direction: column; gap: 10px; }
+.cm-photo { width: 100%; aspect-ratio: 16/9; background: #e8e0d0; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc; }
+.cm-photo img { width:100%; height:100%; object-fit:cover; }
+.cm-photo-placeholder { font-size: 36px; }
+.cm-songs-label { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-top: 2px; }
+.cm-songs { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cm-songs li { font-size: 13px; color: #333; display: flex; align-items: center; gap: 7px; }
+.cm-songs li::before { content: '♪'; color: #888; font-size: 13px; }
+.cm-strum-btn { margin-top: 4px; width: 100%; background: #fff; border: 2px solid #2a2a2a; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 700; color: #1a1a1a; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.cm-strum-btn:hover:not(:disabled) { background: #eee; }
+.cm-strum-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cm-video-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: #fffbe6; border: 2px solid #2a2a2a; border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 900; color: #1a1a1a; text-decoration: none; transition: background 0.15s; margin-top: 4px; }
+.cm-video-btn:hover { background: #fff3b0; }
+
+/* ── VIDEO MODAL ── */
+.vm-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 400; align-items: center; justify-content: center; padding: 20px; }
+.vm-bg.open { display: flex; }
+.vm-modal { background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 14px; width: 100%; max-width: 720px; overflow: hidden; position: relative; }
+.vm-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 0.5px solid #2a2a2a; }
+.vm-header-title { font-size: 14px; font-weight: 700; color: #f0ede0; }
+.vm-header-chord { font-size: 11px; color: #f66e06; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.vm-close { background: #252525; border: 0.5px solid #333; color: #aaa; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 13px; transition: background 0.15s; }
+.vm-close:hover { background: #383838; color: #fff; }
+.vm-player { width: 100%; aspect-ratio: 16/9; background: #000; }
+.vm-player iframe { width: 100%; height: 100%; border: none; display: block; }
+.vm-player-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #555; font-size: 13px; text-align: center; padding: 40px; }
+.vm-play-icon { font-size: 48px; opacity: 0.3; }
+.vm-footer { padding: 14px 20px; border-top: 0.5px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between; }
+.vm-footer-note { font-size: 11px; color: #555; }
+.vm-yt-link { font-size: 11px; color: #f66e06; text-decoration: none; font-weight: 600; }
+.vm-yt-link:hover { text-decoration: underline; }
+
+/* ── AUTH MODAL ── */
+.auth-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+.auth-bg.open { display: flex; }
+.auth-modal { background: #1a1a1a; border: 0.5px solid #2a2a2a; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; }
+.auth-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #666; cursor: pointer; }
+.auth-tabs { display: flex; border-bottom: 0.5px solid #2a2a2a; }
+.auth-tab { flex: 1; padding: 14px; text-align: center; font-size: 13px; font-weight: 700; color: #666; cursor: pointer; transition: color 0.2s; }
+.auth-tab.active { color: #f0ede0; border-bottom: 2px solid #f66e06; }
+.auth-body { padding: 24px; }
+.auth-greeting { font-size: 22px; font-weight: 900; color: #f0ede0; margin-bottom: 4px; }
+.auth-sub { font-size: 12px; color: #666; margin-bottom: 20px; }
+.auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.auth-field label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+.auth-field input { background: #111; border: 0.5px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #f0ede0; outline: none; transition: border-color 0.2s; }
+.auth-field input:focus { border-color: #f66e06; }
+.auth-error { font-size: 12px; color: #e05555; margin-bottom: 10px; min-height: 16px; }
+.auth-submit { width: 100%; background: #f66e06; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; transition: opacity 0.2s; }
+.auth-submit:hover { opacity: 0.88; }
+.auth-divider { font-size: 12px; color: #666; text-align: center; margin-top: 16px; }
+.auth-divider span { color: #f66e06; cursor: pointer; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; border: 0.5px solid #2a2a2a; color: #f0ede0; font-size: 13px; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 600; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── FOOTER ── */
+.footer { border-top: 0.5px solid #2a2a2a; padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.footer-logo { font-size: 14px; font-weight: 900; letter-spacing: 3px; color: #333; }
+.footer-copy { font-size: 11px; color: #444; }
+  </style>
 </head>
 <body>
 <div class="site">
@@ -16,10 +221,13 @@
       <div class="nav-logo">GUITARIFY</div>
     </div>
     <div class="nav-links">
-      <a href="index.html">Home</a>
+      <a href="Home.html">Home</a>
       <a href="About.html">About</a>
       <a href="Chord_Library.html" class="active">Chord Library</a>
       <a href="lessons.html">Lesson</a>
+      <a href="Recommendations.html">Recommendations</a>
+      <a href="practice.html">Quizzes</a>
+      <a href="Enroll.html" class="enroll-link">✦ Enroll</a>
     </div>
     <div class="nav-icons">
       <button class="nav-user-btn" id="navUserBtn" onclick="handleUserIconClick()">
@@ -63,32 +271,25 @@
     <div class="cl-grid" id="chordGrid"></div>
   </div>
 
-  <!-- ══════════════════════════
-       FRETBOARD EXPLORER
-  ══════════════════════════ -->
+  <!-- FRETBOARD EXPLORER -->
   <div class="cl-wrap" id="fretboardWrap" style="display:none;">
     <div class="fretboard-page">
-
       <div class="fb-chord-title">
         <span id="fbChordName">C Minor</span>
         <button class="fb-play-btn" id="fbPlayBtn" onclick="fbPlayChord()" disabled>▶ Play Chord</button>
       </div>
       <div class="fb-status-bar" id="fbStatusBar">Loading guitar samples…</div>
-
       <div class="fb-fretboard-wrap">
         <div class="fb-fret-numbers" id="fbFretNumbers"></div>
         <div id="fbStringsArea"></div>
       </div>
-
       <div class="fb-position-btns" id="fbPosBtns"></div>
       <div class="fb-note-selector" id="fbNoteSelector"></div>
       <div class="fb-chord-type-selector" id="fbChordTypeSelector"></div>
-
       <div class="fb-bottom-row">
         <div></div>
         <button class="fb-advanced-btn" id="fbAdvancedBtn">Advanced</button>
       </div>
-
     </div>
   </div>
 
@@ -100,9 +301,7 @@
 
 </div>
 
-<!-- ══════════════════════
-     CHORD MODAL
-══════════════════════ -->
+<!-- CHORD MODAL -->
 <div class="cm-bg" id="cmBg" onclick="handleCmBgClick(event)">
   <div class="cm-modal">
     <button class="cm-close" onclick="closeCm()">✕</button>
@@ -130,9 +329,7 @@
   </div>
 </div>
 
-<!-- ══════════════════════
-     VIDEO MODAL
-══════════════════════ -->
+<!-- VIDEO MODAL -->
 <div class="vm-bg" id="vmBg" onclick="handleVmBgClick(event)">
   <div class="vm-modal">
     <div class="vm-header">
@@ -182,7 +379,646 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="auth.js"></script>
-<script src="chord_library.js"></script>
+
+<script>
+// ══════════════════════════════════════════
+//  AUTH (inline from auth.js)
+// ══════════════════════════════════════════
+let currentUser = null;
+
+function handleUserIconClick() {
+  if (currentUser) {
+    document.getElementById('userDropdown').classList.toggle('open');
+  } else {
+    openAuth();
+  }
+}
+
+function openAuth() { document.getElementById('authBg').classList.add('open'); }
+function closeAuth() { document.getElementById('authBg').classList.remove('open'); }
+function handleAuthBgClick(e) { if (e.target === document.getElementById('authBg')) closeAuth(); }
+
+function switchAuthTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+    try {
+        const res = await fetch('auth.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    const err = document.getElementById('signupError');
+    if (!name || !email || !password || !confirm) { err.textContent = 'Please fill in all fields.'; return; }
+    if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    try {
+        const res = await fetch('auth.php?action=signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            updateNavUser();
+            closeAuth();
+            showToast(data.message);
+        } else {
+            err.textContent = data.message;
+        }
+    } catch(e) {
+        err.textContent = 'Connection error. Make sure XAMPP is running.';
+    }
+}
+
+async function logout() {
+    try { await fetch('auth.php?action=logout'); } catch(e) {}
+    currentUser = null;
+    updateNavUser();
+    document.getElementById('userDropdown').classList.remove('open');
+    showToast('Logged out.');
+}
+
+function updateNavUser() {
+  const nameEl = document.getElementById('navUserName');
+  const dropName = document.getElementById('dropdownName');
+  const dropEmail = document.getElementById('dropdownEmail');
+  if (currentUser) {
+    nameEl.textContent = currentUser.name;
+    dropName.textContent = currentUser.name;
+    dropEmail.textContent = currentUser.email;
+  } else {
+    nameEl.textContent = '';
+    dropName.textContent = '–';
+    dropEmail.textContent = '–';
+  }
+}
+
+async function checkSession() {
+    try {
+        const res = await fetch('auth.php?action=check');
+        const data = await res.json();
+        if (data.loggedIn && data.user) {
+            currentUser = data.user;
+            updateNavUser();
+        }
+    } catch(e) {}
+}
+
+checkSession();
+
+// ══════════════════════════════════════════
+//  CHORD DATA
+// ══════════════════════════════════════════
+const CHORDS = [
+  { name: 'G', type: 'major', label: 'G Major', fingers: [{s:6,f:3,fn:2},{s:5,f:2,fn:1},{s:1,f:3,fn:3}], muted: [], open: [4,3,2], shape: '320003', songs: ['Leaving on a Jet Plane', 'Knockin on Heavens Door', 'Country Roads'], youtubeId: 'OZEKdNBl5OA', photo: '' },
+  { name: 'C', type: 'major', label: 'C Major', fingers: [{s:5,f:3,fn:3},{s:4,f:2,fn:2},{s:2,f:1,fn:1}], muted: [6], open: [3,1], shape: 'x32010', songs: ['Let Her Go', 'Hallelujah', 'Stand By Me'], youtubeId: 'aWAHGIa4AJM', photo: '' },
+  { name: 'D', type: 'major', label: 'D Major', fingers: [{s:3,f:2,fn:1},{s:1,f:2,fn:2},{s:2,f:3,fn:3}], muted: [6,5], open: [4], shape: 'xx0232', songs: ['Wonderwall', 'Brown Eyed Girl', 'Sweet Home Alabama'], youtubeId: 'aWAHGIa4AJM', photo: '' },
+  { name: 'E', type: 'major', label: 'E Major', fingers: [{s:5,f:2,fn:2},{s:4,f:2,fn:3},{s:3,f:1,fn:1}], muted: [], open: [6,2,1], shape: '022100', songs: ['Smells Like Teen Spirit', 'Purple Haze', 'Back in Black'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'A', type: 'major', label: 'A Major', fingers: [{s:4,f:2,fn:1},{s:3,f:2,fn:2},{s:2,f:2,fn:3}], muted: [6], open: [5,1], shape: 'x02220', songs: ['Wish You Were Here', 'Hotel California', 'Sweet Child O Mine'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'F', type: 'major', label: 'F Major', fingers: [{s:6,f:1,fn:1,barre:true},{s:5,f:3,fn:3},{s:4,f:3,fn:4},{s:3,f:2,fn:2}], muted: [], open: [], barre: {fret:1, from:1, to:6}, shape: '133211', songs: ['Let Her Go', 'Wonderwall', 'No Woman No Cry'], youtubeId: '0YFlJQHLWlU', photo: '' },
+  { name: 'Em', type: 'minor', label: 'E Minor', fingers: [{s:5,f:2,fn:2},{s:4,f:2,fn:3}], muted: [], open: [6,3,2,1], shape: '022000', songs: ['Wonderwall', 'Horse With No Name', 'Nothing Else Matters'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'Am', type: 'minor', label: 'A Minor', fingers: [{s:4,f:2,fn:2},{s:3,f:2,fn:3},{s:2,f:1,fn:1}], muted: [6], open: [5,1], shape: 'x02210', songs: ['Stairway to Heaven', 'The Sound of Silence', 'Harana'], youtubeId: 'aWAHGIa4AJM', photo: '' },
+  { name: 'Dm', type: 'minor', label: 'D Minor', fingers: [{s:4,f:0,fn:null},{s:3,f:2,fn:2},{s:2,f:3,fn:3},{s:1,f:1,fn:1}], muted: [6,5], open: [4], shape: 'xx0231', songs: ['Losing My Religion', 'Eleanor Rigby', 'House of the Rising Sun'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'Gm', type: 'minor', label: 'G Minor', fingers: [{s:6,f:3,fn:3},{s:5,f:5,fn:4},{s:4,f:5,fn:4},{s:3,f:3,fn:2}], muted: [], open: [], barre: {fret:3, from:1, to:6}, shape: '355333', songs: ['Huling El Bimbo', 'Alapaap', 'Tadhana'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'Bm', type: 'minor', label: 'B Minor', fingers: [{s:5,f:2,fn:1},{s:4,f:4,fn:3},{s:3,f:4,fn:4},{s:2,f:3,fn:2}], muted: [6], open: [], barre: {fret:2, from:1, to:5}, shape: 'x24432', songs: ['Wonderwall', 'Let Her Go', 'Stay With Me'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'Cm', type: 'minor', label: 'C Minor', fingers: [{s:5,f:3,fn:3},{s:4,f:5,fn:4},{s:3,f:5,fn:4},{s:2,f:4,fn:2}], muted: [6], open: [], barre: {fret:3, from:1, to:5}, shape: 'x35543', songs: ['Chandelier', 'Someone Like You', 'The Night We Met'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'G7', type: '7th', label: 'G7', fingers: [{s:6,f:3,fn:3},{s:5,f:2,fn:2},{s:1,f:1,fn:1}], muted: [], open: [4,3,2], shape: '320001', songs: ['Twist and Shout', 'La Bamba', 'Johnny B. Goode'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'C7', type: '7th', label: 'C7', fingers: [{s:5,f:3,fn:3},{s:4,f:2,fn:2},{s:2,f:1,fn:1},{s:3,f:3,fn:4}], muted: [6], open: [1], shape: 'x32310', songs: ['Blue Suede Shoes', 'Rock Around the Clock', 'Roll Over Beethoven'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'D7', type: '7th', label: 'D7', fingers: [{s:4,f:0,fn:null},{s:3,f:2,fn:2},{s:2,f:1,fn:1},{s:1,f:2,fn:3}], muted: [6,5], open: [4], shape: 'xx0212', songs: ['Brown Eyed Girl', 'Knockin on Heavens Door', 'Royals'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'E7', type: '7th', label: 'E7', fingers: [{s:5,f:2,fn:2},{s:3,f:1,fn:1}], muted: [], open: [6,4,2,1], shape: '020100', songs: ['Lay Down Sally', 'Crossroads', 'Pride and Joy'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'A7', type: '7th', label: 'A7', fingers: [{s:4,f:2,fn:2},{s:2,f:2,fn:3}], muted: [6], open: [5,3,1], shape: 'x02020', songs: ['She Loves You', 'From Me to You', 'P.S. I Love You'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'B7', type: '7th', label: 'B7', fingers: [{s:5,f:2,fn:1},{s:3,f:2,fn:2},{s:1,f:2,fn:3},{s:4,f:4,fn:4}], muted: [6], open: [], shape: 'x21202', songs: ['Norwegian Wood', 'Love Me Do', 'Day Tripper'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'Cadd9', type: 'other', label: 'Cadd9', fingers: [{s:5,f:3,fn:3},{s:4,f:2,fn:2},{s:2,f:3,fn:4}], muted: [6], open: [3,1], shape: 'x32033', songs: ['Wonderwall', 'Champagne Supernova', 'Mr. Jones'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+  { name: 'Dsus2', type: 'other', label: 'Dsus2', fingers: [{s:3,f:2,fn:1},{s:2,f:3,fn:3}], muted: [6,5], open: [4,1], shape: 'xx0230', songs: ['Creep', 'With or Without You', 'Bad Moon Rising'], youtubeId: 'BBz-Jyr23M4', photo: '' },
+];
+
+// ── AUDIO ──
+const OPEN_MIDI = [64,59,55,50,45,40];
+let audioCtx = null, wafPlayer = null, guitarFont = null, soundReady = false;
+let currentChord = null;
+
+function loadAudio() {
+  const lib = document.createElement('script');
+  lib.src = 'https://cdn.jsdelivr.net/npm/webaudiofont@2.3.1/npm/dist/WebAudioFontPlayer.js';
+  lib.onload = () => {
+    const font = document.createElement('script');
+    font.src = 'https://cdn.jsdelivr.net/npm/webaudiofont@2.3.1/npm/dist/R/0240_Guitar_sf2_file.js';
+    font.onload = () => {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        wafPlayer = new WebAudioFontPlayer();
+        const fontKey = Object.keys(window).find(k => k.match(/^_\d+_Guitar/));
+        if (fontKey) {
+          guitarFont = window[fontKey];
+          wafPlayer.loader.decodeAfterLoading(audioCtx, fontKey);
+          soundReady = 'font';
+        } else { soundReady = 'synth'; }
+        document.getElementById('cmStrumBtn').disabled = false;
+      } catch(e) { soundReady = 'synth'; document.getElementById('cmStrumBtn').disabled = false; }
+    };
+    font.onerror = () => { soundReady = 'synth'; document.getElementById('cmStrumBtn').disabled = false; };
+    document.head.appendChild(font);
+  };
+  lib.onerror = () => { soundReady = 'synth'; document.getElementById('cmStrumBtn').disabled = false; };
+  document.head.appendChild(lib);
+}
+
+function strumChord() {
+  if (!currentChord) return;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const shape = currentChord.shape;
+  const notes = [];
+  for (let i = 0; i < shape.length; i++) {
+    const c = shape[i];
+    if (c === 'x') continue;
+    const fret = parseInt(c) || 0;
+    const midi = OPEN_MIDI[5 - i] + fret;
+    notes.push(midi);
+  }
+  notes.forEach((midi, i) => {
+    if (soundReady === 'font' && wafPlayer && guitarFont) {
+      setTimeout(() => { try { wafPlayer.queueWaveTable(audioCtx, audioCtx.destination, guitarFont, audioCtx.currentTime, midi, 2.0, 0.7); } catch(e) { synthNote(midi, 0); } }, i * 55);
+    } else { synthNote(midi, i * 0.055); }
+  });
+}
+
+function synthNote(midi, delay) {
+  if (!audioCtx) return;
+  const freq = 440 * Math.pow(2, (midi - 69) / 12);
+  const t = audioCtx.currentTime + delay;
+  const osc = audioCtx.createOscillator(), osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain(), filt = audioCtx.createBiquadFilter();
+  osc.type = 'sawtooth'; osc.frequency.value = freq;
+  osc2.type = 'triangle'; osc2.frequency.value = freq * 2.005;
+  filt.type = 'lowpass';
+  filt.frequency.setValueAtTime(5000, t);
+  filt.frequency.exponentialRampToValueAtTime(600, t + 0.4);
+  osc.connect(filt); osc2.connect(filt); filt.connect(gain); gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.2, t + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 2.0);
+  osc.start(t); osc2.start(t); osc.stop(t + 2.0); osc2.stop(t + 2.0);
+}
+
+// ── SVG CHORD DIAGRAM ──
+function buildDiagramSVG(chord) {
+  const FRETS = 5, STRINGS = 6, W = 140, H = 130;
+  const LEFT = 28, TOP = 28, RIGHT = W - 10, BOT = TOP + (FRETS * 20);
+  const CELL_W = (RIGHT - LEFT) / (STRINGS - 1), CELL_H = 20;
+  const fretNums = chord.fingers.filter(f => f.f > 0).map(f => f.f);
+  const minFret = fretNums.length ? Math.min(...fretNums) : 1;
+  const startFret = minFret > 1 ? minFret : 1;
+  let svg = `<svg width="${W}" height="${H + 20}" viewBox="0 0 ${W} ${H + 20}" xmlns="http://www.w3.org/2000/svg">`;
+  if (startFret === 1) {
+    svg += `<rect x="${LEFT}" y="${TOP - 4}" width="${RIGHT - LEFT}" height="5" rx="2" fill="#1a1a1a"/>`;
+  } else {
+    svg += `<text x="${RIGHT + 6}" y="${TOP + 10}" font-size="10" fill="#888">${startFret}fr</text>`;
+  }
+  for (let f = 0; f <= FRETS; f++) {
+    const y = TOP + f * CELL_H;
+    svg += `<line x1="${LEFT}" y1="${y}" x2="${RIGHT}" y2="${y}" stroke="#ccc" stroke-width="${f === 0 ? 2 : 1}"/>`;
+  }
+  for (let s = 0; s < STRINGS; s++) {
+    const x = LEFT + s * CELL_W;
+    svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${BOT}" stroke="#888" stroke-width="${1 + s * 0.2}"/>`;
+  }
+  if (chord.barre) {
+    const bf = chord.barre.fret - startFret + 1;
+    const x1 = LEFT + (STRINGS - chord.barre.to) * CELL_W;
+    const x2 = LEFT + (STRINGS - chord.barre.from) * CELL_W;
+    const y = TOP + (bf - 0.5) * CELL_H;
+    svg += `<rect x="${x1 - 10}" y="${y - 10}" width="${x2 - x1 + 20}" height="20" rx="10" fill="#1a1a1a" opacity="0.85"/>`;
+  }
+  chord.fingers.forEach(f => {
+    if (f.f === 0 || !f.fn) return;
+    const relFret = f.f - startFret + 1;
+    if (relFret < 1 || relFret > FRETS) return;
+    const x = LEFT + (STRINGS - f.s) * CELL_W;
+    const y = TOP + (relFret - 0.5) * CELL_H;
+    svg += `<circle cx="${x}" cy="${y}" r="9" fill="#f66e06"/>`;
+    svg += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${f.fn}</text>`;
+  });
+  for (let s = 0; s < STRINGS; s++) {
+    const x = LEFT + s * CELL_W;
+    const strNum = STRINGS - s;
+    const isMuted = chord.muted.includes(strNum);
+    const isOpen  = chord.open.includes(strNum);
+    if (isMuted) {
+      svg += `<text x="${x}" y="${TOP - 8}" text-anchor="middle" font-size="12" font-weight="900" fill="#e05555">✕</text>`;
+    } else if (isOpen) {
+      svg += `<circle cx="${x}" cy="${TOP - 9}" r="5" fill="none" stroke="#555" stroke-width="1.5"/>`;
+    }
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+function buildMiniDiagram(chord) {
+  const FRETS = 4, STRINGS = 6, W = 110, LEFT = 16, TOP = 16;
+  const CELL_W = (W - LEFT - 10) / (STRINGS - 1), CELL_H = 14, BOT = TOP + FRETS * CELL_H;
+  const fretNums = chord.fingers.filter(f => f.f > 0).map(f => f.f);
+  const startFret = fretNums.length ? Math.min(...fretNums) : 1;
+  let svg = `<svg width="${W}" height="${BOT + 20}" viewBox="0 0 ${W} ${BOT + 20}" xmlns="http://www.w3.org/2000/svg">`;
+  if (startFret === 1) svg += `<rect x="${LEFT}" y="${TOP - 3}" width="${W - LEFT - 10}" height="4" rx="1" fill="#333"/>`;
+  for (let f = 0; f <= FRETS; f++) { const y = TOP + f * CELL_H; svg += `<line x1="${LEFT}" y1="${y}" x2="${W-10}" y2="${y}" stroke="#444" stroke-width="0.8"/>`; }
+  for (let s = 0; s < STRINGS; s++) { const x = LEFT + s * CELL_W; svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${BOT}" stroke="#555" stroke-width="0.8"/>`; }
+  chord.fingers.forEach(f => {
+    if (f.f === 0 || !f.fn) return;
+    const rel = f.f - startFret + 1;
+    if (rel < 1 || rel > FRETS) return;
+    const x = LEFT + (STRINGS - f.s) * CELL_W;
+    const y = TOP + (rel - 0.5) * CELL_H;
+    svg += `<circle cx="${x}" cy="${y}" r="6" fill="#f66e06"/>`;
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+// ── RENDER CHORD CARDS ──
+function renderCards(filter) {
+  const grid = document.getElementById('chordGrid');
+  grid.innerHTML = '';
+  const list = filter === 'all' ? CHORDS : CHORDS.filter(c => c.type === filter);
+  list.forEach(chord => {
+    const card = document.createElement('div');
+    card.className = 'cl-card';
+    card.onclick = () => openModal(chord);
+    card.innerHTML = `
+      <div class="cl-card-name">${chord.name}</div>
+      <div class="cl-card-type">${chord.label}</div>
+      <div class="cl-mini-diagram">${buildMiniDiagram(chord)}</div>
+      <div class="cl-card-learn">Learn →</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ── MODAL ──
+function openModal(chord) {
+  currentChord = chord;
+  document.getElementById('cmTitle').textContent = chord.label.toUpperCase();
+  document.getElementById('cmDiagram').innerHTML = buildDiagramSVG(chord);
+  document.getElementById('cmFingers').textContent = chord.shape;
+  const img = document.getElementById('cmPhotoImg');
+  const placeholder = document.getElementById('cmPhotoPlaceholder');
+  if (chord.photo) { img.src = chord.photo; img.style.display = 'block'; placeholder.style.display = 'none'; }
+  else { img.style.display = 'none'; placeholder.style.display = 'block'; }
+  const songsList = document.getElementById('cmSongs');
+  songsList.innerHTML = chord.songs.map(s => `<li>${s}</li>`).join('');
+  document.getElementById('cmVideoBtn').href = `https://www.youtube.com/watch?v=${chord.youtubeId}`;
+  document.getElementById('cmBg').classList.add('open');
+}
+
+function closeCm() { document.getElementById('cmBg').classList.remove('open'); }
+function handleCmBgClick(e) { if (e.target === document.getElementById('cmBg')) closeCm(); }
+
+// ── FILTER ──
+function filterChords(filter, btn) {
+  document.querySelectorAll('.cl-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('clWrap').style.display = 'block';
+  document.getElementById('fretboardWrap').style.display = 'none';
+  renderCards(filter);
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════
+//  FRETBOARD EXPLORER
+// ══════════════════════════════════════════
+const FB_NOTES       = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FB_CHORD_TYPES = ['Major','Minor','7','5','dim','dim7','aug','sus2','sus4','maj7','m7','7sus4'];
+const FB_ADV_TYPES   = ['maj9','maj11','maj13','add9','6add9','m6','m9','m11','madd9','mmaj7','m7b5','6','9','11','13','7b5','7#5','7b9','7#9'];
+const FB_STRINGS     = ['E','B','G','D','A','E'];
+const FB_OPEN_MIDI   = [64,59,55,50,45,40];
+const FB_TOTAL_FRETS = 16;
+const FB_MARKERS     = [3,5,7,9,12,15];
+
+const FB_CHORD_DATA = {
+  'C_Major': { f:[{s:1,n:0,open:true},{s:2,n:1,fn:2},{s:3,n:0,open:true},{s:4,n:2,fn:3},{s:5,n:3,fn:4}], m:[5] },
+  'C_Minor': { f:[{s:1,n:3,fn:4},{s:2,n:1,fn:2},{s:3,n:0,open:true},{s:4,n:1,fn:1},{s:5,n:3,fn:3}], m:[5] },
+  'C_7':     { f:[{s:1,n:0,open:true},{s:2,n:1,fn:2},{s:3,n:3,fn:4},{s:4,n:2,fn:3},{s:5,n:3,fn:4}], m:[5] },
+  'C_5':     { f:[{s:3,n:2,fn:2},{s:4,n:3,fn:3}], m:[0,1,2,5] },
+  'C_dim':   { f:[{s:1,n:2,fn:2},{s:2,n:1,fn:1},{s:3,n:2,fn:3},{s:4,n:3,fn:4}], m:[4,5] },
+  'C_dim7':  { f:[{s:1,n:2,fn:2},{s:2,n:1,fn:1},{s:3,n:2,fn:3},{s:4,n:3,fn:4},{s:5,n:2,fn:2}], m:[5] },
+  'C_aug':   { f:[{s:1,n:1,fn:1},{s:2,n:1,fn:1},{s:3,n:1,fn:1},{s:4,n:2,fn:2},{s:5,n:3,fn:3}], m:[5] },
+  'C_sus2':  { f:[{s:1,n:0,open:true},{s:2,n:3,fn:4},{s:3,n:0,open:true},{s:4,n:2,fn:2},{s:5,n:3,fn:3}], m:[5] },
+  'C_sus4':  { f:[{s:1,n:1,fn:1},{s:2,n:1,fn:1},{s:3,n:0,open:true},{s:4,n:3,fn:3},{s:5,n:3,fn:4}], m:[5] },
+  'C_maj7':  { f:[{s:1,n:0,open:true},{s:2,n:0,open:true},{s:3,n:0,open:true},{s:4,n:2,fn:2},{s:5,n:3,fn:3}], m:[5] },
+  'C_m7':    { f:[{s:1,n:3,fn:4},{s:2,n:1,fn:1},{s:3,n:3,fn:4},{s:4,n:1,fn:1},{s:5,n:3,fn:3}], m:[5] },
+  'C_7sus4': { f:[{s:1,n:1,fn:1},{s:2,n:1,fn:1},{s:3,n:3,fn:4},{s:4,n:2,fn:2},{s:5,n:3,fn:3}], m:[5] },
+};
+
+let fbSelNote = 'C', fbSelType = 'Minor', fbCurPos = 1, fbAdvMode = false;
+let fbAudioCtx = null, fbWafPlayer = null, fbGuitarFont = null, fbSoundReady = false;
+let fbInitialized = false;
+
+function showFretboard(btn) {
+  document.querySelectorAll('.cl-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('clWrap').style.display = 'none';
+  document.getElementById('fretboardWrap').style.display = 'block';
+  if (!fbInitialized) {
+    fbInitialized = true;
+    fbBuildFretNumbers();
+    fbBuildFretboard();
+    fbBuildPosBtns();
+    fbBuildNotes();
+    fbBuildTypes();
+    fbLoadSamples();
+    document.getElementById('fbAdvancedBtn').onclick = () => {
+      fbAdvMode = !fbAdvMode;
+      document.getElementById('fbAdvancedBtn').textContent = fbAdvMode ? 'Common' : 'Advanced';
+      fbBuildTypes();
+    };
+  }
+}
+
+function fbLoadSamples() {
+  const lib = document.createElement('script');
+  lib.src = 'https://cdn.jsdelivr.net/npm/webaudiofont@2.3.1/npm/dist/WebAudioFontPlayer.js';
+  lib.onload = () => {
+    const font = document.createElement('script');
+    font.src = 'https://cdn.jsdelivr.net/npm/webaudiofont@2.3.1/npm/dist/R/0240_Guitar_sf2_file.js';
+    font.onload = () => {
+      try {
+        fbAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        fbWafPlayer = new WebAudioFontPlayer();
+        const fontKey = Object.keys(window).find(k => k.match(/^_\d+_Guitar/));
+        if (fontKey) {
+          fbGuitarFont = window[fontKey];
+          fbWafPlayer.loader.decodeAfterLoading(fbAudioCtx, fontKey);
+          fbSetStatus('✓ Guitar samples loaded!', '#4caf50');
+          document.getElementById('fbPlayBtn').disabled = false;
+          fbSoundReady = 'font';
+        } else { fbUseSynth(); }
+      } catch(e) { fbUseSynth(); }
+    };
+    font.onerror = fbUseSynth;
+    document.head.appendChild(font);
+  };
+  lib.onerror = fbUseSynth;
+  document.head.appendChild(lib);
+}
+
+function fbUseSynth() {
+  if (!fbAudioCtx) fbAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  fbSoundReady = 'synth';
+  document.getElementById('fbPlayBtn').disabled = false;
+  fbSetStatus('⚠ Using synthesized sound', '#f66e06');
+  setTimeout(() => fbSetStatus(''), 3000);
+}
+
+function fbSetStatus(msg, color) {
+  const el = document.getElementById('fbStatusBar');
+  el.textContent = msg;
+  el.style.color = color || '#888';
+}
+
+function fbPlayChord() {
+  if (!fbAudioCtx) fbAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (fbAudioCtx.state === 'suspended') fbAudioCtx.resume();
+  const chord = fbGetChord();
+  const muted = new Set(chord.m || []);
+  const notes = [];
+  for (let si = 5; si >= 0; si--) {
+    if (muted.has(si)) continue;
+    const fd = chord.f.find(x => x.s === si);
+    if (!fd) continue;
+    notes.push(FB_OPEN_MIDI[si] + fd.n);
+  }
+  notes.forEach((midi, i) => {
+    if (fbSoundReady === 'font' && fbWafPlayer && fbGuitarFont) {
+      setTimeout(() => { try { fbWafPlayer.queueWaveTable(fbAudioCtx, fbAudioCtx.destination, fbGuitarFont, fbAudioCtx.currentTime, midi, 2.0, 0.75); } catch(e) { fbSynthNote(midi, 0); } }, i * 55);
+    } else { fbSynthNote(midi, i * 0.055); }
+  });
+}
+
+function fbSynthNote(midi, delay) {
+  if (!fbAudioCtx) return;
+  const freq = 440 * Math.pow(2, (midi - 69) / 12);
+  const t = fbAudioCtx.currentTime + delay;
+  const osc = fbAudioCtx.createOscillator(), osc2 = fbAudioCtx.createOscillator();
+  const gain = fbAudioCtx.createGain(), filt = fbAudioCtx.createBiquadFilter();
+  osc.type = 'sawtooth'; osc.frequency.value = freq;
+  osc2.type = 'triangle'; osc2.frequency.value = freq * 2.005;
+  filt.type = 'lowpass';
+  filt.frequency.setValueAtTime(5000, t);
+  filt.frequency.exponentialRampToValueAtTime(600, t + 0.4);
+  osc.connect(filt); osc2.connect(filt); filt.connect(gain); gain.connect(fbAudioCtx.destination);
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.22, t + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.05, t + 0.15);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 2.0);
+  osc.start(t); osc2.start(t); osc.stop(t + 2.0); osc2.stop(t + 2.0);
+}
+
+function fbGetChord() {
+  const key = fbSelNote + '_' + fbSelType;
+  const base = FB_CHORD_DATA[key] || FB_CHORD_DATA['C_' + fbSelType] || FB_CHORD_DATA['C_Minor'];
+  const shift = FB_NOTES.indexOf(fbSelNote);
+  if (shift === 0) return base;
+  const c = JSON.parse(JSON.stringify(base));
+  c.f = c.f.map(x => ({ ...x, n: x.open ? 0 : Math.max(0, x.n + shift) }));
+  return c;
+}
+
+function fbBuildFretNumbers() {
+  const el = document.getElementById('fbFretNumbers');
+  el.innerHTML = '';
+  for (let i = 0; i < FB_TOTAL_FRETS; i++) {
+    const d = document.createElement('div');
+    d.className = 'fb-fret-num'; d.textContent = i;
+    el.appendChild(d);
+  }
+}
+
+function fbBuildFretboard() {
+  const area = document.getElementById('fbStringsArea');
+  area.innerHTML = '';
+  const chord = fbGetChord();
+  const fmap = {};
+  chord.f.forEach(x => { fmap[`${x.s}_${x.n}`] = x; });
+  const muted = new Set(chord.m || []);
+  const root = FB_NOTES.indexOf(fbSelNote);
+  const intervals = (fbSelType==='Minor'||fbSelType==='m7'||fbSelType==='dim'||fbSelType==='dim7') ? [0,2,3,5,7,8,10] : [0,2,4,5,7,9,11];
+  const scale = new Set(intervals.map(i => (root+i)%12));
+
+  FB_STRINGS.forEach((name, si) => {
+    const row = document.createElement('div');
+    row.className = 'fb-string-row';
+    const lbl = document.createElement('div');
+    lbl.className = 'fb-string-label'; lbl.textContent = name;
+    row.appendChild(lbl);
+    const muteEl = document.createElement('div');
+    muteEl.className = 'fb-string-mute'; muteEl.textContent = muted.has(si) ? '✕' : '';
+    row.appendChild(muteEl);
+    const wrap = document.createElement('div');
+    wrap.className = 'fb-string-line-wrap';
+    const line = document.createElement('div'); line.className = 'fb-string-line';
+    wrap.appendChild(line);
+    const cells = document.createElement('div');
+    cells.className = 'fb-fret-cells';
+    for (let fi = 0; fi < FB_TOTAL_FRETS; fi++) {
+      const cell = document.createElement('div');
+      cell.className = 'fb-fret-cell' + (fi%2===0 ? ' dark-fret' : '');
+      if (si===3 && FB_MARKERS.includes(fi)) {
+        const mk = document.createElement('div'); mk.className = 'fb-fret-marker';
+        if (fi===12) { mk.style.left='calc(50% - 8px)'; const m2=document.createElement('div'); m2.className='fb-fret-marker'; m2.style.left='calc(50% + 4px)'; cell.appendChild(m2); }
+        cell.appendChild(mk);
+      }
+      const fd = fmap[`${si}_${fi}`];
+      if (fd) {
+        const dot = document.createElement('div');
+        dot.className = 'fb-note-dot ' + (fd.open ? 'open-dot' : 'finger');
+        dot.textContent = fd.fn || '';
+        if (fi===0) dot.style.marginLeft='-8px';
+        cell.appendChild(dot);
+      } else {
+        const noteAtFret = (FB_OPEN_MIDI[si]%12 + fi) % 12;
+        if (fi>=3 && scale.has(noteAtFret) && !chord.f.some(x=>x.s===si)) {
+          const dot = document.createElement('div');
+          dot.className = 'fb-note-dot scale';
+          cell.appendChild(dot);
+        }
+      }
+      cells.appendChild(cell);
+    }
+    wrap.appendChild(cells); row.appendChild(wrap); area.appendChild(row);
+  });
+}
+
+function fbBuildPosBtns() {
+  const el = document.getElementById('fbPosBtns'); el.innerHTML='';
+  for (let i=1;i<=4;i++) {
+    const b=document.createElement('button'); b.className='fb-pos-btn'+(i===fbCurPos?' active':'');
+    b.textContent=i; b.onclick=()=>{fbCurPos=i;fbBuildPosBtns();};
+    el.appendChild(b);
+  }
+}
+
+function fbBuildNotes() {
+  const el=document.getElementById('fbNoteSelector'); el.innerHTML='';
+  FB_NOTES.forEach(n=>{
+    const b=document.createElement('button'); b.className='fb-note-btn'+(n===fbSelNote?' active':'');
+    b.textContent=n;
+    b.onclick=()=>{fbSelNote=n;fbBuildNotes();fbBuildFretboard();fbUpdateTitle();};
+    el.appendChild(b);
+  });
+}
+
+function fbBuildTypes() {
+  const el=document.getElementById('fbChordTypeSelector'); el.innerHTML='';
+  const list=fbAdvMode?[...FB_CHORD_TYPES,...FB_ADV_TYPES]:FB_CHORD_TYPES;
+  list.forEach(t=>{
+    const b=document.createElement('button'); b.className='fb-type-btn'+(t===fbSelType?' active':'');
+    b.textContent=t;
+    b.onclick=()=>{fbSelType=t;fbBuildTypes();fbBuildFretboard();fbUpdateTitle();};
+    el.appendChild(b);
+  });
+}
+
+function fbUpdateTitle() {
+  document.getElementById('fbChordName').textContent = fbSelNote + ' ' + fbSelType;
+}
+
+// ══════════════════════════════════════════
+//  VIDEO MODAL
+// ══════════════════════════════════════════
+const CHORD_VIDEOS = {
+  'G':      { src: 'videos/G MAJOR.mp4',  title: 'G Major — Full Lesson' },
+  'C':      { src: 'videos/C.mp4',        title: 'C Major — Full Lesson' },
+  'D':      { src: 'videos/D.mp4',        title: 'D Major — Full Lesson' },
+  'E':      { src: 'videos/E.mp4',        title: 'E Major — Full Lesson' },
+  'A':      { src: 'videos/A MAJOR.mp4',  title: 'A Major — Full Lesson' },
+  'F':      { src: 'videos/F.mp4',        title: 'F Major — Full Lesson' },
+  'Em':     { src: 'videos/E MINOR.mp4',  title: 'E Minor — Full Lesson' },
+  'Am':     { src: 'videos/A MINOR.mp4',  title: 'A Minor — Full Lesson' },
+  'Dm':     { src: 'videos/D MINOR.mp4',  title: 'D Minor — Full Lesson' },
+  'Gm':     { src: 'videos/g_minor.mp4',  title: 'G Minor — Full Lesson' },
+  'Bm':     { src: 'videos/Bm.mp4',       title: 'B Minor — Full Lesson' },
+  'Cm':     { src: 'videos/C.mp4',        title: 'C Minor — Full Lesson' },
+  'G7':     { src: 'videos/G7.mp4',       title: 'G7 — Full Lesson' },
+  'C7':     { src: 'videos/c7.mp4',       title: 'C7 — Full Lesson' },
+  'D7':     { src: 'videos/d7.mp4',       title: 'D7 — Full Lesson' },
+  'E7':     { src: 'videos/e7.mp4',       title: 'E7 — Full Lesson' },
+  'A7':     { src: 'videos/A 7.mp4',      title: 'A7 — Full Lesson' },
+  'B7':     { src: 'videos/B7.mp4',       title: 'B7 — Full Lesson' },
+  'Cadd9':  { src: 'videos/Cadd9.mp4',    title: 'Cadd9 — Full Lesson' },
+  'Dsus2':  { src: 'videos/Dsus2.mp4',    title: 'Dsus2 — Full Lesson' },
+};
+
+function openVm(chord) {
+  const video = CHORD_VIDEOS[chord.name] || { src: '', title: chord.label + ' Lesson' };
+  document.getElementById('vmChordLabel').textContent = chord.label;
+  const player = document.getElementById('vmPlayer');
+  if (video.src) {
+    player.innerHTML = `<video controls autoplay style="width:100%;height:100%;background:#000;display:block;" src="${video.src}">Your browser does not support the video tag.</video>`;
+  } else {
+    player.innerHTML = `<div class="vm-player-placeholder"><div class="vm-play-icon">▶</div><div>No video added yet for <strong style="color:#f0ede0">${chord.label}</strong>.<br/>I-lagay ang video file sa <code>videos/</code> folder at i-update ang <code>CHORD_VIDEOS</code> sa <code>chord_library.js</code>.</div></div>`;
+  }
+  document.getElementById('vmYtLink').style.display = 'none';
+  document.getElementById('vmBg').classList.add('open');
+}
+
+function closeVm() {
+  document.getElementById('vmBg').classList.remove('open');
+  document.getElementById('vmPlayer').innerHTML = '';
+}
+
+function handleVmBgClick(e) {
+  if (e.target === document.getElementById('vmBg')) closeVm();
+}
+
+// ── INIT ──
+renderCards('all');
+loadAudio();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const videoBtn = document.getElementById('cmVideoBtn');
+  if (videoBtn) {
+    videoBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentChord) openVm(currentChord);
+    });
+  }
+});
+</script>
 </body>
 </html>
